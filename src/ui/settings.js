@@ -246,9 +246,13 @@ function attachSettingsListeners() {
 
   // Unit buttons
   panel.querySelectorAll('.unit-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      updateSettings({ unit: btn.dataset.unit })
+    btn.addEventListener('click', async () => {
+      const scrollContainer = panel.querySelector('.overflow-y-auto')
+      const scrollTop = scrollContainer?.scrollTop || 0
+      await updateSettings({ unit: btn.dataset.unit })
       renderSettingsPanel()
+      const newScrollContainer = panel.querySelector('.overflow-y-auto')
+      if (newScrollContainer) newScrollContainer.scrollTop = scrollTop
     })
   })
 
@@ -273,10 +277,15 @@ function attachSettingsListeners() {
 
   // Template selects (per lift)
   panel.querySelectorAll('.template-select').forEach(select => {
-    select.addEventListener('change', (e) => {
+    select.addEventListener('change', async (e) => {
       const liftId = e.target.dataset.lift
-      updateLiftSettings(liftId, { template: e.target.value })
+      const scrollContainer = panel.querySelector('.overflow-y-auto')
+      const scrollTop = scrollContainer?.scrollTop || 0
+      await updateLiftSettings(liftId, { template: e.target.value })
       renderSettingsPanel() // Re-render to show/hide suppl % input
+      // Restore scroll position
+      const newScrollContainer = panel.querySelector('.overflow-y-auto')
+      if (newScrollContainer) newScrollContainer.scrollTop = scrollTop
     })
   })
 
