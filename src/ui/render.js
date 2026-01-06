@@ -80,12 +80,12 @@ export function renderApp(container) {
  */
 function renderHeader() {
   return `
-    <header class="sticky top-0 z-10 bg-[#0a0a0a] border-b border-[#262626]">
+    <header class="sticky top-0 z-10 bg-bg border-b border-border">
       <div class="flex items-center justify-between px-4 h-14">
         <h1 class="text-xl font-bold tracking-tight">531</h1>
         <div class="flex items-center gap-3">
           ${isTimerRunning() ? `
-            <button id="timer-btn" class="flex items-center gap-2 text-[#a3a3a3] hover:text-[#fafafa] px-2 py-1 -my-1 rounded hover:bg-[#1a1a1a]">
+            <button id="timer-btn" class="flex items-center gap-2 text-text-muted hover:text-text px-2 py-1 -my-1 rounded hover:bg-bg-hover">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
@@ -96,7 +96,7 @@ function renderHeader() {
               </svg>
             </button>
           ` : ''}
-          <button id="settings-btn" class="p-2 -mr-2 text-[#a3a3a3] hover:text-[#fafafa]" aria-label="Settings">
+          <button id="settings-btn" class="p-2 -mr-2 text-text-muted hover:text-text" aria-label="Settings">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -117,14 +117,14 @@ function renderWeekTabs(currentWeek) {
   const weekLabels = ['Week 1', 'Week 2', 'Week 3', 'Deload']
 
   return `
-    <nav class="sticky top-14 z-10 bg-[#0a0a0a] border-b border-[#262626]">
+    <nav class="sticky top-14 z-10 bg-bg border-b border-border">
       <div class="flex">
         ${weeks.map((week, index) => `
           <button
             class="flex-1 py-3 text-sm font-medium text-center week-tab ${
               week === currentWeek
-                ? 'text-[#fafafa] border-b-2 border-[#fafafa]'
-                : 'text-[#525252] hover:text-[#a3a3a3]'
+                ? 'text-text border-b-2 border-text'
+                : 'text-text-dim hover:text-text-muted'
             }"
             data-week="${week}"
           >
@@ -166,18 +166,18 @@ function renderLiftCard(liftData, unit, isDeload) {
   const workSets = mainSets.filter(s => s.type === 'work')
 
   return `
-    <div class="bg-[#141414] border border-[#262626] rounded-lg overflow-hidden">
-      <div class="px-4 py-3 border-b border-[#262626]">
+    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+      <div class="px-4 py-3 border-b border-border">
         <div class="flex items-baseline justify-between">
           <h2 class="text-lg font-semibold">${LIFT_NAMES[liftId]}</h2>
-          <span class="text-sm text-[#525252]">TM: ${displayTM} ${unit}</span>
+          <span class="text-sm text-text-dim">TM: ${displayTM} ${unit}</span>
         </div>
       </div>
 
       <div class="px-4 py-3">
         ${warmupSets.length > 0 ? `
           <div class="mb-4">
-            <div class="text-xs text-[#525252] uppercase tracking-wider mb-2">Warm-up</div>
+            <div class="text-xs text-text-dim uppercase tracking-wider mb-2">Warm-up</div>
             <div class="space-y-1">
               ${warmupSets.map(set => renderSet(set, unit, true)).join('')}
             </div>
@@ -203,10 +203,10 @@ function renderSupplementalSection(liftId, supplemental, unit) {
   const allDone = completedCount >= totalSets
 
   return `
-    <div class="mt-4 pt-3 border-t border-[#262626]">
+    <div class="mt-4 pt-3 border-t border-border">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-sm text-[#a3a3a3]">${supplemental.templateName}</span>
-        <span class="text-xs text-[#525252]">${completedCount}/${totalSets} sets</span>
+        <span class="text-sm text-text-muted">${supplemental.templateName}</span>
+        <span class="text-xs text-text-dim">${completedCount}/${totalSets} sets</span>
       </div>
 
       <div class="flex items-center justify-between mb-3">
@@ -218,7 +218,7 @@ function renderSupplementalSection(liftId, supplemental, unit) {
           const isDone = i < completedCount
           return `
             <button
-              class="set-indicator flex-1 h-2 rounded-full ${isDone ? 'bg-[#fafafa]' : 'bg-[#262626]'}"
+              class="set-indicator flex-1 h-2 rounded-full ${isDone ? 'bg-text' : 'bg-border'}"
               data-lift="${liftId}"
               data-set="${i}"
               ${isDone ? 'disabled' : ''}
@@ -230,7 +230,7 @@ function renderSupplementalSection(liftId, supplemental, unit) {
       <div class="flex gap-2 mt-3">
         ${!allDone ? `
           <button
-            class="set-done-btn flex-1 py-2 px-4 bg-[#262626] hover:bg-[#333] text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+            class="set-done-btn flex-1 py-2 px-4 bg-border hover:bg-border-hover text-sm font-medium rounded-lg flex items-center justify-center gap-2"
             data-lift="${liftId}"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -240,7 +240,7 @@ function renderSupplementalSection(liftId, supplemental, unit) {
           </button>
         ` : `
           <button
-            class="set-reset-btn flex-1 py-2 px-4 bg-[#1a1a1a] text-[#525252] hover:text-[#a3a3a3] text-sm font-medium rounded-lg"
+            class="set-reset-btn flex-1 py-2 px-4 bg-bg-hover text-text-dim hover:text-text-muted text-sm font-medium rounded-lg"
             data-lift="${liftId}"
           >
             Reset
@@ -258,14 +258,14 @@ function renderSupplementalSection(liftId, supplemental, unit) {
  * @param {boolean} isWarmup - Whether this is a warmup set
  */
 function renderSet(set, unit, isWarmup) {
-  const textColor = isWarmup ? 'text-[#525252]' : 'text-[#fafafa]'
+  const textColor = isWarmup ? 'text-text-dim' : 'text-text'
   const repDisplay = set.isAmrap
-    ? `<span class="text-[#a3a3a3]">${set.reps}</span>`
+    ? `<span class="text-text-muted">${set.reps}</span>`
     : set.reps
 
   return `
     <div class="flex items-center justify-between py-1 ${textColor}">
-      <span class="w-16 text-sm text-[#525252]">${set.percentage}%</span>
+      <span class="w-16 text-sm text-text-dim">${set.percentage}%</span>
       <span class="flex-1 font-medium">${set.weight} ${unit}</span>
       <span class="w-12 text-right">×${repDisplay}</span>
     </div>

@@ -22,7 +22,8 @@ export const DEFAULT_DATA = {
     tmPercentage: 85,
     unit: 'lbs',
     roundingIncrement: 5,
-    showWarmups: false
+    showWarmups: false,
+    theme: 'system' // 'system' | 'dark' | 'light'
   },
   currentWeek: 1,
   isOnboarded: false

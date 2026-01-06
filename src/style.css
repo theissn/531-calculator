@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Custom theme configuration */
+/* Dark theme (default) */
 @theme {
   --color-bg: #0a0a0a;
   --color-bg-card: #141414;
@@ -10,6 +10,18 @@
   --color-text-dim: #525252;
   --color-border: #262626;
   --color-border-hover: #404040;
+}
+
+/* Light theme overrides */
+html.light {
+  --color-bg: #f5f5f5;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #e5e5e5;
+  --color-text: #171717;
+  --color-text-muted: #525252;
+  --color-text-dim: #a3a3a3;
+  --color-border: #d4d4d4;
+  --color-border-hover: #a3a3a3;
 }
 
 /* Base styles */
@@ -24,10 +36,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Force dark color scheme */
-@media (prefers-color-scheme: light) {
-  html {
-    background-color: var(--color-bg);
-    color: var(--color-text);
-  }
+/* Color scheme meta for browser chrome */
+html.light {
+  color-scheme: light;
+}
+
+html:not(.light) {
+  color-scheme: dark;
 }

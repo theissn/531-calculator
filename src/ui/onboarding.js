@@ -16,20 +16,20 @@ export function renderOnboarding(container) {
     <div class="min-h-screen flex flex-col px-4 py-8">
       <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
         <h1 class="text-3xl font-bold text-center mb-2">531</h1>
-        <p class="text-[#525252] text-center mb-6">Enter your 1RM for each lift</p>
+        <p class="text-text-dim text-center mb-6">Enter your 1RM for each lift</p>
 
         <div class="flex justify-center mb-8">
-          <div class="inline-flex bg-[#141414] border border-[#262626] rounded-lg overflow-hidden">
+          <div class="inline-flex bg-bg-card border border-border rounded-lg overflow-hidden">
             <button
               type="button"
-              class="unit-toggle px-6 py-2 text-sm font-medium ${unit === 'lbs' ? 'bg-[#262626] text-[#fafafa]' : 'text-[#525252]'}"
+              class="unit-toggle px-6 py-2 text-sm font-medium ${unit === 'lbs' ? 'bg-border text-text' : 'text-text-dim'}"
               data-unit="lbs"
             >
               lbs
             </button>
             <button
               type="button"
-              class="unit-toggle px-6 py-2 text-sm font-medium ${unit === 'kg' ? 'bg-[#262626] text-[#fafafa]' : 'text-[#525252]'}"
+              class="unit-toggle px-6 py-2 text-sm font-medium ${unit === 'kg' ? 'bg-border text-text' : 'text-text-dim'}"
               data-unit="kg"
             >
               kg
@@ -39,7 +39,7 @@ export function renderOnboarding(container) {
 
         <form id="onboarding-form" class="space-y-6">
           <div>
-            <label class="block text-sm text-[#a3a3a3] mb-2" for="squat">Squat</label>
+            <label class="block text-sm text-text-muted mb-2" for="squat">Squat</label>
             <div class="relative">
               <input
                 type="number"
@@ -48,15 +48,15 @@ export function renderOnboarding(container) {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-[#141414] border border-[#262626] rounded-lg px-4 py-3 text-lg font-medium placeholder-[#525252] focus:outline-none focus:border-[#404040]"
+                class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[#525252]">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm text-[#a3a3a3] mb-2" for="bench">Bench Press</label>
+            <label class="block text-sm text-text-muted mb-2" for="bench">Bench Press</label>
             <div class="relative">
               <input
                 type="number"
@@ -65,15 +65,15 @@ export function renderOnboarding(container) {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-[#141414] border border-[#262626] rounded-lg px-4 py-3 text-lg font-medium placeholder-[#525252] focus:outline-none focus:border-[#404040]"
+                class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[#525252]">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm text-[#a3a3a3] mb-2" for="deadlift">Deadlift</label>
+            <label class="block text-sm text-text-muted mb-2" for="deadlift">Deadlift</label>
             <div class="relative">
               <input
                 type="number"
@@ -82,15 +82,15 @@ export function renderOnboarding(container) {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-[#141414] border border-[#262626] rounded-lg px-4 py-3 text-lg font-medium placeholder-[#525252] focus:outline-none focus:border-[#404040]"
+                class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[#525252]">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm text-[#a3a3a3] mb-2" for="ohp">Overhead Press</label>
+            <label class="block text-sm text-text-muted mb-2" for="ohp">Overhead Press</label>
             <div class="relative">
               <input
                 type="number"
@@ -99,16 +99,16 @@ export function renderOnboarding(container) {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-[#141414] border border-[#262626] rounded-lg px-4 py-3 text-lg font-medium placeholder-[#525252] focus:outline-none focus:border-[#404040]"
+                class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[#525252]">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
             </div>
           </div>
 
           <button
             type="submit"
-            class="w-full bg-[#fafafa] text-[#0a0a0a] font-semibold py-3 rounded-lg hover:bg-[#e5e5e5] active:bg-[#d4d4d4]"
+            class="w-full bg-text text-bg font-semibold py-3 rounded-lg hover:opacity-90 active:opacity-80"
           >
             Get Started
           </button>

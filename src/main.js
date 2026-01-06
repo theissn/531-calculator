@@ -3,7 +3,7 @@
  */
 
 import './style.css'
-import { initApp, subscribe, getState } from './app.js'
+import { initApp, subscribe, getState, initTheme } from './app.js'
 import { renderApp } from './ui/render.js'
 import { renderOnboarding } from './ui/onboarding.js'
 import { initSettingsPanel } from './ui/settings.js'
@@ -20,7 +20,7 @@ function render() {
     // Show loading state
     app.innerHTML = `
       <div class="min-h-screen flex items-center justify-center">
-        <div class="text-[#525252]">Loading...</div>
+        <div class="text-text-dim">Loading...</div>
       </div>
     `
     return
@@ -40,6 +40,9 @@ async function init() {
   try {
     // Initialize app state from IndexedDB
     await initApp()
+
+    // Initialize theme
+    initTheme()
 
     // Initialize settings panel
     initSettingsPanel(app)
@@ -63,10 +66,10 @@ async function init() {
     app.innerHTML = `
       <div class="min-h-screen flex flex-col items-center justify-center p-4">
         <div class="text-red-500 mb-2">Failed to initialize app</div>
-        <div class="text-[#525252] text-sm text-center">${error.message}</div>
+        <div class="text-text-dim text-sm text-center">${error.message}</div>
         <button
           onclick="location.reload()"
-          class="mt-4 px-4 py-2 bg-[#141414] border border-[#262626] rounded"
+          class="mt-4 px-4 py-2 bg-bg-card border border-border rounded"
         >
           Retry
         </button>

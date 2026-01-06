@@ -86,6 +86,42 @@ export async function completeOnboarding(lifts) {
  */
 export async function updateSettings(settings) {
   await update({ settings: { ...state.settings, ...settings } })
+  if (settings.theme !== undefined) {
+    applyTheme(settings.theme)
+  }
+}
+
+/**
+ * Apply theme to document
+ * @param {string} theme - 'system' | 'dark' | 'light'
+ */
+export function applyTheme(theme) {
+  const html = document.documentElement
+
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    html.classList.toggle('light', !prefersDark)
+  } else if (theme === 'light') {
+    html.classList.add('light')
+  } else {
+    html.classList.remove('light')
+  }
+}
+
+/**
+ * Initialize theme and listen for system preference changes
+ */
+export function initTheme() {
+  const theme = state?.settings?.theme || 'system'
+  applyTheme(theme)
+
+  // Listen for system preference changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const currentTheme = state?.settings?.theme || 'system'
+    if (currentTheme === 'system') {
+      applyTheme('system')
+    }
+  })
 }
 
 /**
