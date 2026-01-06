@@ -12,7 +12,7 @@
   --color-border-hover: #404040;
 }
 
-/* Light theme overrides - use higher specificity to ensure override */
+/* Light theme overrides applied to all elements */
 html.light,
 html.light *,
 html.light *::before,
@@ -27,23 +27,25 @@ html.light *::after {
   --color-border-hover: #a3a3a3;
 }
 
-/* Base styles */
+/* Base styles - dark mode default */
 html {
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: #0a0a0a;
+  color: #fafafa;
+}
+
+/* Light mode - explicit overrides for html element */
+html.light {
+  background-color: #f5f5f5 !important;
+  color: #171717 !important;
+  color-scheme: light;
+}
+
+html:not(.light) {
+  color-scheme: dark;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Color scheme meta for browser chrome */
-html.light {
-  color-scheme: light;
-}
-
-html:not(.light) {
-  color-scheme: dark;
 }
