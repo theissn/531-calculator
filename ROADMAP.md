@@ -64,11 +64,12 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ### Phase 4: Polish
 
-**4.1 Theme Toggle**
-- Add light mode option
-- Toggle in settings
-- Persist preference
-- Keep dark as default
+**4.1 Theme Toggle** ✓
+- ~~Add light mode option~~
+- ~~Toggle in settings (System/Dark/Light)~~
+- ~~Persist preference~~
+- ~~Keep dark as default~~
+- ~~Respect system preference when set to "System"~~
 
 **4.2 Progress Charts**
 - Simple line charts for TM over time
