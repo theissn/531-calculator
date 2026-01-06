@@ -97,14 +97,21 @@ export async function updateSettings(settings) {
  */
 export function applyTheme(theme) {
   const html = document.documentElement
+  let isLight = false
 
   if (theme === 'system') {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    html.classList.toggle('light', !prefersDark)
+    isLight = !prefersDark
   } else if (theme === 'light') {
-    html.classList.add('light')
-  } else {
-    html.classList.remove('light')
+    isLight = true
+  }
+
+  html.classList.toggle('light', isLight)
+
+  // Update theme-color meta tag for browser chrome
+  const themeColor = document.querySelector('meta[name="theme-color"]')
+  if (themeColor) {
+    themeColor.setAttribute('content', isLight ? '#f5f5f5' : '#0a0a0a')
   }
 }
 
