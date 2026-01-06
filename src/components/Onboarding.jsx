@@ -1,18 +1,33 @@
 /**
- * Onboarding flow UI
+ * Onboarding Component - First-run 1RM entry form
  */
 
-import { completeOnboarding, getState, updateSettings } from '../app.js'
+import { createSignal } from 'solid-js'
+import { state, completeOnboarding, updateSettings } from '../store.js'
 
-/**
- * Render onboarding view
- * @param {HTMLElement} container - Container element
- */
-export function renderOnboarding(container) {
-  const state = getState()
-  const unit = state.settings.unit
+export default function Onboarding() {
+  const [squat, setSquat] = createSignal('')
+  const [bench, setBench] = createSignal('')
+  const [deadlift, setDeadlift] = createSignal('')
+  const [ohp, setOhp] = createSignal('')
 
-  container.innerHTML = `
+  const unit = () => state.settings?.unit || 'lbs'
+
+  const handleUnitChange = async (newUnit) => {
+    await updateSettings({ unit: newUnit })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    await completeOnboarding({
+      squat: parseFloat(squat()) || 0,
+      bench: parseFloat(bench()) || 0,
+      deadlift: parseFloat(deadlift()) || 0,
+      ohp: parseFloat(ohp()) || 0
+    })
+  }
+
+  return (
     <div class="min-h-screen flex flex-col px-4 py-8">
       <div class="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
         <h1 class="text-3xl font-bold text-center mb-2">531</h1>
@@ -22,36 +37,37 @@ export function renderOnboarding(container) {
           <div class="inline-flex bg-bg-card border border-border rounded-lg overflow-hidden">
             <button
               type="button"
-              class="unit-toggle px-6 py-2 text-sm font-medium ${unit === 'lbs' ? 'bg-border text-text' : 'text-text-dim'}"
-              data-unit="lbs"
+              class={`px-6 py-2 text-sm font-medium ${unit() === 'lbs' ? 'bg-border text-text' : 'text-text-dim'}`}
+              onClick={() => handleUnitChange('lbs')}
             >
               lbs
             </button>
             <button
               type="button"
-              class="unit-toggle px-6 py-2 text-sm font-medium ${unit === 'kg' ? 'bg-border text-text' : 'text-text-dim'}"
-              data-unit="kg"
+              class={`px-6 py-2 text-sm font-medium ${unit() === 'kg' ? 'bg-border text-text' : 'text-text-dim'}`}
+              onClick={() => handleUnitChange('kg')}
             >
               kg
             </button>
           </div>
         </div>
 
-        <form id="onboarding-form" class="space-y-6">
+        <form onSubmit={handleSubmit} class="space-y-6">
           <div>
             <label class="block text-sm text-text-muted mb-2" for="squat">Squat</label>
             <div class="relative">
               <input
                 type="number"
                 id="squat"
-                name="squat"
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
                 class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
+                value={squat()}
+                onInput={(e) => setSquat(e.target.value)}
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">{unit()}</span>
             </div>
           </div>
 
@@ -61,14 +77,15 @@ export function renderOnboarding(container) {
               <input
                 type="number"
                 id="bench"
-                name="bench"
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
                 class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
+                value={bench()}
+                onInput={(e) => setBench(e.target.value)}
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">{unit()}</span>
             </div>
           </div>
 
@@ -78,14 +95,15 @@ export function renderOnboarding(container) {
               <input
                 type="number"
                 id="deadlift"
-                name="deadlift"
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
                 class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
+                value={deadlift()}
+                onInput={(e) => setDeadlift(e.target.value)}
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">{unit()}</span>
             </div>
           </div>
 
@@ -95,14 +113,15 @@ export function renderOnboarding(container) {
               <input
                 type="number"
                 id="ohp"
-                name="ohp"
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
                 class="w-full bg-bg-card border border-border rounded-lg px-4 py-3 text-lg font-medium placeholder-text-dim focus:outline-none focus:border-border-hover"
+                value={ohp()}
+                onInput={(e) => setOhp(e.target.value)}
                 required
               />
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">${unit}</span>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim">{unit()}</span>
             </div>
           </div>
 
@@ -115,35 +134,5 @@ export function renderOnboarding(container) {
         </form>
       </div>
     </div>
-  `
-
-  // Attach form submit handler
-  const form = container.querySelector('#onboarding-form')
-  form.addEventListener('submit', handleOnboardingSubmit)
-
-  // Attach unit toggle handlers
-  container.querySelectorAll('.unit-toggle').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const newUnit = btn.dataset.unit
-      await updateSettings({ unit: newUnit })
-    })
-  })
-}
-
-/**
- * Handle onboarding form submission
- * @param {Event} e - Submit event
- */
-async function handleOnboardingSubmit(e) {
-  e.preventDefault()
-
-  const form = e.target
-  const lifts = {
-    squat: parseFloat(form.squat.value) || 0,
-    bench: parseFloat(form.bench.value) || 0,
-    deadlift: parseFloat(form.deadlift.value) || 0,
-    ohp: parseFloat(form.ohp.value) || 0
-  }
-
-  await completeOnboarding(lifts)
+  )
 }
