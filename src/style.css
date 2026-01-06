@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Dark theme (default) */
+/* Define static theme tokens for Tailwind utility generation */
 @theme {
   --color-bg: #0a0a0a;
   --color-bg-card: #141414;
@@ -12,7 +12,18 @@
   --color-border-hover: #404040;
 }
 
-/* Light theme overrides */
+/* Override with dynamic CSS variables that respond to .light class */
+:root {
+  --color-bg: #0a0a0a;
+  --color-bg-card: #141414;
+  --color-bg-hover: #1a1a1a;
+  --color-text: #fafafa;
+  --color-text-muted: #a3a3a3;
+  --color-text-dim: #525252;
+  --color-border: #262626;
+  --color-border-hover: #404040;
+}
+
 html.light {
   --color-bg: #f5f5f5;
   --color-bg-card: #ffffff;
