@@ -11,6 +11,7 @@ import Settings from './Settings.jsx'
 import Onboarding from './Onboarding.jsx'
 import AmrapModal from './AmrapModal.jsx'
 import Progress from './Progress.jsx'
+import WorkoutNotes from './WorkoutNotes.jsx'
 
 export default function App() {
   const liftsData = () => getAllLiftsForWeek(state.currentWeek)
@@ -27,6 +28,7 @@ export default function App() {
               <For each={liftsData()}>
                 {(lift) => <LiftCard lift={lift} isDeload={isDeload()} />}
               </For>
+              <WorkoutNotes />
             </div>
           </main>
         </div>

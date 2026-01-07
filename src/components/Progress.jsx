@@ -9,6 +9,7 @@ import {
   setShowProgress, 
   getTMHistory, 
   getPRHistory,
+  getAllWorkoutNotes,
   LIFT_NAMES 
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -171,6 +172,30 @@ export default function Progress() {
             <For each={['squat', 'bench', 'deadlift', 'ohp']}>
               {(liftId) => <LiftProgressCard liftId={liftId} />}
             </For>
+            
+            {/* Recent Notes */}
+            <Show when={getAllWorkoutNotes().length > 0}>
+              <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+                <div class="px-4 py-3 border-b border-border">
+                  <h3 class="font-semibold">Recent Notes</h3>
+                </div>
+                <div class="divide-y divide-border">
+                  <For each={getAllWorkoutNotes().slice(0, 5)}>
+                    {(noteEntry) => (
+                      <div class="px-4 py-3">
+                        <div class="flex items-baseline justify-between mb-1">
+                          <span class="text-xs text-text-dim">
+                            {new Date(noteEntry.date).toLocaleDateString()}
+                          </span>
+                          <span class="text-xs text-text-dim">Week {noteEntry.week}</span>
+                        </div>
+                        <p class="text-sm text-text-muted">{noteEntry.note}</p>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </div>
+            </Show>
           </div>
         </div>
       </div>

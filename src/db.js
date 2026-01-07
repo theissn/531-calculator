@@ -32,6 +32,8 @@ export const DEFAULT_DATA = {
   prHistory: [],
   // TM history: array of { liftId, date, oneRepMax, trainingMax }
   tmHistory: [],
+  // Workout notes: array of { date, week, note }
+  workoutNotes: [],
   currentWeek: 1,
   isOnboarded: false
 }

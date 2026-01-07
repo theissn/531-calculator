@@ -27,7 +27,7 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ---
 
-### Phase 2: Tracking Features
+### Phase 2: Tracking Features ✓
 
 **2.1 PR Records** ✓
 - ~~Modal popup after tapping AMRAP set~~
@@ -41,10 +41,10 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 - ~~Simple line charts showing TM progression per lift~~
 - ~~New "Progress" view/tab for charts~~
 
-**2.3 Workout Notes**
-- Optional text field per session
-- Store with date in IndexedDB
-- View in history/progress section
+**2.3 Workout Notes** ✓
+- ~~Optional text field per session~~
+- ~~Store with date in IndexedDB~~
+- ~~View in history/progress section~~
 
 ---
 

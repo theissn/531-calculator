@@ -217,6 +217,42 @@ export function getAllTMHistory() {
 }
 
 /**
+ * Save a workout note
+ */
+export async function saveWorkoutNote(note, week) {
+  const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+  const workoutNotes = state.workoutNotes || []
+  
+  // Find existing note for today, or create new
+  const existingIndex = workoutNotes.findIndex(n => n.date === today)
+  
+  let updatedNotes
+  if (existingIndex >= 0) {
+    updatedNotes = [...workoutNotes]
+    updatedNotes[existingIndex] = { date: today, week, note }
+  } else {
+    updatedNotes = [...workoutNotes, { date: today, week, note }]
+  }
+  
+  await update({ workoutNotes: updatedNotes })
+}
+
+/**
+ * Get today's workout note
+ */
+export function getTodayNote() {
+  const today = new Date().toISOString().split('T')[0]
+  return (state.workoutNotes || []).find(n => n.date === today)
+}
+
+/**
+ * Get all workout notes (sorted by date descending)
+ */
+export function getAllWorkoutNotes() {
+  return [...(state.workoutNotes || [])].sort((a, b) => b.date.localeCompare(a.date))
+}
+
+/**
  * Get calculated data for a lift on a given week
  */
 export function getLiftData(liftId, week) {
