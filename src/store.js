@@ -161,6 +161,13 @@ export async function setCurrentWeek(week) {
 }
 
 /**
+ * Set current lift filter
+ */
+export async function setCurrentLift(liftId) {
+  await update({ currentLift: liftId })
+}
+
+/**
  * Reset all data
  */
 export async function reset() {
