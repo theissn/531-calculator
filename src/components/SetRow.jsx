@@ -3,12 +3,18 @@
  */
 
 import { Show } from 'solid-js'
+import { haptic } from '../hooks/useMobile.js'
 
 export default function SetRow(props) {
   const textColor = () => {
     if (props.isWarmup) return 'text-text-dim'
     if (props.isComplete?.()) return 'text-text-dim line-through'
     return 'text-text'
+  }
+
+  const handleToggle = () => {
+    haptic()
+    props.onToggle?.()
   }
 
   return (
@@ -18,7 +24,7 @@ export default function SetRow(props) {
       }>
         <button
           class="w-16 flex items-center gap-2 text-sm text-text-dim hover:text-text"
-          onClick={props.onToggle}
+          onClick={handleToggle}
         >
           <div class={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
             props.isComplete?.() ? 'bg-text border-text' : 'border-border-hover'

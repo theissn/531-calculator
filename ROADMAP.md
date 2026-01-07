@@ -14,10 +14,10 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 - ~~Simple visual feedback (no timer integration like supplemental)~~
 - ~~Session-only state (not persisted)~~
 
-**1.2 Mobile Experience**
-- Haptic feedback on button presses
-- Keep screen awake during workout (Wake Lock API)
-- Lock to portrait orientation
+**1.2 Mobile Experience** ✓
+- ~~Haptic feedback on button presses~~
+- ~~Keep screen awake during workout (Wake Lock API)~~
+- ~~Lock to portrait orientation~~
 
 **1.3 Plate Calculator**
 - Show plates to load per side

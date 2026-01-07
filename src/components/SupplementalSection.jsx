@@ -5,6 +5,7 @@
 import { For, Show } from 'solid-js'
 import { getCompletedCount, markSetComplete, resetCompletedSets } from '../hooks/useCompletedSets.js'
 import { startTimer, stopTimer } from '../hooks/useTimer.js'
+import { haptic } from '../hooks/useMobile.js'
 
 export default function SupplementalSection(props) {
   const completedCount = () => getCompletedCount(props.liftId)
@@ -12,11 +13,13 @@ export default function SupplementalSection(props) {
   const allDone = () => completedCount() >= totalSets
 
   const handleSetDone = () => {
+    haptic()
     markSetComplete(props.liftId)
     startTimer()
   }
 
   const handleReset = () => {
+    haptic()
     resetCompletedSets(props.liftId)
     stopTimer()
   }

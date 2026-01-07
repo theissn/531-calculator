@@ -3,6 +3,7 @@
  */
 
 import { createSignal } from 'solid-js'
+import { requestWakeLock, releaseWakeLock } from './useMobile.js'
 
 const [seconds, setSeconds] = createSignal(0)
 const [isRunning, setIsRunning] = createSignal(false)
@@ -15,6 +16,9 @@ export function startTimer() {
   stopTimer()
   setSeconds(0)
   setIsRunning(true)
+
+  // Keep screen awake while timer is running
+  requestWakeLock()
 
   interval = setInterval(() => {
     setSeconds(s => s + 1)
@@ -31,6 +35,9 @@ export function stopTimer() {
   }
   setIsRunning(false)
   setSeconds(0)
+  
+  // Allow screen to sleep again
+  releaseWakeLock()
 }
 
 /**

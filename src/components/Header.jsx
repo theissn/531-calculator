@@ -5,13 +5,16 @@
 import { Show } from 'solid-js'
 import { setShowSettings } from '../store.js'
 import { seconds, isRunning, stopTimer, formatTime } from '../hooks/useTimer.js'
+import { haptic } from '../hooks/useMobile.js'
 
 export default function Header() {
   const handleTimerDismiss = () => {
+    haptic()
     stopTimer()
   }
 
   const handleSettingsClick = () => {
+    haptic()
     setShowSettings(true)
   }
 

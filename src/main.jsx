@@ -4,12 +4,16 @@
 
 import { render } from 'solid-js/web'
 import { initStore } from './store.js'
+import { lockPortrait } from './hooks/useMobile.js'
 import App from './components/App.jsx'
 import './style.css'
 
 // Initialize store and render app
 initStore().then(() => {
   render(() => <App />, document.getElementById('app'))
+  
+  // Lock to portrait orientation on mobile
+  lockPortrait()
 })
 
 // Register service worker for PWA
