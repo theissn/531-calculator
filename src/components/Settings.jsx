@@ -156,6 +156,22 @@ export default function Settings() {
           </div>
 
           <div class="p-4 space-y-8">
+            {/* 1RM Quick View */}
+            <section class="bg-bg-card border border-border rounded-lg p-3">
+              <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h1m3 0H5m0 0V8m0 4v4m14-4h1m-3 0h2m0 0V8m0 4v4M8 12h8M8 12V7a1 1 0 011-1h1a1 1 0 011 1v5m-3 0v5a1 1 0 001 1h1a1 1 0 001-1v-5m5 0V7a1 1 0 00-1-1h-1a1 1 0 00-1 1v5m3 0v5a1 1 0 01-1 1h-1a1 1 0 01-1-1v-5" />
+                </svg>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                  <span><span class="text-text-muted">S:</span> <span class="font-medium">{lifts().squat?.oneRepMax || '—'}</span></span>
+                  <span><span class="text-text-muted">B:</span> <span class="font-medium">{lifts().bench?.oneRepMax || '—'}</span></span>
+                  <span><span class="text-text-muted">D:</span> <span class="font-medium">{lifts().deadlift?.oneRepMax || '—'}</span></span>
+                  <span><span class="text-text-muted">O:</span> <span class="font-medium">{lifts().ohp?.oneRepMax || '—'}</span></span>
+                </div>
+                <span class="text-text-dim text-sm ml-auto">{settings().unit}</span>
+              </div>
+            </section>
+
             {/* Lifts Section */}
             <section>
               <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Lifts</h3>
