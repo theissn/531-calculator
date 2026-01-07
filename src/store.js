@@ -5,7 +5,7 @@
 import { createStore, reconcile } from 'solid-js/store'
 import { createSignal, createEffect, createRoot } from 'solid-js'
 import { getData, updateData, resetData } from './db.js'
-import { calculateTM, generateWorkingSets } from './calculator.js'
+import { calculateTM, generateWorkingSets, estimate1RM } from './calculator.js'
 import { TEMPLATES, generateSupplementalSets, generate5x531Sets } from './templates.js'
 
 // Create reactive store
@@ -19,6 +19,9 @@ const [state, setState] = createStore({
 
 // Settings panel visibility
 const [showSettings, setShowSettings] = createSignal(false)
+
+// AMRAP modal state: { liftId, weight, week, minReps } or null
+const [amrapModal, setAmrapModal] = createSignal(null)
 
 /**
  * Initialize store from IndexedDB
@@ -139,6 +142,42 @@ export async function reset() {
 }
 
 /**
+ * Record a PR from an AMRAP set
+ */
+export async function recordPR(liftId, weight, reps, week) {
+  const estimated1RM = estimate1RM(weight, reps)
+  const record = {
+    liftId,
+    date: new Date().toISOString(),
+    weight,
+    reps,
+    estimated1RM,
+    week
+  }
+  
+  const prHistory = [...(state.prHistory || []), record]
+  await update({ prHistory })
+  
+  return record
+}
+
+/**
+ * Get PR history for a lift
+ */
+export function getPRHistory(liftId) {
+  return (state.prHistory || []).filter(pr => pr.liftId === liftId)
+}
+
+/**
+ * Get best estimated 1RM for a lift
+ */
+export function getBestPR(liftId) {
+  const history = getPRHistory(liftId)
+  if (history.length === 0) return null
+  return history.reduce((best, pr) => pr.estimated1RM > best.estimated1RM ? pr : best)
+}
+
+/**
  * Get calculated data for a lift on a given week
  */
 export function getLiftData(liftId, week) {
@@ -191,4 +230,4 @@ export const LIFT_NAMES = {
   ohp: 'Overhead Press'
 }
 
-export { state, showSettings, setShowSettings, TEMPLATES }
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, TEMPLATES }

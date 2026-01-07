@@ -28,6 +28,8 @@ export const DEFAULT_DATA = {
     availablePlates: [45, 25, 10, 5, 2.5],
     theme: 'system' // 'system' | 'dark' | 'light'
   },
+  // PR history: array of { liftId, date, weight, reps, estimated1RM, week }
+  prHistory: [],
   currentWeek: 1,
   isOnboarded: false
 }

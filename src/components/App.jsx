@@ -9,6 +9,7 @@ import WeekTabs from './WeekTabs.jsx'
 import LiftCard from './LiftCard.jsx'
 import Settings from './Settings.jsx'
 import Onboarding from './Onboarding.jsx'
+import AmrapModal from './AmrapModal.jsx'
 
 export default function App() {
   const liftsData = () => getAllLiftsForWeek(state.currentWeek)
@@ -31,6 +32,7 @@ export default function App() {
         <Show when={showSettings()}>
           <Settings />
         </Show>
+        <AmrapModal />
       </Show>
     </Show>
   )

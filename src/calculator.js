@@ -30,6 +30,19 @@ export function roundWeight(weight, increment) {
 }
 
 /**
+ * Estimate 1RM from weight and reps using Epley formula
+ * @param {number} weight - Weight lifted
+ * @param {number} reps - Reps completed
+ * @returns {number} Estimated 1RM
+ */
+export function estimate1RM(weight, reps) {
+  if (reps <= 0) return 0
+  if (reps === 1) return weight
+  // Epley formula: weight × (1 + reps/30)
+  return Math.round(weight * (1 + reps / 30))
+}
+
+/**
  * Calculate plates needed per side for a given weight
  * @param {number} totalWeight - Total weight including bar
  * @param {number} barWeight - Weight of the bar

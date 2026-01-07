@@ -3,6 +3,7 @@
  */
 
 import { Show, For } from 'solid-js'
+import { state, setAmrapModal } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
 
 /**
@@ -34,6 +35,18 @@ export default function SetRow(props) {
     props.onToggle?.()
   }
 
+  const handleAmrapClick = () => {
+    haptic()
+    // Extract min reps from "5+" format
+    const minReps = parseInt(props.set.reps, 10)
+    setAmrapModal({
+      liftId: props.liftId,
+      weight: props.set.weight,
+      week: state.currentWeek,
+      minReps
+    })
+  }
+
   const platesDisplay = () => formatPlates(props.plates)
 
   return (
@@ -59,13 +72,16 @@ export default function SetRow(props) {
           </button>
         </Show>
         <span class="flex-1 font-medium">{props.set.weight} {props.unit}</span>
-        <span class="w-12 text-right">
-          {props.set.isAmrap ? (
-            <>×<span class="text-text-muted">{props.set.reps}</span></>
-          ) : (
-            <>×{props.set.reps}</>
-          )}
-        </span>
+        <Show when={props.set.isAmrap && props.liftId} fallback={
+          <span class="w-12 text-right">×{props.set.reps}</span>
+        }>
+          <button
+            class="w-12 text-right text-text-muted hover:text-text"
+            onClick={handleAmrapClick}
+          >
+            ×{props.set.reps}
+          </button>
+        </Show>
       </div>
       <Show when={platesDisplay()}>
         <div class="text-xs text-text-dim ml-16 mt-0.5">{platesDisplay()}</div>

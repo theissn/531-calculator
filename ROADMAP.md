@@ -29,11 +29,11 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ### Phase 2: Tracking Features
 
-**2.1 PR Records**
-- Modal popup after tapping AMRAP set
-- Input field for reps completed
-- Calculate and display estimated 1RM
-- Store PR history in IndexedDB
+**2.1 PR Records** ✓
+- ~~Modal popup after tapping AMRAP set~~
+- ~~Input field for reps completed~~
+- ~~Calculate and display estimated 1RM~~
+- ~~Store PR history in IndexedDB~~
 
 **2.2 TM History**
 - Log all TM changes with timestamps
