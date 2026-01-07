@@ -3,11 +3,18 @@
  */
 
 import { For, Show } from 'solid-js'
-import { state, LIFT_NAMES } from '../store.js'
+import { state, LIFT_NAMES, getTemplateForLift } from '../store.js'
 import { roundWeight, calculatePlates, DEFAULT_PLATES_LBS, DEFAULT_PLATES_KG } from '../calculator.js'
 import { isMainSetComplete, toggleMainSet } from '../hooks/useCompletedSets.js'
+import { isAccessoryComplete, toggleAccessory } from '../hooks/useAccessoryTracking.js'
+import { haptic } from '../hooks/useMobile.js'
 import SetRow from './SetRow.jsx'
 import SupplementalSection from './SupplementalSection.jsx'
+
+function formatExercise(exercise) {
+  if (typeof exercise === 'string') return exercise
+  return `${exercise.name} ${exercise.sets}x${exercise.reps}`
+}
 
 export default function LiftCard(props) {
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
@@ -22,6 +29,16 @@ export default function LiftCard(props) {
   const getPlates = (weight) => {
     if (!showPlates()) return null
     return calculatePlates(weight, barWeight(), availablePlates())
+  }
+
+  // Accessories
+  const accessoryTemplate = () => getTemplateForLift(props.lift.liftId)
+  const accessories = () => accessoryTemplate()?.exercises || []
+  const getAccessoryKey = (index) => `${props.lift.liftId}-${index}`
+  
+  const handleAccessoryToggle = (index) => {
+    haptic()
+    toggleAccessory(getAccessoryKey(index))
   }
 
   return (
@@ -68,6 +85,38 @@ export default function LiftCard(props) {
             supplemental={props.lift.supplemental}
             unit={props.lift.unit}
           />
+        </Show>
+
+        <Show when={accessories().length > 0 && !props.isDeload}>
+          <div class="mt-4 pt-3 border-t border-border">
+            <div class="text-xs text-text-dim uppercase tracking-wider mb-2">Assistance</div>
+            <div class="space-y-1">
+              <For each={accessories()}>
+                {(exercise, index) => {
+                  const isComplete = () => isAccessoryComplete(getAccessoryKey(index()))
+                  return (
+                    <button
+                      class="w-full flex items-center gap-2 py-1 text-left"
+                      onClick={() => handleAccessoryToggle(index())}
+                    >
+                      <div class={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                        isComplete() ? 'bg-text border-text' : 'border-border-hover'
+                      }`}>
+                        <Show when={isComplete()}>
+                          <svg class="w-3 h-3 text-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </Show>
+                      </div>
+                      <span class={`text-sm ${isComplete() ? 'text-text-dim line-through' : 'text-text-muted'}`}>
+                        {formatExercise(exercise)}
+                      </span>
+                    </button>
+                  )
+                }}
+              </For>
+            </div>
+          </div>
         </Show>
       </div>
     </div>
