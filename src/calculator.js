@@ -5,8 +5,8 @@
 /**
  * Default plate inventory (per side)
  */
-export const DEFAULT_PLATES_LBS = [45, 35, 25, 10, 5, 2.5]
-export const DEFAULT_PLATES_KG = [25, 20, 15, 10, 5, 2.5, 1.25]
+export const DEFAULT_PLATES_LBS = [45, 25, 10, 5, 2.5]
+export const DEFAULT_PLATES_KG = [20, 10, 5, 2.5, 1.25]
 export const DEFAULT_BAR_WEIGHT = { lbs: 45, kg: 20 }
 
 /**
