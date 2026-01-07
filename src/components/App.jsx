@@ -4,6 +4,7 @@
 
 import { Show, For } from 'solid-js'
 import { state, showSettings, showProgress, getAllLiftsForWeek } from '../store.js'
+import { isRunning } from '../hooks/useTimer.js'
 import Header from './Header.jsx'
 import WeekTabs from './WeekTabs.jsx'
 import LiftCard from './LiftCard.jsx'
@@ -23,7 +24,7 @@ export default function App() {
         <div class="flex flex-col min-h-screen">
           <Header />
           <WeekTabs />
-          <main class="flex-1 px-4 pb-8 pt-4">
+          <main class={`flex-1 px-4 pt-4 ${isRunning() ? 'pb-24' : 'pb-8'}`}>
             <div class="space-y-6">
               <For each={liftsData()}>
                 {(lift) => <LiftCard lift={lift} isDeload={isDeload()} />}
