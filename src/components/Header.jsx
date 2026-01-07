@@ -28,21 +28,6 @@ export default function Header() {
       <div class="flex items-center justify-between px-4 h-14">
         <h1 class="text-xl font-bold tracking-tight">531</h1>
         <div class="flex items-center gap-3">
-          <Show when={isRunning()}>
-            <button
-              class="flex items-center gap-2 text-text-muted hover:text-text px-2 py-1 -my-1 rounded hover:bg-bg-hover"
-              onClick={handleTimerDismiss}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              <span class="font-mono text-sm">{formatTime(seconds())}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </Show>
           <button
             class="p-2 text-text-muted hover:text-text"
             aria-label="Progress"
@@ -64,6 +49,21 @@ export default function Header() {
           </button>
         </div>
       </div>
+      
+      {/* Rest Timer Banner */}
+      <Show when={isRunning()}>
+        <button
+          class="w-full px-4 py-3 bg-bg-card border-t border-border flex items-center justify-center gap-3 hover:bg-bg-hover"
+          onClick={handleTimerDismiss}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span class="font-mono text-2xl font-bold">{formatTime(seconds())}</span>
+          <span class="text-text-dim text-sm">tap to dismiss</span>
+        </button>
+      </Show>
     </header>
   )
 }
