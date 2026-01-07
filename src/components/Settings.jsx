@@ -15,7 +15,6 @@ import {
   createAccessoryTemplate,
   updateAccessoryTemplate,
   deleteAccessoryTemplate,
-  setActiveTemplate,
   TEMPLATES
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -33,6 +32,7 @@ function LiftSettingsCard(props) {
     const t = template()
     return t && t.hasSupplemental && !t.usesFirstSetPercentage && !t.usesSecondSetPercentage
   }
+  const accessoryTemplates = () => getAccessoryTemplates()
 
   const handleOneRepMaxChange = (e) => {
     const value = parseFloat(e.target.value) || 0
@@ -46,6 +46,11 @@ function LiftSettingsCard(props) {
   const handleSupplPctChange = (e) => {
     const value = parseInt(e.target.value, 10) || 50
     updateLiftSettings(props.liftId, { supplementalPercentage: value })
+  }
+
+  const handleAccessoryTemplateChange = (e) => {
+    const value = e.target.value || null
+    updateLiftSettings(props.liftId, { accessoryTemplateId: value })
   }
 
   return (
@@ -99,9 +104,45 @@ function LiftSettingsCard(props) {
             </div>
           </div>
         </Show>
+
+        <Show when={accessoryTemplates().length > 0}>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-text-muted">Accessories</span>
+            <select
+              class="bg-bg border border-border rounded px-3 py-1.5 text-sm"
+              value={props.lift.accessoryTemplateId || ''}
+              onChange={handleAccessoryTemplateChange}
+            >
+              <option value="">None</option>
+              <For each={accessoryTemplates()}>
+                {(t) => <option value={t.id}>{t.name}</option>}
+              </For>
+            </select>
+          </div>
+        </Show>
       </div>
     </div>
   )
+}
+
+/**
+ * Parse exercise string "Name 3x10" into { name, sets, reps }
+ */
+function parseExercise(str) {
+  const match = str.match(/^(.+?)\s+(\d+)\s*[x×]\s*(\d+)$/i)
+  if (match) {
+    return { name: match[1].trim(), sets: parseInt(match[2]), reps: parseInt(match[3]) }
+  }
+  // Default to 3x10 if no sets/reps specified
+  return { name: str.trim(), sets: 3, reps: 10 }
+}
+
+/**
+ * Format exercise object to string "Name 3x10"
+ */
+function formatExercise(exercise) {
+  if (typeof exercise === 'string') return exercise
+  return `${exercise.name} ${exercise.sets}x${exercise.reps}`
 }
 
 function AccessoriesManager() {
@@ -111,7 +152,6 @@ function AccessoriesManager() {
   const [newExercises, setNewExercises] = createSignal('')
 
   const templates = () => getAccessoryTemplates()
-  const activeId = () => state.activeTemplateId
 
   const handleAdd = async () => {
     if (!newName().trim()) return
@@ -121,6 +161,7 @@ function AccessoriesManager() {
       .split('\n')
       .map(e => e.trim())
       .filter(e => e.length > 0)
+      .map(parseExercise)
     
     await createAccessoryTemplate(newName().trim(), exercises)
     setNewName('')
@@ -131,7 +172,7 @@ function AccessoriesManager() {
   const handleEdit = (template) => {
     setEditingId(template.id)
     setNewName(template.name)
-    setNewExercises(template.exercises.join('\n'))
+    setNewExercises(template.exercises.map(formatExercise).join('\n'))
   }
 
   const handleSaveEdit = async () => {
@@ -142,6 +183,7 @@ function AccessoriesManager() {
       .split('\n')
       .map(e => e.trim())
       .filter(e => e.length > 0)
+      .map(parseExercise)
     
     await updateAccessoryTemplate(editingId(), { name: newName().trim(), exercises })
     setEditingId(null)
@@ -152,11 +194,6 @@ function AccessoriesManager() {
   const handleDelete = async (id) => {
     haptic()
     await deleteAccessoryTemplate(id)
-  }
-
-  const handleSetActive = async (id) => {
-    haptic()
-    await setActiveTemplate(activeId() === id ? null : id)
   }
 
   const handleCancel = () => {
@@ -180,19 +217,7 @@ function AccessoriesManager() {
             <Show when={editingId() === template.id} fallback={
               <div class="p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <button
-                    class="flex items-center gap-2"
-                    onClick={() => handleSetActive(template.id)}
-                  >
-                    <div class={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                      activeId() === template.id ? 'border-text' : 'border-border-hover'
-                    }`}>
-                      <Show when={activeId() === template.id}>
-                        <div class="w-2 h-2 rounded-full bg-text" />
-                      </Show>
-                    </div>
-                    <span class="font-medium">{template.name}</span>
-                  </button>
+                  <span class="font-medium">{template.name}</span>
                   <div class="flex items-center gap-2">
                     <button
                       class="p-1 text-text-dim hover:text-text"
@@ -212,8 +237,10 @@ function AccessoriesManager() {
                     </button>
                   </div>
                 </div>
-                <div class="text-sm text-text-dim">
-                  {template.exercises.length} exercises
+                <div class="text-sm text-text-dim space-y-0.5">
+                  <For each={template.exercises}>
+                    {(ex) => <div>{formatExercise(ex)}</div>}
+                  </For>
                 </div>
               </div>
             }>
@@ -229,7 +256,7 @@ function AccessoriesManager() {
                 <textarea
                   class="w-full bg-bg border border-border rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
                   rows="4"
-                  placeholder="Exercises (one per line)"
+                  placeholder="One per line, e.g.:&#10;Face Pulls 3x15&#10;Dips 3x10"
                   value={newExercises()}
                   onInput={(e) => setNewExercises(e.target.value)}
                 />
@@ -266,7 +293,7 @@ function AccessoriesManager() {
           <textarea
             class="w-full bg-bg border border-border rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
             rows="4"
-            placeholder="Exercises (one per line)"
+            placeholder="One per line, e.g.:&#10;Face Pulls 3x15&#10;Dips 3x10"
             value={newExercises()}
             onInput={(e) => setNewExercises(e.target.value)}
           />

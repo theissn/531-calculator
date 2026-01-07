@@ -291,17 +291,15 @@ export async function deleteAccessoryTemplate(id) {
   const templates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
   const accessoryTemplates = templates.filter(t => t.id !== id)
   
-  // Clear active template if it was deleted
-  const activeTemplateId = state.activeTemplateId === id ? null : state.activeTemplateId
+  // Clear from any lifts that had this template assigned
+  const lifts = JSON.parse(JSON.stringify(state.lifts))
+  for (const liftId of Object.keys(lifts)) {
+    if (lifts[liftId].accessoryTemplateId === id) {
+      lifts[liftId].accessoryTemplateId = null
+    }
+  }
   
-  await update({ accessoryTemplates, activeTemplateId })
-}
-
-/**
- * Set the active accessory template
- */
-export async function setActiveTemplate(id) {
-  await update({ activeTemplateId: id })
+  await update({ accessoryTemplates, lifts })
 }
 
 /**
@@ -312,11 +310,12 @@ export function getAccessoryTemplates() {
 }
 
 /**
- * Get the active accessory template
+ * Get accessory template for a specific lift
  */
-export function getActiveTemplate() {
-  if (!state.activeTemplateId) return null
-  return (state.accessoryTemplates || []).find(t => t.id === state.activeTemplateId)
+export function getTemplateForLift(liftId) {
+  const templateId = state.lifts[liftId]?.accessoryTemplateId
+  if (!templateId) return null
+  return (state.accessoryTemplates || []).find(t => t.id === templateId)
 }
 
 /**

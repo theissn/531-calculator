@@ -1,5 +1,6 @@
 /**
  * Accessory Tracking Hook - Session-only tracking (not persisted)
+ * Keys are "liftId-exerciseIndex" strings
  */
 
 import { createSignal } from 'solid-js'
@@ -7,22 +8,22 @@ import { createSignal } from 'solid-js'
 const [completedAccessories, setCompletedAccessories] = createSignal(new Set())
 
 /**
- * Check if an accessory is completed
+ * Check if an accessory is completed by key
  */
-export function isAccessoryComplete(exerciseIndex) {
-  return completedAccessories().has(exerciseIndex)
+export function isAccessoryComplete(key) {
+  return completedAccessories().has(key)
 }
 
 /**
- * Toggle an accessory completion
+ * Toggle an accessory completion by key
  */
-export function toggleAccessory(exerciseIndex) {
+export function toggleAccessory(key) {
   setCompletedAccessories(prev => {
     const next = new Set(prev)
-    if (next.has(exerciseIndex)) {
-      next.delete(exerciseIndex)
+    if (next.has(key)) {
+      next.delete(key)
     } else {
-      next.add(exerciseIndex)
+      next.add(key)
     }
     return next
   })

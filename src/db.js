@@ -13,10 +13,10 @@ let db = null
  */
 export const DEFAULT_DATA = {
   lifts: {
-    squat: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50 },
-    bench: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50 },
-    deadlift: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50 },
-    ohp: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50 }
+    squat: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null },
+    bench: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null },
+    deadlift: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null },
+    ohp: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null }
   },
   settings: {
     tmPercentage: 85,
@@ -34,10 +34,8 @@ export const DEFAULT_DATA = {
   tmHistory: [],
   // Workout notes: array of { date, week, note }
   workoutNotes: [],
-  // Accessory templates: array of { id, name, exercises: string[] }
+  // Accessory templates: array of { id, name, exercises: [{name, sets, reps}] }
   accessoryTemplates: [],
-  // Currently active template ID (null = none)
-  activeTemplateId: null,
   currentWeek: 1,
   isOnboarded: false
 }
