@@ -2,7 +2,7 @@
  * Progress Component - TM history and PR charts
  */
 
-import { Show, For, createMemo } from 'solid-js'
+import { Show, For, createMemo, createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { 
   state, 
@@ -13,6 +13,14 @@ import {
   LIFT_NAMES 
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
+
+// Colors for each lift in comparison view
+const LIFT_COLORS = {
+  squat: '#ef4444',    // red
+  bench: '#3b82f6',    // blue
+  deadlift: '#22c55e', // green
+  ohp: '#f59e0b'       // amber
+}
 
 /**
  * Simple line chart component using SVG
@@ -75,6 +83,152 @@ function LineChart(props) {
         <span>{Math.round(points().maxVal)}</span>
       </div>
     </Show>
+  )
+}
+
+/**
+ * Multi-line chart for comparing all lifts
+ */
+function ComparisonChart(props) {
+  const chartData = createMemo(() => {
+    const datasets = props.datasets || []
+    if (datasets.length === 0 || datasets.every(d => d.data.length === 0)) return null
+    
+    // Get all values across all datasets for scaling
+    const allValues = datasets.flatMap(d => d.data.map(p => p.value))
+    if (allValues.length === 0) return null
+    
+    const minVal = Math.min(...allValues)
+    const maxVal = Math.max(...allValues)
+    const range = maxVal - minVal || 1
+    
+    const width = 300
+    const height = 160
+    const padding = { top: 15, right: 15, bottom: 25, left: 15 }
+    
+    const chartWidth = width - padding.left - padding.right
+    const chartHeight = height - padding.top - padding.bottom
+    
+    // Process each dataset into points and path
+    const lines = datasets.map(dataset => {
+      const data = dataset.data
+      if (data.length === 0) return null
+      
+      const pts = data.map((d, i) => {
+        const x = padding.left + (data.length === 1 ? chartWidth / 2 : (i / (data.length - 1)) * chartWidth)
+        const y = padding.top + chartHeight - ((d.value - minVal) / range) * chartHeight
+        return { x, y, ...d }
+      })
+      
+      const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+      
+      return { 
+        liftId: dataset.liftId, 
+        color: LIFT_COLORS[dataset.liftId], 
+        pts, 
+        pathD 
+      }
+    }).filter(Boolean)
+    
+    return { lines, minVal, maxVal, width, height }
+  })
+
+  return (
+    <Show when={chartData()} fallback={
+      <div class="text-center text-text-dim text-sm py-8">No data yet</div>
+    }>
+      <svg viewBox={`0 0 ${chartData().width} ${chartData().height}`} class="w-full h-40">
+        {/* Lines */}
+        <For each={chartData().lines}>
+          {(line) => (
+            <>
+              <path
+                d={line.pathD}
+                fill="none"
+                stroke={line.color}
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <For each={line.pts}>
+                {(pt) => (
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r="3"
+                    fill={line.color}
+                  />
+                )}
+              </For>
+            </>
+          )}
+        </For>
+      </svg>
+      <div class="flex justify-between text-xs text-text-dim px-2 -mt-1">
+        <span>{Math.round(chartData().minVal)}</span>
+        <span>{Math.round(chartData().maxVal)}</span>
+      </div>
+      {/* Legend */}
+      <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-3">
+        <For each={chartData().lines}>
+          {(line) => (
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-0.5 rounded" style={{ "background-color": line.color }} />
+              <span class="text-xs text-text-muted">{LIFT_NAMES[line.liftId]}</span>
+            </div>
+          )}
+        </For>
+      </div>
+    </Show>
+  )
+}
+
+/**
+ * All lifts comparison view
+ */
+function AllLiftsComparison() {
+  const tmDatasets = createMemo(() => {
+    return ['squat', 'bench', 'deadlift', 'ohp'].map(liftId => ({
+      liftId,
+      data: getTMHistory(liftId).map(h => ({
+        value: h.trainingMax,
+        date: new Date(h.date).toLocaleDateString()
+      }))
+    }))
+  })
+
+  const prDatasets = createMemo(() => {
+    return ['squat', 'bench', 'deadlift', 'ohp'].map(liftId => ({
+      liftId,
+      data: getPRHistory(liftId).map(h => ({
+        value: h.estimated1RM,
+        date: new Date(h.date).toLocaleDateString()
+      }))
+    }))
+  })
+
+  return (
+    <div class="space-y-4">
+      {/* TM Comparison */}
+      <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+        <div class="px-4 py-3 border-b border-border">
+          <h3 class="font-semibold">Training Max Comparison</h3>
+        </div>
+        <div class="p-4">
+          <ComparisonChart datasets={tmDatasets()} />
+        </div>
+      </div>
+
+      {/* 1RM Comparison */}
+      <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+        <div class="px-4 py-3 border-b border-border">
+          <h3 class="font-semibold">Estimated 1RM Comparison</h3>
+        </div>
+        <div class="p-4">
+          <ComparisonChart datasets={prDatasets()} />
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -141,9 +295,16 @@ function LiftProgressCard(props) {
 }
 
 export default function Progress() {
+  const [view, setView] = createSignal('per-lift') // 'per-lift' | 'compare'
+
   const handleClose = () => {
     haptic()
     setShowProgress(false)
+  }
+
+  const toggleView = (newView) => {
+    haptic()
+    setView(newView)
   }
 
   const handleBackdropClick = (e) => {
@@ -169,9 +330,41 @@ export default function Progress() {
           </div>
 
           <div class="p-4 space-y-4">
-            <For each={['squat', 'bench', 'deadlift', 'ohp']}>
-              {(liftId) => <LiftProgressCard liftId={liftId} />}
-            </For>
+            {/* View Toggle */}
+            <div class="flex rounded-lg bg-bg-card border border-border p-1">
+              <button
+                class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  view() === 'per-lift' 
+                    ? 'bg-bg-hover text-text' 
+                    : 'text-text-muted hover:text-text'
+                }`}
+                onClick={() => toggleView('per-lift')}
+              >
+                Per Lift
+              </button>
+              <button
+                class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  view() === 'compare' 
+                    ? 'bg-bg-hover text-text' 
+                    : 'text-text-muted hover:text-text'
+                }`}
+                onClick={() => toggleView('compare')}
+              >
+                Compare All
+              </button>
+            </div>
+
+            {/* Per-lift view */}
+            <Show when={view() === 'per-lift'}>
+              <For each={['squat', 'bench', 'deadlift', 'ohp']}>
+                {(liftId) => <LiftProgressCard liftId={liftId} />}
+              </For>
+            </Show>
+
+            {/* Comparison view */}
+            <Show when={view() === 'compare'}>
+              <AllLiftsComparison />
+            </Show>
             
             {/* Recent Notes */}
             <Show when={getAllWorkoutNotes().length > 0}>

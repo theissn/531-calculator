@@ -62,7 +62,7 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ---
 
-### Phase 4: Polish
+### Phase 4: Polish ✓
 
 **4.1 Theme Toggle** ✓
 - ~~Add light mode option~~
@@ -71,11 +71,11 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 - ~~Keep dark as default~~
 - ~~Respect system preference when set to "System"~~
 
-**4.2 Progress Charts**
-- Simple line charts for TM over time
-- Simple line charts for estimated 1RM over time
-- Per-lift view
-- All-lifts comparison view
+**4.2 Progress Charts** ✓
+- ~~Simple line charts for TM over time~~
+- ~~Simple line charts for estimated 1RM over time~~
+- ~~Per-lift view~~
+- ~~All-lifts comparison view~~
 
 ---
 
