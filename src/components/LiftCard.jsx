@@ -56,6 +56,7 @@ export default function LiftCard(props) {
                 onToggle={() => toggleMainSet(props.lift.liftId, index())}
                 plates={getPlates(set.weight)}
                 liftId={props.lift.liftId}
+                setIndex={index()}
               />
             )}
           </For>

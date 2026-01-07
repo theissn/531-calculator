@@ -30,21 +30,31 @@ export default function SetRow(props) {
     return 'text-text'
   }
 
-  const handleToggle = () => {
-    haptic()
-    props.onToggle?.()
-  }
-
-  const handleAmrapClick = () => {
-    haptic()
+  const openAmrapModal = () => {
     // Extract min reps from "5+" format
     const minReps = parseInt(props.set.reps, 10)
     setAmrapModal({
       liftId: props.liftId,
       weight: props.set.weight,
       week: state.currentWeek,
-      minReps
+      minReps,
+      setIndex: props.setIndex
     })
+  }
+
+  const handleToggle = () => {
+    haptic()
+    // For AMRAP sets, open the modal instead of just toggling
+    if (props.set.isAmrap && props.liftId) {
+      openAmrapModal()
+    } else {
+      props.onToggle?.()
+    }
+  }
+
+  const handleAmrapClick = () => {
+    haptic()
+    openAmrapModal()
   }
 
   const platesDisplay = () => formatPlates(props.plates)
