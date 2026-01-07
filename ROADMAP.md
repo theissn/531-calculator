@@ -7,7 +7,7 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ## Priority Order (UX First)
 
-### Phase 1: Core UX Improvements
+### Phase 1: Core UX Improvements ✓
 
 **1.1 Main Lift Set Tracking** ✓
 - ~~Add checkboxes to mark working sets as complete~~
@@ -19,11 +19,11 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 - ~~Keep screen awake during workout (Wake Lock API)~~
 - ~~Lock to portrait orientation~~
 
-**1.3 Plate Calculator**
-- Show plates to load per side
-- Standard bar weight (45lb / 20kg)
-- User-configurable available plates in settings
-- Display below each working set weight
+**1.3 Plate Calculator** ✓
+- ~~Show plates to load per side~~
+- ~~Standard bar weight (45lb / 20kg)~~
+- ~~User-configurable available plates in settings~~
+- ~~Display below each working set weight~~
 
 ---
 

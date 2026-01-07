@@ -132,6 +132,14 @@ export default function Settings() {
     updateSettings({ showWarmups: e.target.checked })
   }
 
+  const handlePlatesChange = (e) => {
+    updateSettings({ showPlates: e.target.checked })
+  }
+
+  const handleBarWeightChange = (e) => {
+    updateSettings({ barWeight: parseFloat(e.target.value) || 45 })
+  }
+
   const handleReset = async () => {
     if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
       await reset()
@@ -274,7 +282,7 @@ export default function Settings() {
                     </div>
                   </label>
                 </div>
-                <div class="p-4">
+                <div class="p-4 border-b border-border">
                   <label class="flex items-center justify-between cursor-pointer">
                     <span>Show warm-up sets</span>
                     <input
@@ -285,6 +293,35 @@ export default function Settings() {
                     />
                   </label>
                 </div>
+                <div class="p-4 border-b border-border">
+                  <label class="flex items-center justify-between cursor-pointer">
+                    <span>Show plate calculator</span>
+                    <input
+                      type="checkbox"
+                      checked={settings().showPlates}
+                      onChange={handlePlatesChange}
+                      class="w-5 h-5 accent-current"
+                    />
+                  </label>
+                </div>
+                <Show when={settings().showPlates}>
+                  <div class="p-4">
+                    <label class="flex items-center justify-between">
+                      <span class="text-sm">Bar weight</span>
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="number"
+                          step="any"
+                          inputmode="decimal"
+                          class="w-20 bg-bg border border-border rounded px-3 py-1.5 text-right text-sm focus:outline-none focus:border-border-hover"
+                          value={settings().barWeight || (settings().unit === 'kg' ? 20 : 45)}
+                          onChange={handleBarWeightChange}
+                        />
+                        <span class="text-text-dim text-sm w-8">{settings().unit}</span>
+                      </div>
+                    </label>
+                  </div>
+                </Show>
               </div>
             </section>
 

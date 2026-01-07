@@ -23,6 +23,9 @@ export const DEFAULT_DATA = {
     unit: 'lbs',
     roundingIncrement: 5,
     showWarmups: false,
+    showPlates: false,
+    barWeight: 45,
+    availablePlates: [45, 35, 25, 10, 5, 2.5],
     theme: 'system' // 'system' | 'dark' | 'light'
   },
   currentWeek: 1,

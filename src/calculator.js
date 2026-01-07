@@ -3,6 +3,13 @@
  */
 
 /**
+ * Default plate inventory (per side)
+ */
+export const DEFAULT_PLATES_LBS = [45, 35, 25, 10, 5, 2.5]
+export const DEFAULT_PLATES_KG = [25, 20, 15, 10, 5, 2.5, 1.25]
+export const DEFAULT_BAR_WEIGHT = { lbs: 45, kg: 20 }
+
+/**
  * Calculate Training Max from 1RM
  * @param {number} oneRepMax - The one rep max
  * @param {number} tmPercentage - TM percentage (80-95)
@@ -20,6 +27,38 @@ export function calculateTM(oneRepMax, tmPercentage) {
  */
 export function roundWeight(weight, increment) {
   return Math.round(weight / increment) * increment
+}
+
+/**
+ * Calculate plates needed per side for a given weight
+ * @param {number} totalWeight - Total weight including bar
+ * @param {number} barWeight - Weight of the bar
+ * @param {number[]} availablePlates - Available plate sizes (sorted desc)
+ * @returns {Object} { plates: [{weight, count}], remainder: number }
+ */
+export function calculatePlates(totalWeight, barWeight, availablePlates) {
+  let weightPerSide = (totalWeight - barWeight) / 2
+  
+  if (weightPerSide <= 0) {
+    return { plates: [], remainder: 0 }
+  }
+  
+  // Sort plates descending
+  const sortedPlates = [...availablePlates].sort((a, b) => b - a)
+  const plates = []
+  
+  for (const plateWeight of sortedPlates) {
+    if (weightPerSide >= plateWeight) {
+      const count = Math.floor(weightPerSide / plateWeight)
+      plates.push({ weight: plateWeight, count })
+      weightPerSide -= count * plateWeight
+    }
+  }
+  
+  // Round remainder to avoid floating point issues
+  const remainder = Math.round(weightPerSide * 100) / 100
+  
+  return { plates, remainder }
 }
 
 /**
