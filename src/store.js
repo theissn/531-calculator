@@ -120,7 +120,9 @@ export async function updateLift(liftId, oneRepMax) {
       oneRepMax,
       trainingMax: Math.round(trainingMax)
     }
-    const tmHistory = [...(state.tmHistory || []), tmRecord]
+    // Clone existing history to plain objects (SolidJS proxies can't be stored in IndexedDB)
+    const existingHistory = JSON.parse(JSON.stringify(state.tmHistory || []))
+    const tmHistory = [...existingHistory, tmRecord]
     
     await update({
       lifts: {
@@ -180,7 +182,9 @@ export async function recordPR(liftId, weight, reps, week) {
     week
   }
   
-  const prHistory = [...(state.prHistory || []), record]
+  // Clone existing history to plain objects (SolidJS proxies can't be stored in IndexedDB)
+  const existingHistory = JSON.parse(JSON.stringify(state.prHistory || []))
+  const prHistory = [...existingHistory, record]
   await update({ prHistory })
   
   return record
@@ -221,7 +225,8 @@ export function getAllTMHistory() {
  */
 export async function saveWorkoutNote(note, week) {
   const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
-  const workoutNotes = state.workoutNotes || []
+  // Clone existing notes to plain objects (SolidJS proxies can't be stored in IndexedDB)
+  const workoutNotes = JSON.parse(JSON.stringify(state.workoutNotes || []))
   
   // Find existing note for today, or create new
   const existingIndex = workoutNotes.findIndex(n => n.date === today)
