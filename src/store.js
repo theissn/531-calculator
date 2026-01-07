@@ -23,6 +23,9 @@ const [showSettings, setShowSettings] = createSignal(false)
 // AMRAP modal state: { liftId, weight, week, minReps } or null
 const [amrapModal, setAmrapModal] = createSignal(null)
 
+// Progress view visibility
+const [showProgress, setShowProgress] = createSignal(false)
+
 /**
  * Initialize store from IndexedDB
  */
@@ -103,15 +106,37 @@ export async function updateSettings(settings) {
 }
 
 /**
- * Update a lift's 1RM
+ * Update a lift's 1RM and log TM history
  */
 export async function updateLift(liftId, oneRepMax) {
-  await update({
-    lifts: {
-      ...state.lifts,
-      [liftId]: { ...state.lifts[liftId], oneRepMax }
+  const oldOneRepMax = state.lifts[liftId]?.oneRepMax || 0
+  
+  // Only log if actually changing and not initial setup (oneRepMax > 0)
+  if (oneRepMax !== oldOneRepMax && oldOneRepMax > 0) {
+    const trainingMax = calculateTM(oneRepMax, state.settings.tmPercentage)
+    const tmRecord = {
+      liftId,
+      date: new Date().toISOString(),
+      oneRepMax,
+      trainingMax: Math.round(trainingMax)
     }
-  })
+    const tmHistory = [...(state.tmHistory || []), tmRecord]
+    
+    await update({
+      lifts: {
+        ...state.lifts,
+        [liftId]: { ...state.lifts[liftId], oneRepMax }
+      },
+      tmHistory
+    })
+  } else {
+    await update({
+      lifts: {
+        ...state.lifts,
+        [liftId]: { ...state.lifts[liftId], oneRepMax }
+      }
+    })
+  }
 }
 
 /**
@@ -178,6 +203,20 @@ export function getBestPR(liftId) {
 }
 
 /**
+ * Get TM history for a lift
+ */
+export function getTMHistory(liftId) {
+  return (state.tmHistory || []).filter(tm => tm.liftId === liftId)
+}
+
+/**
+ * Get all TM history
+ */
+export function getAllTMHistory() {
+  return state.tmHistory || []
+}
+
+/**
  * Get calculated data for a lift on a given week
  */
 export function getLiftData(liftId, week) {
@@ -230,4 +269,4 @@ export const LIFT_NAMES = {
   ohp: 'Overhead Press'
 }
 
-export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, TEMPLATES }
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, TEMPLATES }

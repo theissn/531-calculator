@@ -35,11 +35,11 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 - ~~Calculate and display estimated 1RM~~
 - ~~Store PR history in IndexedDB~~
 
-**2.2 TM History**
-- Log all TM changes with timestamps
-- Manual updates only (no auto-prompts)
-- Simple line charts showing TM progression per lift
-- New "Progress" view/tab for charts
+**2.2 TM History** ✓
+- ~~Log all TM changes with timestamps~~
+- ~~Manual updates only (no auto-prompts)~~
+- ~~Simple line charts showing TM progression per lift~~
+- ~~New "Progress" view/tab for charts~~
 
 **2.3 Workout Notes**
 - Optional text field per session

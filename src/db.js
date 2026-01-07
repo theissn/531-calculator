@@ -30,6 +30,8 @@ export const DEFAULT_DATA = {
   },
   // PR history: array of { liftId, date, weight, reps, estimated1RM, week }
   prHistory: [],
+  // TM history: array of { liftId, date, oneRepMax, trainingMax }
+  tmHistory: [],
   currentWeek: 1,
   isOnboarded: false
 }

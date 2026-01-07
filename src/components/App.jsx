@@ -3,13 +3,14 @@
  */
 
 import { Show, For } from 'solid-js'
-import { state, showSettings, getAllLiftsForWeek } from '../store.js'
+import { state, showSettings, showProgress, getAllLiftsForWeek } from '../store.js'
 import Header from './Header.jsx'
 import WeekTabs from './WeekTabs.jsx'
 import LiftCard from './LiftCard.jsx'
 import Settings from './Settings.jsx'
 import Onboarding from './Onboarding.jsx'
 import AmrapModal from './AmrapModal.jsx'
+import Progress from './Progress.jsx'
 
 export default function App() {
   const liftsData = () => getAllLiftsForWeek(state.currentWeek)
@@ -31,6 +32,9 @@ export default function App() {
         </div>
         <Show when={showSettings()}>
           <Settings />
+        </Show>
+        <Show when={showProgress()}>
+          <Progress />
         </Show>
         <AmrapModal />
       </Show>
