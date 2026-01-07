@@ -48,17 +48,17 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ---
 
-### Phase 3: Accessories
+### Phase 3: Accessories ✓
 
-**3.1 Accessory Templates**
-- User creates named accessory templates
-- Each template contains a list of exercises
-- Assign template to use (can switch between them)
+**3.1 Accessory Templates** ✓
+- ~~User creates named accessory templates~~
+- ~~Each template contains a list of exercises~~
+- ~~Assign template to use (can switch between them)~~
 
-**3.2 Accessory Tracking**
-- Checklist UI (just check off when done)
-- No weight/rep logging
-- Reset with each session
+**3.2 Accessory Tracking** ✓
+- ~~Checklist UI (just check off when done)~~
+- ~~No weight/rep logging~~
+- ~~Reset with each session~~
 
 ---
 

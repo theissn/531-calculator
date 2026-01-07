@@ -2,7 +2,7 @@
  * Settings Component - Settings slide-in panel
  */
 
-import { For, Show } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import {
   state,
@@ -11,8 +11,14 @@ import {
   updateLift,
   updateLiftSettings,
   reset,
+  getAccessoryTemplates,
+  createAccessoryTemplate,
+  updateAccessoryTemplate,
+  deleteAccessoryTemplate,
+  setActiveTemplate,
   TEMPLATES
 } from '../store.js'
+import { haptic } from '../hooks/useMobile.js'
 
 const LIFT_LABELS = {
   squat: 'Squat',
@@ -94,6 +100,204 @@ function LiftSettingsCard(props) {
           </div>
         </Show>
       </div>
+    </div>
+  )
+}
+
+function AccessoriesManager() {
+  const [isAdding, setIsAdding] = createSignal(false)
+  const [editingId, setEditingId] = createSignal(null)
+  const [newName, setNewName] = createSignal('')
+  const [newExercises, setNewExercises] = createSignal('')
+
+  const templates = () => getAccessoryTemplates()
+  const activeId = () => state.activeTemplateId
+
+  const handleAdd = async () => {
+    if (!newName().trim()) return
+    haptic()
+    
+    const exercises = newExercises()
+      .split('\n')
+      .map(e => e.trim())
+      .filter(e => e.length > 0)
+    
+    await createAccessoryTemplate(newName().trim(), exercises)
+    setNewName('')
+    setNewExercises('')
+    setIsAdding(false)
+  }
+
+  const handleEdit = (template) => {
+    setEditingId(template.id)
+    setNewName(template.name)
+    setNewExercises(template.exercises.join('\n'))
+  }
+
+  const handleSaveEdit = async () => {
+    if (!newName().trim()) return
+    haptic()
+    
+    const exercises = newExercises()
+      .split('\n')
+      .map(e => e.trim())
+      .filter(e => e.length > 0)
+    
+    await updateAccessoryTemplate(editingId(), { name: newName().trim(), exercises })
+    setEditingId(null)
+    setNewName('')
+    setNewExercises('')
+  }
+
+  const handleDelete = async (id) => {
+    haptic()
+    await deleteAccessoryTemplate(id)
+  }
+
+  const handleSetActive = async (id) => {
+    haptic()
+    await setActiveTemplate(activeId() === id ? null : id)
+  }
+
+  const handleCancel = () => {
+    setIsAdding(false)
+    setEditingId(null)
+    setNewName('')
+    setNewExercises('')
+  }
+
+  return (
+    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+      <Show when={templates().length === 0 && !isAdding()}>
+        <div class="p-4 text-center text-text-dim text-sm">
+          No accessory templates yet
+        </div>
+      </Show>
+
+      <div class="divide-y divide-border">
+        <For each={templates()}>
+          {(template) => (
+            <Show when={editingId() === template.id} fallback={
+              <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <button
+                    class="flex items-center gap-2"
+                    onClick={() => handleSetActive(template.id)}
+                  >
+                    <div class={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      activeId() === template.id ? 'border-text' : 'border-border-hover'
+                    }`}>
+                      <Show when={activeId() === template.id}>
+                        <div class="w-2 h-2 rounded-full bg-text" />
+                      </Show>
+                    </div>
+                    <span class="font-medium">{template.name}</span>
+                  </button>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="p-1 text-text-dim hover:text-text"
+                      onClick={() => handleEdit(template)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                    <button
+                      class="p-1 text-text-dim hover:text-red-500"
+                      onClick={() => handleDelete(template.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="text-sm text-text-dim">
+                  {template.exercises.length} exercises
+                </div>
+              </div>
+            }>
+              {/* Edit mode */}
+              <div class="p-4 space-y-3">
+                <input
+                  type="text"
+                  class="w-full bg-bg border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-border-hover"
+                  placeholder="Template name"
+                  value={newName()}
+                  onInput={(e) => setNewName(e.target.value)}
+                />
+                <textarea
+                  class="w-full bg-bg border border-border rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
+                  rows="4"
+                  placeholder="Exercises (one per line)"
+                  value={newExercises()}
+                  onInput={(e) => setNewExercises(e.target.value)}
+                />
+                <div class="flex gap-2">
+                  <button
+                    class="flex-1 py-2 text-sm text-text-muted hover:text-text"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    class="flex-1 py-2 bg-border hover:bg-border-hover rounded text-sm font-medium"
+                    onClick={handleSaveEdit}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </Show>
+          )}
+        </For>
+      </div>
+
+      <Show when={isAdding()}>
+        <div class="p-4 space-y-3 border-t border-border">
+          <input
+            type="text"
+            class="w-full bg-bg border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-border-hover"
+            placeholder="Template name"
+            value={newName()}
+            onInput={(e) => setNewName(e.target.value)}
+            autofocus
+          />
+          <textarea
+            class="w-full bg-bg border border-border rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
+            rows="4"
+            placeholder="Exercises (one per line)"
+            value={newExercises()}
+            onInput={(e) => setNewExercises(e.target.value)}
+          />
+          <div class="flex gap-2">
+            <button
+              class="flex-1 py-2 text-sm text-text-muted hover:text-text"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+            <button
+              class="flex-1 py-2 bg-border hover:bg-border-hover rounded text-sm font-medium"
+              onClick={handleAdd}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </Show>
+
+      <Show when={!isAdding() && !editingId()}>
+        <button
+          class="w-full p-4 text-sm text-text-muted hover:text-text hover:bg-bg-hover border-t border-border flex items-center justify-center gap-2"
+          onClick={() => setIsAdding(true)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Template
+        </button>
+      </Show>
     </div>
   )
 }
@@ -323,6 +527,12 @@ export default function Settings() {
                   </div>
                 </Show>
               </div>
+            </section>
+
+            {/* Accessories Section */}
+            <section>
+              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Accessories</h3>
+              <AccessoriesManager />
             </section>
 
             {/* Reset Section */}

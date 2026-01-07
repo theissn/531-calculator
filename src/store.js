@@ -258,6 +258,68 @@ export function getAllWorkoutNotes() {
 }
 
 /**
+ * Create a new accessory template
+ */
+export async function createAccessoryTemplate(name, exercises = []) {
+  const id = Date.now().toString()
+  const template = { id, name, exercises }
+  
+  const existingTemplates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
+  const accessoryTemplates = [...existingTemplates, template]
+  
+  await update({ accessoryTemplates })
+  return template
+}
+
+/**
+ * Update an accessory template
+ */
+export async function updateAccessoryTemplate(id, updates) {
+  const templates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
+  const index = templates.findIndex(t => t.id === id)
+  
+  if (index >= 0) {
+    templates[index] = { ...templates[index], ...updates }
+    await update({ accessoryTemplates: templates })
+  }
+}
+
+/**
+ * Delete an accessory template
+ */
+export async function deleteAccessoryTemplate(id) {
+  const templates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
+  const accessoryTemplates = templates.filter(t => t.id !== id)
+  
+  // Clear active template if it was deleted
+  const activeTemplateId = state.activeTemplateId === id ? null : state.activeTemplateId
+  
+  await update({ accessoryTemplates, activeTemplateId })
+}
+
+/**
+ * Set the active accessory template
+ */
+export async function setActiveTemplate(id) {
+  await update({ activeTemplateId: id })
+}
+
+/**
+ * Get all accessory templates
+ */
+export function getAccessoryTemplates() {
+  return state.accessoryTemplates || []
+}
+
+/**
+ * Get the active accessory template
+ */
+export function getActiveTemplate() {
+  if (!state.activeTemplateId) return null
+  return (state.accessoryTemplates || []).find(t => t.id === state.activeTemplateId)
+}
+
+/**
  * Get calculated data for a lift on a given week
  */
 export function getLiftData(liftId, week) {

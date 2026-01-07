@@ -12,6 +12,7 @@ import Onboarding from './Onboarding.jsx'
 import AmrapModal from './AmrapModal.jsx'
 import Progress from './Progress.jsx'
 import WorkoutNotes from './WorkoutNotes.jsx'
+import AccessoryChecklist from './AccessoryChecklist.jsx'
 
 export default function App() {
   const liftsData = () => getAllLiftsForWeek(state.currentWeek)
@@ -28,6 +29,7 @@ export default function App() {
               <For each={liftsData()}>
                 {(lift) => <LiftCard lift={lift} isDeload={isDeload()} />}
               </For>
+              <AccessoryChecklist />
               <WorkoutNotes />
             </div>
           </main>

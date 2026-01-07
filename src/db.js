@@ -34,6 +34,10 @@ export const DEFAULT_DATA = {
   tmHistory: [],
   // Workout notes: array of { date, week, note }
   workoutNotes: [],
+  // Accessory templates: array of { id, name, exercises: string[] }
+  accessoryTemplates: [],
+  // Currently active template ID (null = none)
+  activeTemplateId: null,
   currentWeek: 1,
   isOnboarded: false
 }
