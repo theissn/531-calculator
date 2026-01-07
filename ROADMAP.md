@@ -81,10 +81,10 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ### Phase 5: Cloud (6+ Months)
 
-**5.1 Export/Import**
-- Export all data to JSON
-- Import from JSON backup
-- Prerequisite for cloud sync
+**5.1 Export/Import** ✓
+- ~~Export all data to JSON~~
+- ~~Import from JSON backup~~
+- ~~Prerequisite for cloud sync~~
 
 **5.2 Cloud Sync**
 - Account system (auth)
