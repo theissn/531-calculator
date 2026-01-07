@@ -37,7 +37,7 @@ export const DEFAULT_DATA = {
   // Accessory templates: array of { id, name, exercises: [{name, sets, reps}] }
   accessoryTemplates: [],
   currentWeek: 1,
-  currentLift: 'all', // 'all' | 'squat' | 'bench' | 'deadlift' | 'ohp'
+  currentLift: 'squat', // 'squat' | 'bench' | 'deadlift' | 'ohp'
   isOnboarded: false
 }
 

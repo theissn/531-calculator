@@ -17,11 +17,8 @@ import WorkoutNotes from './WorkoutNotes.jsx'
 
 export default function App() {
   const allLiftsData = () => getAllLiftsForWeek(state.currentWeek)
-  const currentLift = () => state.currentLift || 'all'
-  const liftsData = () => {
-    if (currentLift() === 'all') return allLiftsData()
-    return allLiftsData().filter(lift => lift.liftId === currentLift())
-  }
+  const currentLift = () => state.currentLift || 'squat'
+  const liftsData = () => allLiftsData().filter(lift => lift.liftId === currentLift())
   const isDeload = () => state.currentWeek === 4
 
   return (
