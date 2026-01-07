@@ -11,6 +11,8 @@ import {
   updateLift,
   updateLiftSettings,
   reset,
+  exportData,
+  importData,
   getAccessoryTemplates,
   createAccessoryTemplate,
   updateAccessoryTemplate,
@@ -371,6 +373,39 @@ export default function Settings() {
     updateSettings({ barWeight: parseFloat(e.target.value) || 45 })
   }
 
+  const handleExport = () => {
+    haptic()
+    const data = exportData()
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `531-backup-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImport = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    haptic()
+    const text = await file.text()
+    const result = await importData(text)
+    
+    if (result.success) {
+      alert('Backup restored successfully!')
+      handleClose()
+    } else {
+      alert(`Import failed: ${result.error}`)
+    }
+    
+    // Reset the input so the same file can be selected again
+    e.target.value = ''
+  }
+
   const handleReset = async () => {
     if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
       await reset()
@@ -560,6 +595,46 @@ export default function Settings() {
             <section>
               <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Accessories</h3>
               <AccessoriesManager />
+            </section>
+
+            {/* Data Section */}
+            <section>
+              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Data</h3>
+              <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+                <button
+                  class="w-full p-4 flex items-center justify-between hover:bg-bg-hover"
+                  onClick={handleExport}
+                >
+                  <div class="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    <span>Export Backup</span>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+                <div class="border-t border-border">
+                  <label class="w-full p-4 flex items-center justify-between hover:bg-bg-hover cursor-pointer">
+                    <div class="flex items-center gap-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                      </svg>
+                      <span>Import Backup</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                    <input
+                      type="file"
+                      accept=".json"
+                      class="hidden"
+                      onChange={handleImport}
+                    />
+                  </label>
+                </div>
+              </div>
             </section>
 
             {/* Reset Section */}

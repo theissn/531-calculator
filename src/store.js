@@ -176,6 +176,43 @@ export async function reset() {
 }
 
 /**
+ * Export all data as JSON string
+ */
+export function exportData() {
+  const data = JSON.parse(JSON.stringify(state))
+  // Remove loading state
+  delete data.isLoading
+  return JSON.stringify(data, null, 2)
+}
+
+/**
+ * Import data from JSON string
+ */
+export async function importData(jsonString) {
+  try {
+    const data = JSON.parse(jsonString)
+    
+    // Validate required fields exist
+    if (!data.lifts || !data.settings) {
+      throw new Error('Invalid backup file: missing required data')
+    }
+    
+    // Merge with defaults to ensure all fields exist
+    const { DEFAULT_DATA } = await import('./db.js')
+    const mergedData = {
+      ...DEFAULT_DATA,
+      ...data,
+      isOnboarded: true // If they have data, they're onboarded
+    }
+    
+    await update(mergedData)
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
+/**
  * Record a PR from an AMRAP set
  */
 export async function recordPR(liftId, weight, reps, week) {
