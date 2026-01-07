@@ -86,10 +86,11 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 - ~~Import from JSON backup~~
 - ~~Prerequisite for cloud sync~~
 
-**5.2 Cloud Sync**
+**5.2 Cloud Sync** (deferred)
 - Account system (auth)
 - Sync settings, PRs, TM history across devices
 - Conflict resolution strategy
+- *Decision: Revisit when multi-device need arises. Export/import sufficient for now.*
 
 ---
 
