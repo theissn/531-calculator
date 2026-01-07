@@ -9,10 +9,10 @@ A focused, purely functional 5/3/1 calculator with light tracking capabilities. 
 
 ### Phase 1: Core UX Improvements
 
-**1.1 Main Lift Set Tracking**
-- Add checkboxes to mark working sets as complete
-- Simple visual feedback (no timer integration like supplemental)
-- Session-only state (not persisted)
+**1.1 Main Lift Set Tracking** ✓
+- ~~Add checkboxes to mark working sets as complete~~
+- ~~Simple visual feedback (no timer integration like supplemental)~~
+- ~~Session-only state (not persisted)~~
 
 **1.2 Mobile Experience**
 - Haptic feedback on button presses

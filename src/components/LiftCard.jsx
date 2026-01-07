@@ -5,6 +5,7 @@
 import { For, Show } from 'solid-js'
 import { LIFT_NAMES } from '../store.js'
 import { roundWeight } from '../calculator.js'
+import { isMainSetComplete, toggleMainSet } from '../hooks/useCompletedSets.js'
 import SetRow from './SetRow.jsx'
 import SupplementalSection from './SupplementalSection.jsx'
 
@@ -36,7 +37,15 @@ export default function LiftCard(props) {
 
         <div class="space-y-1">
           <For each={workSets()}>
-            {(set) => <SetRow set={set} unit={props.lift.unit} isWarmup={false} />}
+            {(set, index) => (
+              <SetRow
+                set={set}
+                unit={props.lift.unit}
+                isWarmup={false}
+                isComplete={() => isMainSetComplete(props.lift.liftId, index())}
+                onToggle={() => toggleMainSet(props.lift.liftId, index())}
+              />
+            )}
           </For>
         </div>
 
