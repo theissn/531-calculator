@@ -68,6 +68,8 @@ export default function LiftCard(props) {
             liftId={props.lift.liftId}
             supplemental={props.lift.supplemental}
             unit={props.lift.unit}
+            supplementalLiftId={props.lift.supplementalLiftId}
+            supplementalLiftName={props.lift.supplementalLiftName}
           />
         </Show>
 

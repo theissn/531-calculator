@@ -27,7 +27,12 @@ export default function SupplementalSection(props) {
   return (
     <div class="mt-4 pt-3 border-t border-border">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-sm text-text-muted">{props.supplemental.templateName}</span>
+        <span class="text-sm text-text-muted">
+          {props.supplemental.templateName}
+          <Show when={props.supplementalLiftId && props.supplementalLiftId !== props.liftId}>
+            {' '}{props.supplementalLiftName}
+          </Show>
+        </span>
         <span class="text-xs text-text-dim">{completedCount()}/{totalSets} sets</span>
       </div>
 

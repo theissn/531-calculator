@@ -34,6 +34,10 @@ function LiftSettingsCard(props) {
     const t = template()
     return t && t.hasSupplemental && !t.usesFirstSetPercentage && !t.usesSecondSetPercentage
   }
+  const hasSupplemental = () => {
+    const t = template()
+    return t && t.hasSupplemental
+  }
   const accessoryTemplates = () => getAccessoryTemplates()
 
   const handleOneRepMaxChange = (e) => {
@@ -48,6 +52,11 @@ function LiftSettingsCard(props) {
   const handleSupplPctChange = (e) => {
     const value = parseInt(e.target.value, 10) || 50
     updateLiftSettings(props.liftId, { supplementalPercentage: value })
+  }
+
+  const handleSupplementalLiftChange = (e) => {
+    const value = e.target.value || null
+    updateLiftSettings(props.liftId, { supplementalLiftId: value })
   }
 
   const handleAccessoryTemplateChange = (e) => {
@@ -104,6 +113,22 @@ function LiftSettingsCard(props) {
               />
               <span class="text-text-dim text-sm">%</span>
             </div>
+          </div>
+        </Show>
+
+        <Show when={hasSupplemental()}>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-text-muted">Suppl. Lift</span>
+            <select
+              class="bg-bg border border-border rounded px-3 py-1.5 text-sm"
+              value={props.lift.supplementalLiftId || ''}
+              onChange={handleSupplementalLiftChange}
+            >
+              <option value="">Same lift</option>
+              <For each={['squat', 'bench', 'deadlift', 'ohp'].filter(id => id !== props.liftId)}>
+                {(id) => <option value={id}>{LIFT_LABELS[id]}</option>}
+              </For>
+            </select>
           </div>
         </Show>
 

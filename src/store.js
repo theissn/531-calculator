@@ -372,6 +372,11 @@ export function getLiftData(liftId, week) {
   const supplementalPercentage = lift.supplementalPercentage || 50
   const tm = calculateTM(lift.oneRepMax, settings.tmPercentage)
 
+  // Determine supplemental lift (defaults to same lift)
+  const supplementalLiftId = lift.supplementalLiftId || liftId
+  const supplementalLift = state.lifts[supplementalLiftId]
+  const supplementalTM = calculateTM(supplementalLift.oneRepMax, settings.tmPercentage)
+
   let mainSets
   if (template === '5x531') {
     mainSets = generate5x531Sets(tm, week, settings.roundingIncrement)
@@ -381,7 +386,7 @@ export function getLiftData(liftId, week) {
 
   const supplemental = generateSupplementalSets(
     template,
-    tm,
+    supplementalTM,
     week,
     supplementalPercentage,
     settings.roundingIncrement
@@ -394,7 +399,9 @@ export function getLiftData(liftId, week) {
     unit: settings.unit,
     template,
     mainSets,
-    supplemental
+    supplemental,
+    supplementalLiftId,
+    supplementalLiftName: LIFT_NAMES[supplementalLiftId]
   }
 }
 

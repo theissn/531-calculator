@@ -13,10 +13,10 @@ let db = null
  */
 export const DEFAULT_DATA = {
   lifts: {
-    squat: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null },
-    bench: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null },
-    deadlift: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null },
-    ohp: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null }
+    squat: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null, supplementalLiftId: null },
+    bench: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null, supplementalLiftId: null },
+    deadlift: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null, supplementalLiftId: null },
+    ohp: { oneRepMax: 0, template: 'classic', supplementalPercentage: 50, accessoryTemplateId: null, supplementalLiftId: null }
   },
   settings: {
     tmPercentage: 85,
