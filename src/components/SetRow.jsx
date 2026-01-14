@@ -23,6 +23,11 @@ function formatPlates(platesData) {
   return parts.join(' + ')
 }
 
+function formatWeight(value) {
+  if (value === null || value === undefined) return null
+  return value % 1 === 0 ? value.toString() : value.toFixed(1)
+}
+
 export default function SetRow(props) {
   const textColor = () => {
     if (props.isWarmup) return 'text-text-dim'
@@ -58,6 +63,21 @@ export default function SetRow(props) {
   }
 
   const platesDisplay = () => formatPlates(props.plates)
+  const topSetLabel = () => {
+    if (!props.showTopSetBadge || !props.isTopSet) return null
+    return props.set.isAmrap ? 'Top Set · AMRAP' : 'Top Set'
+  }
+  const isAmrapHighlight = () => props.showTopSetBadge && props.set.isAmrap
+  const weightClass = () => `flex-1 flex items-center gap-2 ${props.showTopSetBadge && props.isTopSet ? 'font-semibold' : 'font-medium'}`
+  const amrapClass = () => `w-12 text-right${isAmrapHighlight() ? ' font-semibold' : ''}`
+  const nextJump = () => {
+    if (!props.showNextJump || props.nextWeight == null) return null
+    const diff = Math.round((props.nextWeight - props.set.weight) * 100) / 100
+    if (diff === 0) return null
+    const sign = diff > 0 ? '+' : '-'
+    const value = formatWeight(Math.abs(diff))
+    return `Next ${sign}${value} ${props.unit}`
+  }
 
   return (
     <div class="py-1">
@@ -81,18 +101,28 @@ export default function SetRow(props) {
             <span>{props.set.percentage}%</span>
           </button>
         </Show>
-        <span class="flex-1 font-medium">{props.set.weight} {props.unit}</span>
+        <div class={weightClass()}>
+          <span>{props.set.weight} {props.unit}</span>
+          <Show when={topSetLabel()}>
+            <span class="text-[10px] uppercase tracking-wider text-text-dim border border-border rounded px-1.5 py-0.5">
+              {topSetLabel()}
+            </span>
+          </Show>
+        </div>
         <Show when={props.set.isAmrap && props.liftId} fallback={
           <span class="w-12 text-right">×{props.set.reps}</span>
         }>
           <button
-            class="w-12 text-right text-text-muted hover:text-text"
+            class={`${amrapClass()} hover:text-text`}
             onClick={handleAmrapClick}
           >
             ×{props.set.reps}
           </button>
         </Show>
       </div>
+      <Show when={nextJump()}>
+        <div class="text-xs text-text-dim ml-16 mt-0.5">{nextJump()}</div>
+      </Show>
       <Show when={platesDisplay()}>
         <div class="text-xs text-text-dim ml-16 mt-0.5">{platesDisplay()}</div>
       </Show>

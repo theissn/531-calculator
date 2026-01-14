@@ -18,7 +18,7 @@ export function startTimer() {
   setIsRunning(true)
 
   // Keep screen awake while timer is running
-  requestWakeLock()
+  requestWakeLock('timer')
 
   interval = setInterval(() => {
     setSeconds(s => s + 1)
@@ -37,7 +37,7 @@ export function stopTimer() {
   setSeconds(0)
   
   // Allow screen to sleep again
-  releaseWakeLock()
+  releaseWakeLock('timer')
 }
 
 /**

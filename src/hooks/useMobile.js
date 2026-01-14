@@ -19,20 +19,25 @@ export function haptic(duration = 10) {
 
 // Wake Lock state
 let wakeLock = null
+const wakeLockRequests = new Set()
 const [isWakeLockActive, setIsWakeLockActive] = createSignal(false)
 
-/**
- * Request wake lock to keep screen on
- */
-export async function requestWakeLock() {
+const wantsWakeLock = () => wakeLockRequests.size > 0
+
+async function acquireWakeLock() {
   if (!('wakeLock' in navigator)) return false
+  if (wakeLock) return true
   
   try {
     wakeLock = await navigator.wakeLock.request('screen')
     setIsWakeLockActive(true)
     
     wakeLock.addEventListener('release', () => {
+      wakeLock = null
       setIsWakeLockActive(false)
+      if (document.visibilityState === 'visible' && wantsWakeLock()) {
+        acquireWakeLock()
+      }
     })
     
     return true
@@ -43,10 +48,19 @@ export async function requestWakeLock() {
 }
 
 /**
+ * Request wake lock to keep screen on
+ */
+export async function requestWakeLock(reason = 'app') {
+  wakeLockRequests.add(reason)
+  return acquireWakeLock()
+}
+
+/**
  * Release wake lock
  */
-export async function releaseWakeLock() {
-  if (wakeLock) {
+export async function releaseWakeLock(reason = 'app') {
+  wakeLockRequests.delete(reason)
+  if (!wantsWakeLock() && wakeLock) {
     await wakeLock.release()
     wakeLock = null
     setIsWakeLockActive(false)
@@ -59,8 +73,8 @@ export async function releaseWakeLock() {
  */
 export function setupWakeLockVisibilityHandler() {
   const handleVisibilityChange = async () => {
-    if (document.visibilityState === 'visible' && isWakeLockActive()) {
-      await requestWakeLock()
+    if (document.visibilityState === 'visible' && wantsWakeLock()) {
+      await acquireWakeLock()
     }
   }
   

@@ -2,9 +2,10 @@
  * App Component - Root application component
  */
 
-import { Show, For } from 'solid-js'
+import { Show, For, onMount, onCleanup } from 'solid-js'
 import { state, showSettings, showProgress, getAllLiftsForWeek } from '../store.js'
 import { isRunning } from '../hooks/useTimer.js'
+import { requestWakeLock, setupWakeLockVisibilityHandler } from '../hooks/useMobile.js'
 import Header from './Header.jsx'
 import WeekTabs from './WeekTabs.jsx'
 import LiftSelector from './LiftSelector.jsx'
@@ -20,6 +21,17 @@ export default function App() {
   const currentLift = () => state.currentLift || 'squat'
   const liftsData = () => allLiftsData().filter(lift => lift.liftId === currentLift())
   const isDeload = () => state.currentWeek === 4
+
+  onMount(() => {
+    requestWakeLock('app')
+    setupWakeLockVisibilityHandler()
+
+    const handlePointerDown = () => requestWakeLock('app')
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true })
+    onCleanup(() => {
+      window.removeEventListener('pointerdown', handlePointerDown)
+    })
+  })
 
   return (
     <Show when={!state.isLoading} fallback={<div class="min-h-screen bg-bg" />}>

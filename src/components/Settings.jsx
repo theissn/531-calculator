@@ -394,6 +394,14 @@ export default function Settings() {
     updateSettings({ showPlates: e.target.checked })
   }
 
+  const handleTopSetBadgeChange = (e) => {
+    updateSettings({ showTopSetBadge: e.target.checked })
+  }
+
+  const handleNextWeightJumpChange = (e) => {
+    updateSettings({ showNextWeightJump: e.target.checked })
+  }
+
   const handleBarWeightChange = (e) => {
     updateSettings({ barWeight: parseFloat(e.target.value) || 45 })
   }
@@ -580,6 +588,28 @@ export default function Settings() {
                       type="checkbox"
                       checked={settings().showWarmups}
                       onChange={handleWarmupsChange}
+                      class="w-5 h-5 accent-current"
+                    />
+                  </label>
+                </div>
+                <div class="p-4 border-b border-border">
+                  <label class="flex items-center justify-between cursor-pointer">
+                    <span>Highlight top set</span>
+                    <input
+                      type="checkbox"
+                      checked={settings()?.showTopSetBadge ?? true}
+                      onChange={handleTopSetBadgeChange}
+                      class="w-5 h-5 accent-current"
+                    />
+                  </label>
+                </div>
+                <div class="p-4 border-b border-border">
+                  <label class="flex items-center justify-between cursor-pointer">
+                    <span>Show next set jump</span>
+                    <input
+                      type="checkbox"
+                      checked={settings()?.showNextWeightJump ?? true}
+                      onChange={handleNextWeightJumpChange}
                       class="w-5 h-5 accent-current"
                     />
                   </label>

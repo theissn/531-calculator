@@ -16,6 +16,8 @@ export default function LiftCard(props) {
   const workSets = () => props.lift.mainSets.filter(s => s.type === 'work')
   
   const showPlates = () => state.settings?.showPlates
+  const showTopSetBadge = () => state.settings?.showTopSetBadge ?? true
+  const showNextWeightJump = () => state.settings?.showNextWeightJump ?? true
   const barWeight = () => state.settings?.barWeight || (props.lift.unit === 'kg' ? 20 : 45)
   const availablePlates = () => state.settings?.availablePlates || 
     (props.lift.unit === 'kg' ? DEFAULT_PLATES_KG : DEFAULT_PLATES_LBS)
@@ -53,9 +55,13 @@ export default function LiftCard(props) {
                 set={set}
                 unit={props.lift.unit}
                 isWarmup={false}
+                isTopSet={index() === workSets().length - 1}
                 isComplete={() => isMainSetComplete(props.lift.liftId, index())}
                 onToggle={() => toggleMainSet(props.lift.liftId, index())}
                 plates={getPlates(set.weight)}
+                nextWeight={workSets()[index() + 1]?.weight ?? null}
+                showTopSetBadge={showTopSetBadge()}
+                showNextJump={showNextWeightJump()}
                 liftId={props.lift.liftId}
                 setIndex={index()}
               />

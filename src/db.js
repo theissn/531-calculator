@@ -24,6 +24,8 @@ export const DEFAULT_DATA = {
     roundingIncrement: 5,
     showWarmups: false,
     showPlates: false,
+    showTopSetBadge: true,
+    showNextWeightJump: true,
     barWeight: 45,
     availablePlates: [45, 25, 10, 5, 2.5],
     theme: 'system' // 'system' | 'dark' | 'light'
