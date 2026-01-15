@@ -14,7 +14,11 @@ export default function SupplementalSection(props) {
 
   const handleSetDone = () => {
     haptic()
-    markSetComplete(props.liftId)
+    markSetComplete(props.liftId, {
+      targetSets: totalSets,
+      weight: props.supplemental.weight,
+      reps: props.supplemental.reps
+    })
     startTimer()
   }
 

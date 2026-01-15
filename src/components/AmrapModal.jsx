@@ -7,7 +7,7 @@ import { Portal } from 'solid-js/web'
 import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES } from '../store.js'
 import { estimate1RM } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
-import { toggleMainSet, isMainSetComplete } from '../hooks/useCompletedSets.js'
+import { toggleMainSet, isMainSetComplete, setAmrapReps } from '../hooks/useCompletedSets.js'
 
 export default function AmrapModal() {
   const [reps, setReps] = createSignal('')
@@ -35,17 +35,20 @@ export default function AmrapModal() {
   const handleSave = async () => {
     const r = parseInt(reps(), 10)
     if (!r || r <= 0 || !modal()) return
-    
+
     haptic()
     await recordPR(modal().liftId, modal().weight, r, modal().week)
-    
+
+    // Save AMRAP reps to current workout for history
+    await setAmrapReps(modal().liftId, r)
+
     // Mark the set as complete if not already
     if (modal().setIndex !== undefined && !isMainSetComplete(modal().liftId, modal().setIndex)) {
-      toggleMainSet(modal().liftId, modal().setIndex)
+      await toggleMainSet(modal().liftId, modal().setIndex)
     }
-    
+
     setSaved(true)
-    
+
     // Auto-close after showing result
     setTimeout(handleClose, 1500)
   }

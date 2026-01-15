@@ -4,15 +4,16 @@
 
 import { Show, For, createMemo, createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { 
-  state, 
-  setShowProgress, 
-  getTMHistory, 
+import {
+  state,
+  setShowProgress,
+  getTMHistory,
   getPRHistory,
   getAllWorkoutNotes,
-  LIFT_NAMES 
+  LIFT_NAMES
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
+import WorkoutHistoryView from './WorkoutHistoryView.jsx'
 
 // Colors for each lift in comparison view
 const LIFT_COLORS = {
@@ -295,7 +296,7 @@ function LiftProgressCard(props) {
 }
 
 export default function Progress() {
-  const [view, setView] = createSignal('per-lift') // 'per-lift' | 'compare'
+  const [view, setView] = createSignal('per-lift') // 'per-lift' | 'compare' | 'history'
 
   const handleClose = () => {
     haptic()
@@ -334,8 +335,8 @@ export default function Progress() {
             <div class="flex rounded-lg bg-bg-card border border-border p-1">
               <button
                 class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view() === 'per-lift' 
-                    ? 'bg-bg-hover text-text' 
+                  view() === 'per-lift'
+                    ? 'bg-bg-hover text-text'
                     : 'text-text-muted hover:text-text'
                 }`}
                 onClick={() => toggleView('per-lift')}
@@ -344,13 +345,23 @@ export default function Progress() {
               </button>
               <button
                 class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view() === 'compare' 
-                    ? 'bg-bg-hover text-text' 
+                  view() === 'compare'
+                    ? 'bg-bg-hover text-text'
                     : 'text-text-muted hover:text-text'
                 }`}
                 onClick={() => toggleView('compare')}
               >
-                Compare All
+                Compare
+              </button>
+              <button
+                class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  view() === 'history'
+                    ? 'bg-bg-hover text-text'
+                    : 'text-text-muted hover:text-text'
+                }`}
+                onClick={() => toggleView('history')}
+              >
+                History
               </button>
             </div>
 
@@ -365,9 +376,14 @@ export default function Progress() {
             <Show when={view() === 'compare'}>
               <AllLiftsComparison />
             </Show>
-            
-            {/* Recent Notes */}
-            <Show when={getAllWorkoutNotes().length > 0}>
+
+            {/* History view */}
+            <Show when={view() === 'history'}>
+              <WorkoutHistoryView />
+            </Show>
+
+            {/* Recent Notes (only show on per-lift and compare views) */}
+            <Show when={view() !== 'history' && getAllWorkoutNotes().length > 0}>
               <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
                 <div class="px-4 py-3 border-b border-border">
                   <h3 class="font-semibold">Recent Notes</h3>

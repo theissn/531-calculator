@@ -38,6 +38,12 @@ export const DEFAULT_DATA = {
   workoutNotes: [],
   // Accessory templates: array of { id, name, exercises: [{name, sets, reps}] }
   accessoryTemplates: [],
+  // Current workout in progress (for crash recovery)
+  // Structure: { id, liftId, week, startedAt, mainSets: { completed: [], amrapReps }, supplemental: { completedCount, ... }, accessories: [], note }
+  currentWorkout: null,
+  // Completed workout history
+  // Structure: [{ id, liftId, week, startedAt, completedAt, duration, oneRepMax, trainingMax, template, unit, mainSets: [...], supplemental, accessories, note }]
+  workoutHistory: [],
   currentWeek: 1,
   currentLift: 'squat', // 'squat' | 'bench' | 'deadlift' | 'ohp'
   isOnboarded: false
@@ -110,10 +116,13 @@ export async function getData() {
 export async function saveData(data) {
   await initDB()
 
+  // Clone to remove any SolidJS proxies before saving to IndexedDB
+  const plainData = JSON.parse(JSON.stringify(data))
+
   return new Promise((resolve, reject) => {
     const transaction = db.transaction([STORE_NAME], 'readwrite')
     const store = transaction.objectStore(STORE_NAME)
-    const request = store.put({ id: 'main', data })
+    const request = store.put({ id: 'main', data: plainData })
 
     request.onsuccess = () => {
       resolve()

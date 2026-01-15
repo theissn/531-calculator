@@ -26,6 +26,9 @@ const [amrapModal, setAmrapModal] = createSignal(null)
 // Progress view visibility
 const [showProgress, setShowProgress] = createSignal(false)
 
+// Incomplete workout for resume prompt (set during init if exists)
+const [incompleteWorkout, setIncompleteWorkout] = createSignal(null)
+
 /**
  * Initialize store from IndexedDB
  */
@@ -33,6 +36,11 @@ export async function initStore() {
   const data = await getData()
   setState(reconcile({ ...data, isLoading: false }))
   initTheme()
+
+  // Check for incomplete workout to prompt resume
+  if (data.currentWorkout && data.currentWorkout.id) {
+    setIncompleteWorkout(data.currentWorkout)
+  }
 }
 
 /**
@@ -422,4 +430,156 @@ export const LIFT_NAMES = {
   ohp: 'Overhead Press'
 }
 
-export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, TEMPLATES }
+// ============================================
+// Workout Persistence & History
+// ============================================
+
+/**
+ * Start a new workout (or get existing for the lift/week)
+ */
+export async function startWorkout(liftId, week) {
+  // If there's already a workout for this lift/week, return it
+  const existing = state.currentWorkout
+  if (existing && existing.liftId === liftId && existing.week === week) {
+    return existing
+  }
+
+  const workout = {
+    id: Date.now().toString(),
+    liftId,
+    week,
+    startedAt: new Date().toISOString(),
+    mainSets: {
+      completed: [],
+      amrapReps: null
+    },
+    supplemental: null,
+    accessories: [],
+    note: ''
+  }
+
+  await update({ currentWorkout: workout })
+  setIncompleteWorkout(null) // Clear any resume prompt
+  return workout
+}
+
+/**
+ * Persist updates to the current workout
+ */
+export async function persistCurrentWorkout(updates) {
+  if (!state.currentWorkout) return
+
+  const current = JSON.parse(JSON.stringify(state.currentWorkout))
+  const updated = { ...current, ...updates }
+
+  // Deep merge for nested objects
+  if (updates.mainSets) {
+    updated.mainSets = { ...current.mainSets, ...updates.mainSets }
+  }
+  if (updates.supplemental && current.supplemental) {
+    updated.supplemental = { ...current.supplemental, ...updates.supplemental }
+  }
+
+  await update({ currentWorkout: updated })
+}
+
+/**
+ * Get current workout
+ */
+export function getCurrentWorkout() {
+  return state.currentWorkout
+}
+
+/**
+ * Finish workout - move to history and clear current
+ */
+export async function finishWorkout() {
+  const current = state.currentWorkout
+  if (!current) return null
+
+  const lift = state.lifts[current.liftId]
+  const settings = state.settings
+  const liftData = getLiftData(current.liftId, current.week)
+
+  // Build complete workout record
+  const completedAt = new Date().toISOString()
+  const startTime = new Date(current.startedAt).getTime()
+  const duration = Math.round((Date.now() - startTime) / 1000)
+
+  const workoutRecord = {
+    id: current.id,
+    liftId: current.liftId,
+    week: current.week,
+    startedAt: current.startedAt,
+    completedAt,
+    duration,
+    oneRepMax: lift.oneRepMax,
+    trainingMax: liftData.trainingMax,
+    template: lift.template || 'classic',
+    unit: settings.unit,
+    mainSets: liftData.mainSets.map((set, idx) => ({
+      setNumber: idx + 1,
+      weight: set.weight,
+      targetReps: set.reps,
+      actualReps: set.isAmrap ? current.mainSets.amrapReps : null,
+      percentage: set.percentage,
+      completed: current.mainSets.completed.includes(idx),
+      isAmrap: set.isAmrap || false
+    })),
+    supplemental: current.supplemental ? {
+      templateName: lift.template || 'classic',
+      targetSets: current.supplemental.targetSets || 0,
+      completedSets: current.supplemental.completedCount || 0,
+      weight: current.supplemental.weight || 0,
+      reps: current.supplemental.reps || 0
+    } : null,
+    accessories: current.accessories || [],
+    note: current.note || ''
+  }
+
+  // Append to history
+  const existingHistory = JSON.parse(JSON.stringify(state.workoutHistory || []))
+  const workoutHistory = [...existingHistory, workoutRecord]
+
+  // Clear current workout and save history
+  await update({ currentWorkout: null, workoutHistory })
+
+  return workoutRecord
+}
+
+/**
+ * Discard current workout without saving
+ */
+export async function discardWorkout() {
+  await update({ currentWorkout: null })
+  setIncompleteWorkout(null)
+}
+
+/**
+ * Resume an incomplete workout (dismiss the prompt, navigate to lift/week)
+ */
+export function dismissIncompleteWorkout() {
+  setIncompleteWorkout(null)
+}
+
+/**
+ * Get workout history, optionally filtered by lift
+ */
+export function getWorkoutHistory(liftId = null) {
+  const history = state.workoutHistory || []
+  if (liftId) {
+    return history.filter(w => w.liftId === liftId)
+  }
+  return history
+}
+
+/**
+ * Delete a workout from history
+ */
+export async function deleteWorkoutFromHistory(workoutId) {
+  const history = JSON.parse(JSON.stringify(state.workoutHistory || []))
+  const workoutHistory = history.filter(w => w.id !== workoutId)
+  await update({ workoutHistory })
+}
+
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, incompleteWorkout, setIncompleteWorkout, TEMPLATES }

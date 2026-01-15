@@ -35,19 +35,19 @@ function ExerciseRow(props) {
     // Mark the next incomplete set as done
     for (let i = 0; i < totalSets(); i++) {
       if (!isAccessoryComplete(getSetKey(i))) {
-        toggleAccessory(getSetKey(i))
+        toggleAccessory(getSetKey(i), props.liftId)
         break
       }
     }
     startTimer()
   }
-  
+
   const handleReset = () => {
     haptic()
     // Reset all sets for this exercise
     for (let i = 0; i < totalSets(); i++) {
       if (isAccessoryComplete(getSetKey(i))) {
-        toggleAccessory(getSetKey(i))
+        toggleAccessory(getSetKey(i), props.liftId)
       }
     }
     stopTimer()

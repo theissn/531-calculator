@@ -3,7 +3,7 @@
  */
 
 import { Show, For, onMount, onCleanup } from 'solid-js'
-import { state, showSettings, showProgress, getAllLiftsForWeek } from '../store.js'
+import { state, showSettings, showProgress, getAllLiftsForWeek, incompleteWorkout } from '../store.js'
 import { isRunning } from '../hooks/useTimer.js'
 import { requestWakeLock, setupWakeLockVisibilityHandler } from '../hooks/useMobile.js'
 import Header from './Header.jsx'
@@ -15,6 +15,8 @@ import Onboarding from './Onboarding.jsx'
 import AmrapModal from './AmrapModal.jsx'
 import Progress from './Progress.jsx'
 import WorkoutNotes from './WorkoutNotes.jsx'
+import FinishWorkoutButton from './FinishWorkoutButton.jsx'
+import ResumeWorkoutModal from './ResumeWorkoutModal.jsx'
 
 export default function App() {
   const allLiftsData = () => getAllLiftsForWeek(state.currentWeek)
@@ -46,6 +48,7 @@ export default function App() {
                 {(lift) => <LiftCard lift={lift} isDeload={isDeload()} />}
               </For>
               <WorkoutNotes />
+              <FinishWorkoutButton />
             </div>
           </main>
         </div>
@@ -56,6 +59,9 @@ export default function App() {
           <Progress />
         </Show>
         <AmrapModal />
+        <Show when={incompleteWorkout()}>
+          <ResumeWorkoutModal />
+        </Show>
       </Show>
     </Show>
   )
