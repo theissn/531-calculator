@@ -43,6 +43,20 @@ export function estimate1RM(weight, reps) {
 }
 
 /**
+ * Estimate expected reps from weight and 1RM (inverse Epley)
+ * @param {number} weight - Weight to lift
+ * @param {number} oneRepMax - Known or estimated 1RM
+ * @returns {number} Expected reps (floored)
+ */
+export function estimateReps(weight, oneRepMax) {
+  if (weight <= 0 || oneRepMax <= 0) return 0
+  if (weight >= oneRepMax) return 1
+  // Inverse Epley: reps = 30 × ((1RM / weight) - 1)
+  const reps = 30 * ((oneRepMax / weight) - 1)
+  return Math.floor(reps)
+}
+
+/**
  * Calculate plates needed per side for a given weight
  * @param {number} totalWeight - Total weight including bar
  * @param {number} barWeight - Weight of the bar

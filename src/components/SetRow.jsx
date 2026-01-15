@@ -4,6 +4,7 @@
 
 import { Show, For } from 'solid-js'
 import { state, setAmrapModal } from '../store.js'
+import { estimateReps } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 
 /**
@@ -69,7 +70,15 @@ export default function SetRow(props) {
   }
   const isAmrapHighlight = () => props.showTopSetBadge && props.set.isAmrap
   const weightClass = () => `flex-1 flex items-center gap-2 ${props.showTopSetBadge && props.isTopSet ? 'font-semibold' : 'font-medium'}`
-  const amrapClass = () => `w-12 text-right${isAmrapHighlight() ? ' font-semibold' : ''}`
+  const amrapClass = () => `text-right${isAmrapHighlight() ? ' font-semibold' : ''}`
+
+  // Expected reps for AMRAP sets based on user's 1RM
+  const expectedReps = () => {
+    if (!props.set.isAmrap || !props.liftId) return null
+    const oneRepMax = state.lifts[props.liftId]?.oneRepMax
+    if (!oneRepMax) return null
+    return estimateReps(props.set.weight, oneRepMax)
+  }
   const nextJump = () => {
     if (!props.showNextJump || props.nextWeight == null) return null
     const diff = Math.round((props.nextWeight - props.set.weight) * 100) / 100
@@ -113,10 +122,13 @@ export default function SetRow(props) {
           <span class="w-12 text-right">×{props.set.reps}</span>
         }>
           <button
-            class={`${amrapClass()} hover:text-text`}
+            class={`${amrapClass()} hover:text-text flex items-center gap-1.5`}
             onClick={handleAmrapClick}
           >
-            ×{props.set.reps}
+            <span>×{props.set.reps}</span>
+            <Show when={expectedReps()}>
+              <span class="text-text-dim text-sm">(~{expectedReps()})</span>
+            </Show>
           </button>
         </Show>
       </div>

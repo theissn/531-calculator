@@ -4,8 +4,8 @@
 
 import { createSignal, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES } from '../store.js'
-import { estimate1RM } from '../calculator.js'
+import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES, state } from '../store.js'
+import { estimate1RM, estimateReps } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 import { toggleMainSet, isMainSetComplete, setAmrapReps } from '../hooks/useCompletedSets.js'
 
@@ -18,6 +18,15 @@ export default function AmrapModal() {
     const r = parseInt(reps(), 10)
     if (!r || r <= 0 || !modal()) return null
     return estimate1RM(modal().weight, r)
+  }
+
+  // Expected reps based on user's stored 1RM
+  const expectedReps = () => {
+    const m = modal()
+    if (!m) return null
+    const oneRepMax = state.lifts[m.liftId]?.oneRepMax
+    if (!oneRepMax) return null
+    return estimateReps(m.weight, oneRepMax)
   }
 
   const handleClose = () => {
@@ -87,8 +96,23 @@ export default function AmrapModal() {
                     value={reps()}
                     onInput={(e) => setReps(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    placeholder={expectedReps() ? `~${expectedReps()}` : ''}
                     autofocus
                   />
+                  <Show when={expectedReps()}>
+                    <div class="text-center mt-2 text-sm text-text-dim">
+                      Target: {expectedReps()} reps
+                      <Show when={parseInt(reps(), 10) > 0}>
+                        {(() => {
+                          const r = parseInt(reps(), 10)
+                          const expected = expectedReps()
+                          if (r >= expected + 2) return <span class="text-green-500 ml-2">+{r - expected} above</span>
+                          if (r >= expected) return <span class="text-text-muted ml-2">on track</span>
+                          return <span class="text-amber-500 ml-2">{r - expected} below</span>
+                        })()}
+                      </Show>
+                    </div>
+                  </Show>
                 </div>
                 
                 <Show when={estimated()}>
