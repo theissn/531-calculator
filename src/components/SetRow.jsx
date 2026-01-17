@@ -13,7 +13,7 @@ import { haptic } from '../hooks/useMobile.js'
  */
 function formatPlates(platesData) {
   if (!platesData?.plates?.length) return null
-  
+
   const parts = []
   for (const { weight, count } of platesData.plates) {
     for (let i = 0; i < count; i++) {
@@ -98,9 +98,8 @@ export default function SetRow(props) {
             class="w-16 flex items-center gap-2 text-sm text-text-dim hover:text-text"
             onClick={handleToggle}
           >
-            <div class={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-              props.isComplete?.() ? 'bg-text border-text' : 'border-border-hover'
-            }`}>
+            <div class={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${props.isComplete?.() ? 'bg-text border-text' : 'border-border-hover'
+              }`}>
               <Show when={props.isComplete?.()}>
                 <svg class="w-3 h-3 text-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <polyline points="20 6 9 17 4 12" />
@@ -112,11 +111,6 @@ export default function SetRow(props) {
         </Show>
         <div class={weightClass()}>
           <span>{props.set.weight} {props.unit}</span>
-          <Show when={topSetLabel()}>
-            <span class="text-[10px] uppercase tracking-wider text-text-dim border border-border rounded px-1.5 py-0.5">
-              {topSetLabel()}
-            </span>
-          </Show>
         </div>
         <Show when={props.set.isAmrap && props.liftId} fallback={
           <span class="w-12 text-right">×{props.set.reps}</span>
