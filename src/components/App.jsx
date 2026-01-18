@@ -27,12 +27,6 @@ export default function App() {
   onMount(() => {
     requestWakeLock('app')
     setupWakeLockVisibilityHandler()
-
-    const handlePointerDown = () => requestWakeLock('app')
-    window.addEventListener('pointerdown', handlePointerDown, { passive: true })
-    onCleanup(() => {
-      window.removeEventListener('pointerdown', handlePointerDown)
-    })
   })
 
   return (
