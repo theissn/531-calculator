@@ -42,7 +42,8 @@ export default function FinishWorkoutModal(props) {
 
     const liftData = getLiftData(w.liftId, w.week)
     const mainCount = getMainCompletedCount(w.liftId)
-    const mainTotal = liftData.mainSets.length
+    // Filter out warmup sets - only count work sets
+    const mainTotal = liftData.mainSets.filter(s => s.type !== 'warmup').length
     const supCount = getCompletedCount(w.liftId)
     const supTotal = liftData.supplemental?.sets || 0
     const accessoryCount = getCompletedAccessoryCount()

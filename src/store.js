@@ -506,6 +506,9 @@ export async function finishWorkout() {
   const startTime = new Date(current.startedAt).getTime()
   const duration = Math.round((Date.now() - startTime) / 1000)
 
+  // Filter out warmup sets - only include work sets in history
+  const workSets = liftData.mainSets.filter(set => set.type !== 'warmup')
+
   const workoutRecord = {
     id: current.id,
     liftId: current.liftId,
@@ -517,7 +520,7 @@ export async function finishWorkout() {
     trainingMax: liftData.trainingMax,
     template: lift.template || 'classic',
     unit: settings.unit,
-    mainSets: liftData.mainSets.map((set, idx) => ({
+    mainSets: workSets.map((set, idx) => ({
       setNumber: idx + 1,
       weight: set.weight,
       targetReps: set.reps,
