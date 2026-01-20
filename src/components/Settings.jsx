@@ -2,7 +2,7 @@
  * Settings Component - Settings slide-in panel
  */
 
-import { For, Show, createSignal } from 'solid-js'
+import { For, Show, createEffect, createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import {
   state,
@@ -19,6 +19,7 @@ import {
   deleteAccessoryTemplate,
   TEMPLATES
 } from '../store.js'
+import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 
 const LIFT_LABELS = {
@@ -29,6 +30,55 @@ const LIFT_LABELS = {
 }
 
 function LiftSettingsCard(props) {
+  const [draftOneRepMax, setDraftOneRepMax] = createSignal(props.lift.oneRepMax || '')
+
+  createEffect(() => {
+    setDraftOneRepMax(props.lift.oneRepMax || '')
+  })
+
+  const normalizeDraftValue = (value) => Math.round(value * 100) / 100
+  const formatDraftInput = (value) => (value === 0 ? '0' : value ? String(value) : '')
+  const getDraftOneRepMax = () => {
+    const parsed = parseFloat(draftOneRepMax())
+    return Number.isNaN(parsed) ? 0 : parsed
+  }
+
+  const isOneRepMaxDirty = () => getDraftOneRepMax() !== (props.lift.oneRepMax || 0)
+
+  const handleOneRepMaxInput = (e) => {
+    setDraftOneRepMax(e.target.value)
+  }
+
+  const handleOneRepMaxAdjust = (delta) => {
+    const nextValue = normalizeDraftValue(getDraftOneRepMax() + delta)
+    setDraftOneRepMax(formatDraftInput(Math.max(0, nextValue)))
+  }
+
+  const handleOneRepMaxSave = () => {
+    updateLift(props.liftId, getDraftOneRepMax())
+  }
+
+  const handleOneRepMaxCancel = () => {
+    setDraftOneRepMax(props.lift.oneRepMax || '')
+  }
+
+  const topSetPreview = () => {
+    const oneRepMax = getDraftOneRepMax()
+    if (!oneRepMax) {
+      return [1, 2, 3].map((week) => ({ week, weight: null }))
+    }
+
+    const trainingMax = calculateTM(oneRepMax, props.tmPercentage)
+    return [1, 2, 3].map((week) => {
+      const scheme = WEEK_SCHEMES[week]
+      const percentage = scheme[scheme.length - 1].percentage
+      return {
+        week,
+        weight: calculateWeight(trainingMax, percentage, props.roundingIncrement)
+      }
+    })
+  }
+
   const template = () => TEMPLATES[props.lift.template || 'classic']
   const showSupplPct = () => {
     const t = template()
@@ -39,11 +89,6 @@ function LiftSettingsCard(props) {
     return t && t.hasSupplemental
   }
   const accessoryTemplates = () => getAccessoryTemplates()
-
-  const handleOneRepMaxChange = (e) => {
-    const value = parseFloat(e.target.value) || 0
-    updateLift(props.liftId, value)
-  }
 
   const handleTemplateChange = (e) => {
     updateLiftSettings(props.liftId, { template: e.target.value })
@@ -66,22 +111,67 @@ function LiftSettingsCard(props) {
 
   return (
     <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
-      <div class="px-4 py-3 border-b border-border">
+      <div class="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
         <span class="font-medium">{LIFT_LABELS[props.liftId]}</span>
+        <div class="flex items-center gap-2 text-sm">
+          <button
+            type="button"
+            class="text-text-muted hover:text-text disabled:text-text-dim disabled:opacity-60"
+            onClick={handleOneRepMaxCancel}
+            disabled={!isOneRepMaxDirty()}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="px-2 py-1 bg-border hover:bg-border-hover rounded text-xs font-medium disabled:opacity-60"
+            onClick={handleOneRepMaxSave}
+            disabled={!isOneRepMaxDirty()}
+          >
+            Save
+          </button>
+        </div>
       </div>
       <div class="p-4 space-y-3">
         <div class="flex items-center justify-between">
           <span class="text-sm text-text-muted">1RM</span>
           <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="w-8 h-8 flex items-center justify-center rounded border border-border text-text-dim hover:text-text hover:border-border-hover"
+              onClick={() => handleOneRepMaxAdjust(-2.5)}
+            >
+              -
+            </button>
             <input
               type="number"
               step="any"
               inputmode="decimal"
               class="w-20 bg-bg border border-border rounded px-3 py-1.5 text-right font-medium focus:outline-none focus:border-border-hover"
-              value={props.lift.oneRepMax || ''}
-              onChange={handleOneRepMaxChange}
+              value={draftOneRepMax()}
+              onInput={handleOneRepMaxInput}
             />
+            <button
+              type="button"
+              class="w-8 h-8 flex items-center justify-center rounded border border-border text-text-dim hover:text-text hover:border-border-hover"
+              onClick={() => handleOneRepMaxAdjust(2.5)}
+            >
+              +
+            </button>
             <span class="text-text-dim w-8">{props.unit}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-text-muted">
+          <span>Top set</span>
+          <div class="flex items-center gap-3">
+            <For each={topSetPreview()}>
+              {(preview) => (
+                <span class="text-text">
+                  W{preview.week} {preview.weight ?? '—'}
+                </span>
+              )}
+            </For>
           </div>
         </div>
 
@@ -488,6 +578,8 @@ export default function Settings() {
                     <LiftSettingsCard
                       liftId={liftId}
                       lift={lifts()[liftId]}
+                      tmPercentage={settings().tmPercentage}
+                      roundingIncrement={settings().roundingIncrement}
                       unit={settings().unit}
                     />
                   )}
