@@ -8,7 +8,7 @@ Keep changes focused and consistent with existing patterns.
 - Dev server: `npm run dev`
 - Production build: `npm run build`
 - Preview build: `npm run preview`
-- The repo does not define lint or test scripts.
+- Tests: `npm test`
 - There is no built-in single-test command.
 - If you add tests, add scripts in `package.json`.
 - Prefer running the smallest scope command first.
@@ -18,10 +18,10 @@ Keep changes focused and consistent with existing patterns.
 - PWA is handled via `vite-plugin-pwa`.
 
 ## Testing & Linting
-- No automated test runner configured.
+- Vitest is configured for sanity checks (node environment).
 - No ESLint/Prettier configuration found.
 - Avoid adding new tooling unless requested.
-- If tests are added, document how to run a single test.
+- Single test: `npx vitest run --environment node tests/calculator.test.js`
 - When verifying changes, use `npm run build`.
 - Avoid `npm run dev` unless explicitly requested; agents cannot view UI output.
 - Keep checks fast and targeted.
