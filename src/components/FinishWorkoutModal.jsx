@@ -14,6 +14,7 @@ import {
 } from '../store.js'
 import { getMainCompletedCount, getCompletedCount, clearAllProgress } from '../hooks/useCompletedSets.js'
 import { getCompletedAccessoryCount, resetAccessories } from '../hooks/useAccessoryTracking.js'
+import { stopTimer } from '../hooks/useTimer.js'
 import { haptic } from '../hooks/useMobile.js'
 
 function formatDuration(startedAt) {
@@ -67,6 +68,7 @@ export default function FinishWorkoutModal(props) {
 
   const handleSave = async () => {
     haptic()
+    stopTimer()
     setSaving(true)
 
     try {
@@ -87,6 +89,7 @@ export default function FinishWorkoutModal(props) {
 
   const handleDiscard = async () => {
     haptic()
+    stopTimer()
     await discardWorkout()
     clearAllProgress()
     resetAccessories()
