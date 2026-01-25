@@ -21,6 +21,8 @@ import {
 } from '../store.js'
 import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
+import CopyButton from './CopyButton.jsx'
+import { formatSettingsForLLM } from '../utils/formatForLLM.js'
 
 const LIFT_LABELS = {
   squat: 'Squat',
@@ -566,6 +568,7 @@ export default function Settings() {
                   <span><span class="text-text-muted">O:</span> <span class="font-medium">{lifts().ohp?.oneRepMax || '—'}</span></span>
                 </div>
                 <span class="text-text-dim text-sm ml-auto">{settings().unit}</span>
+                <CopyButton getText={formatSettingsForLLM} label="Copy for LLM" />
               </div>
             </section>
 

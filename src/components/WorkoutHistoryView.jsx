@@ -5,6 +5,8 @@
 import { Show, For, createSignal, createMemo } from 'solid-js'
 import { getWorkoutHistory, deleteWorkoutFromHistory, LIFT_NAMES } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
+import CopyButton from './CopyButton.jsx'
+import { formatWorkoutForLLM, formatCycleForLLM } from '../utils/formatForLLM.js'
 
 function formatDate(isoString) {
   const date = new Date(isoString)
@@ -157,6 +159,14 @@ function WorkoutCard(props) {
             <span>1RM: {workout().oneRepMax} {workout().unit}</span>
           </div>
 
+          {/* Actions */}
+          <div class="pt-2 flex items-center justify-between">
+            <CopyButton
+              getText={() => formatWorkoutForLLM(workout())}
+              label="Copy workout"
+            />
+          </div>
+
           {/* Delete Action */}
           <div class="pt-2">
             <Show when={!confirmDelete()} fallback={
@@ -242,6 +252,12 @@ export default function WorkoutHistoryView() {
             </button>
           )}
         </For>
+        <Show when={history().length > 0}>
+          <CopyButton
+            getText={() => formatCycleForLLM(history())}
+            label="Copy cycle"
+          />
+        </Show>
       </div>
 
       {/* Workout List */}
