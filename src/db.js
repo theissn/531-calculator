@@ -42,8 +42,10 @@ export const DEFAULT_DATA = {
   // Structure: { id, liftId, week, startedAt, mainSets: { completed: [], amrapReps }, supplemental: { completedCount, ... }, accessories: [], note }
   currentWorkout: null,
   // Completed workout history
-  // Structure: [{ id, liftId, week, startedAt, completedAt, duration, oneRepMax, trainingMax, template, unit, mainSets: [...], supplemental, accessories, note }]
+  // Structure: [{ id, liftId, week, startedAt, completedAt, duration, oneRepMax, trainingMax, template, unit, mainSets: [...], supplemental, accessories, note, rpe }]
   workoutHistory: [],
+  // Body weight history: array of { date: ISO string, weight: number }
+  bodyWeightHistory: [],
   currentWeek: 1,
   currentLift: 'squat', // 'squat' | 'bench' | 'deadlift' | 'ohp'
   isOnboarded: false

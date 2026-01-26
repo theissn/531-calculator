@@ -2,7 +2,7 @@
  * FinishWorkoutModal Component - Confirm and save workout to history
  */
 
-import { Show, createSignal } from 'solid-js'
+import { Show, For, createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import {
   getCurrentWorkout,
@@ -31,9 +31,19 @@ function formatDuration(startedAt) {
   return `${hours}h ${mins}m`
 }
 
+// RPE labels: 1-3 Easy, 4-5 Moderate, 6-7 Hard, 8-9 Very Hard, 10 Maximal
+const RPE_LABELS = {
+  1: 'Easy', 2: 'Easy', 3: 'Easy',
+  4: 'Moderate', 5: 'Moderate',
+  6: 'Hard', 7: 'Hard',
+  8: 'Very Hard', 9: 'Very Hard',
+  10: 'Maximal'
+}
+
 export default function FinishWorkoutModal(props) {
   const [saving, setSaving] = createSignal(false)
   const [saved, setSaved] = createSignal(false)
+  const [rpe, setRpe] = createSignal(null)
 
   const workout = () => getCurrentWorkout()
 
@@ -72,7 +82,7 @@ export default function FinishWorkoutModal(props) {
     setSaving(true)
 
     try {
-      await finishWorkout()
+      await finishWorkout(rpe())
       clearAllProgress()
       resetAccessories()
       setSaved(true)
@@ -157,6 +167,37 @@ export default function FinishWorkoutModal(props) {
                   </div>
                 )}
               </Show>
+
+              {/* RPE Selector */}
+              <div class="mt-4 pt-4 border-t border-border">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm text-text-muted">Session RPE</span>
+                  <Show when={rpe()}>
+                    <span class="text-xs text-text-dim">{RPE_LABELS[rpe()]}</span>
+                  </Show>
+                </div>
+                <div class="grid grid-cols-10 gap-1">
+                  <For each={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}>
+                    {(value) => (
+                      <button
+                        class={`py-2 text-sm font-medium rounded transition-colors ${
+                          rpe() === value
+                            ? 'bg-text text-bg'
+                            : 'bg-bg-hover text-text-muted hover:text-text'
+                        }`}
+                        onClick={() => { haptic(); setRpe(rpe() === value ? null : value) }}
+                      >
+                        {value}
+                      </button>
+                    )}
+                  </For>
+                </div>
+                <div class="flex justify-between text-xs text-text-dim mt-1 px-0.5">
+                  <span>Easy</span>
+                  <span>Hard</span>
+                  <span>Max</span>
+                </div>
+              </div>
 
               <div class="flex gap-2 mt-6">
                 <button

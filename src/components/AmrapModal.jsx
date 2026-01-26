@@ -4,7 +4,7 @@
 
 import { createSignal, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES, state } from '../store.js'
+import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES, state, getPreviousAmrapPerformance } from '../store.js'
 import { estimate1RM, estimateReps } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 import { toggleMainSet, isMainSetComplete, setAmrapReps } from '../hooks/useCompletedSets.js'
@@ -27,6 +27,25 @@ export default function AmrapModal() {
     const oneRepMax = state.lifts[m.liftId]?.oneRepMax
     if (!oneRepMax) return null
     return estimateReps(m.weight, oneRepMax)
+  }
+
+  // Previous performance at similar weight
+  const previousPerformance = () => {
+    const m = modal()
+    if (!m) return null
+    return getPreviousAmrapPerformance(m.liftId, m.weight)
+  }
+
+  const formatPreviousDate = (dateStr) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 0) return 'today'
+    if (diffDays === 1) return 'yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
   }
 
   const handleClose = () => {
@@ -86,6 +105,17 @@ export default function AmrapModal() {
                   <div class="text-sm text-text-muted">Estimated 1RM recorded</div>
                 </div>
               }>
+                {/* Previous Performance Card */}
+                <Show when={previousPerformance()}>
+                  <div class="bg-bg-hover border border-border rounded-lg px-3 py-2">
+                    <div class="text-xs text-text-dim mb-1">Last time at {previousPerformance().weight} {state.settings?.unit || 'lbs'}</div>
+                    <div class="flex items-baseline justify-between">
+                      <span class="text-lg font-bold">{previousPerformance().reps} reps</span>
+                      <span class="text-xs text-text-dim">{formatPreviousDate(previousPerformance().date)}</span>
+                    </div>
+                  </div>
+                </Show>
+
                 <div>
                   <label class="block text-sm text-text-muted mb-2">Reps completed</label>
                   <input

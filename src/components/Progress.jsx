@@ -10,6 +10,8 @@ import {
   getTMHistory,
   getPRHistory,
   getAllWorkoutNotes,
+  getBodyWeightHistory,
+  getLatestBodyWeight,
   LIFT_NAMES
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -84,6 +86,74 @@ function LineChart(props) {
         <span>{Math.round(points().maxVal)}</span>
       </div>
     </Show>
+  )
+}
+
+/**
+ * Body Weight Card with trend chart
+ */
+function BodyWeightCard() {
+  const data = createMemo(() => {
+    const history = getBodyWeightHistory()
+    return history.map(h => ({
+      value: h.weight,
+      date: new Date(h.date).toLocaleDateString()
+    }))
+  })
+
+  const latest = () => getLatestBodyWeight()
+
+  const trend = createMemo(() => {
+    const history = getBodyWeightHistory()
+    if (history.length < 2) return null
+
+    const first = history[0].weight
+    const last = history[history.length - 1].weight
+    const diff = last - first
+
+    return {
+      value: Math.abs(diff).toFixed(1),
+      direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'same'
+    }
+  })
+
+  return (
+    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+      <div class="px-4 py-3 border-b border-border">
+        <div class="flex items-baseline justify-between">
+          <h3 class="font-semibold">Body Weight</h3>
+          <Show when={latest()}>
+            <span class="text-sm">
+              <span class="font-medium">{latest().weight}</span>
+              <span class="text-text-dim ml-1">{state.settings?.unit || 'lbs'}</span>
+            </span>
+          </Show>
+        </div>
+      </div>
+
+      <div class="p-4">
+        <Show when={data().length > 0} fallback={
+          <div class="text-center text-text-dim text-sm py-8">
+            No weight logged yet. Log your weight in Settings.
+          </div>
+        }>
+          <LineChart data={data()} />
+          <Show when={trend()}>
+            <div class="text-center text-sm text-text-muted mt-2">
+              <Show when={trend().direction === 'up'}>
+                <span class="text-amber-500">+{trend().value}</span> since first log
+              </Show>
+              <Show when={trend().direction === 'down'}>
+                <span class="text-green-500">-{trend().value}</span> since first log
+              </Show>
+              <Show when={trend().direction === 'same'}>
+                No change since first log
+              </Show>
+            </div>
+          </Show>
+        </Show>
+      </div>
+    </div>
   )
 }
 
@@ -367,6 +437,7 @@ export default function Progress() {
 
             {/* Per-lift view */}
             <Show when={view() === 'per-lift'}>
+              <BodyWeightCard />
               <For each={['squat', 'bench', 'deadlift', 'ohp']}>
                 {(liftId) => <LiftProgressCard liftId={liftId} />}
               </For>

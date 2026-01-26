@@ -78,6 +78,11 @@ function WorkoutCard(props) {
           </div>
         </div>
         <div class="flex items-center gap-3">
+          <Show when={workout().rpe}>
+            <div class="text-xs bg-bg-hover px-1.5 py-0.5 rounded text-text-muted">
+              RPE {workout().rpe}
+            </div>
+          </Show>
           <div class="text-right">
             <div class="text-sm font-medium">{mainSetsCompleted()}/{mainSetsTotal()}</div>
             <div class="text-xs text-text-dim">{formatDuration(workout().duration)}</div>
@@ -150,6 +155,14 @@ function WorkoutCard(props) {
             <div>
               <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Note</div>
               <p class="text-sm text-text-muted">{workout().note}</p>
+            </div>
+          </Show>
+
+          {/* RPE */}
+          <Show when={workout().rpe}>
+            <div>
+              <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Session RPE</div>
+              <div class="text-sm">{workout().rpe}/10</div>
             </div>
           </Show>
 

@@ -17,6 +17,8 @@ import {
   createAccessoryTemplate,
   updateAccessoryTemplate,
   deleteAccessoryTemplate,
+  addBodyWeight,
+  getLatestBodyWeight,
   TEMPLATES
 } from '../store.js'
 import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
@@ -262,6 +264,72 @@ function parseExercise(str) {
 function formatExercise(exercise) {
   if (typeof exercise === 'string') return exercise
   return `${exercise.name} ${exercise.sets}x${exercise.reps}`
+}
+
+function BodyWeightInput() {
+  const [weight, setWeight] = createSignal('')
+  const [saved, setSaved] = createSignal(false)
+
+  const latestWeight = () => getLatestBodyWeight()
+
+  const handleSave = async () => {
+    const value = parseFloat(weight())
+    if (!value || value <= 0) return
+
+    haptic()
+    await addBodyWeight(value)
+    setWeight('')
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSave()
+    }
+  }
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  }
+
+  return (
+    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+      <div class="p-4 space-y-3">
+        <Show when={latestWeight()}>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-text-muted">Current</span>
+            <span>
+              <span class="font-medium">{latestWeight().weight}</span>
+              <span class="text-text-dim ml-1">{state.settings?.unit || 'lbs'}</span>
+              <span class="text-text-dim text-xs ml-2">({formatDate(latestWeight().date)})</span>
+            </span>
+          </div>
+        </Show>
+
+        <div class="flex items-center gap-2">
+          <input
+            type="number"
+            step="any"
+            inputmode="decimal"
+            class="flex-1 bg-bg border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-border-hover"
+            placeholder={`Enter weight (${state.settings?.unit || 'lbs'})`}
+            value={weight()}
+            onInput={(e) => setWeight(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            class="px-4 py-2 bg-border hover:bg-border-hover rounded text-sm font-medium disabled:opacity-50"
+            onClick={handleSave}
+            disabled={!weight() || parseFloat(weight()) <= 0}
+          >
+            {saved() ? 'Saved!' : 'Log'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function AccessoriesManager() {
@@ -745,6 +813,12 @@ export default function Settings() {
             <section>
               <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Accessories</h3>
               <AccessoriesManager />
+            </section>
+
+            {/* Body Weight Section */}
+            <section>
+              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Body Weight</h3>
+              <BodyWeightInput />
             </section>
 
             {/* Data Section */}

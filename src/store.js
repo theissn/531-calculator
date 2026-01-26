@@ -26,6 +26,9 @@ const [amrapModal, setAmrapModal] = createSignal(null)
 // Progress view visibility
 const [showProgress, setShowProgress] = createSignal(false)
 
+// Calendar view visibility
+const [showCalendar, setShowCalendar] = createSignal(false)
+
 // Incomplete workout for resume prompt (set during init if exists)
 const [incompleteWorkout, setIncompleteWorkout] = createSignal(null)
 
@@ -256,6 +259,32 @@ export function getBestPR(liftId) {
   const history = getPRHistory(liftId)
   if (history.length === 0) return null
   return history.reduce((best, pr) => pr.estimated1RM > best.estimated1RM ? pr : best)
+}
+
+/**
+ * Get previous AMRAP performance for a lift at a similar weight (±5 lbs/kg)
+ * Returns the most recent match with weight, reps, and date
+ */
+export function getPreviousAmrapPerformance(liftId, targetWeight) {
+  const history = getPRHistory(liftId)
+  if (history.length === 0) return null
+
+  // Find entries within ±5 of target weight
+  const tolerance = 5
+  const matches = history.filter(pr =>
+    Math.abs(pr.weight - targetWeight) <= tolerance
+  )
+
+  if (matches.length === 0) return null
+
+  // Return most recent match (history is chronological, so last match is most recent)
+  const mostRecent = matches[matches.length - 1]
+  return {
+    weight: mostRecent.weight,
+    reps: mostRecent.reps,
+    date: mostRecent.date,
+    estimated1RM: mostRecent.estimated1RM
+  }
 }
 
 /**
@@ -492,8 +521,9 @@ export function getCurrentWorkout() {
 
 /**
  * Finish workout - move to history and clear current
+ * @param {number|null} rpe - Optional RPE rating (1-10)
  */
-export async function finishWorkout() {
+export async function finishWorkout(rpe = null) {
   const current = state.currentWorkout
   if (!current) return null
 
@@ -537,7 +567,8 @@ export async function finishWorkout() {
       reps: current.supplemental.reps || 0
     } : null,
     accessories: current.accessories || [],
-    note: current.note || ''
+    note: current.note || '',
+    rpe: rpe
   }
 
   // Append to history
@@ -577,6 +608,30 @@ export function getWorkoutHistory(liftId = null) {
 }
 
 /**
+ * Get workouts for a specific month
+ * @param {number} year - Full year (e.g., 2024)
+ * @param {number} month - Month (0-11)
+ * @returns {Object} Map of day number to array of workouts
+ */
+export function getWorkoutsByMonth(year, month) {
+  const history = state.workoutHistory || []
+  const workoutsByDay = {}
+
+  for (const workout of history) {
+    const date = new Date(workout.completedAt)
+    if (date.getFullYear() === year && date.getMonth() === month) {
+      const day = date.getDate()
+      if (!workoutsByDay[day]) {
+        workoutsByDay[day] = []
+      }
+      workoutsByDay[day].push(workout)
+    }
+  }
+
+  return workoutsByDay
+}
+
+/**
  * Delete a workout from history
  */
 export async function deleteWorkoutFromHistory(workoutId) {
@@ -585,4 +640,46 @@ export async function deleteWorkoutFromHistory(workoutId) {
   await update({ workoutHistory })
 }
 
-export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, incompleteWorkout, setIncompleteWorkout, TEMPLATES }
+// ============================================
+// Body Weight Tracking
+// ============================================
+
+/**
+ * Add a body weight entry
+ */
+export async function addBodyWeight(weight) {
+  const entry = {
+    date: new Date().toISOString(),
+    weight
+  }
+
+  const existingHistory = JSON.parse(JSON.stringify(state.bodyWeightHistory || []))
+  const bodyWeightHistory = [...existingHistory, entry]
+
+  await update({ bodyWeightHistory })
+  return entry
+}
+
+/**
+ * Get body weight history (sorted by date)
+ */
+export function getBodyWeightHistory() {
+  return [...(state.bodyWeightHistory || [])].sort((a, b) =>
+    new Date(a.date) - new Date(b.date)
+  )
+}
+
+/**
+ * Get latest body weight entry
+ */
+export function getLatestBodyWeight() {
+  const history = state.bodyWeightHistory || []
+  if (history.length === 0) return null
+
+  // Find the most recent entry
+  return history.reduce((latest, entry) =>
+    new Date(entry.date) > new Date(latest.date) ? entry : latest
+  )
+}
+
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, TEMPLATES }
