@@ -33,12 +33,12 @@ export default function WorkoutNotes() {
   }
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden mt-6">
       <button
         class="w-full px-4 py-3 flex items-center justify-between text-left"
         onClick={handleToggle}
       >
-        <span class="text-sm text-text-muted">Workout Notes</span>
+        <span class="text-sm text-text-muted font-mono uppercase tracking-wider font-bold">Workout Notes</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class={`w-4 h-4 text-text-dim transition-transform ${isExpanded() ? 'rotate-180' : ''}`}
@@ -50,11 +50,11 @@ export default function WorkoutNotes() {
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      
+
       <Show when={isExpanded()}>
-        <div class="px-4 pb-4 space-y-3">
+        <div class="px-4 pb-4 space-y-3 border-t border-border pt-4">
           <textarea
-            class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
+            class="w-full bg-bg border border-border rounded-none px-3 py-2 text-sm resize-none focus:outline-none focus:border-text-muted font-mono"
             rows="3"
             placeholder="How did the workout feel? Any issues or PRs to note..."
             value={note()}
@@ -62,13 +62,13 @@ export default function WorkoutNotes() {
           />
           <div class="flex items-center justify-between">
             <Show when={saved()}>
-              <span class="text-xs text-text-dim">Saved</span>
+              <span class="text-xs text-text-dim font-mono uppercase">Saved</span>
             </Show>
             <Show when={!saved()}>
               <span />
             </Show>
             <button
-              class="px-4 py-1.5 bg-border hover:bg-border-hover rounded text-sm font-medium disabled:opacity-50"
+              class="px-4 py-1.5 bg-border hover:bg-border-hover rounded-none text-sm font-bold font-mono uppercase disabled:opacity-50 transition-colors text-text"
               onClick={handleSave}
               disabled={!note().trim()}
             >

@@ -4,7 +4,7 @@
 
 import { Show, For, createSignal, createMemo } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { setShowCalendar, getWorkoutsByMonth, LIFT_NAMES } from '../store.js'
+import { setShowCalendar, getWorkoutsByMonth, LIFT_NAMES, setWorkoutToView } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
 
 // Colors for each lift (matching Progress.jsx)
@@ -133,16 +133,16 @@ export default function CalendarView() {
             {/* Month Navigation */}
             <div class="flex items-center justify-between">
               <button
-                class="p-2 text-text-muted hover:text-text rounded-lg hover:bg-bg-hover"
+                class="p-2 text-text-muted hover:text-text rounded-none hover:bg-bg-hover"
                 onClick={handlePrevMonth}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h3 class="text-lg font-semibold">{monthName()}</h3>
+              <h3 class="text-lg font-bold font-mono uppercase">{monthName()}</h3>
               <button
-                class="p-2 text-text-muted hover:text-text rounded-lg hover:bg-bg-hover"
+                class="p-2 text-text-muted hover:text-text rounded-none hover:bg-bg-hover"
                 onClick={handleNextMonth}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -152,12 +152,12 @@ export default function CalendarView() {
             </div>
 
             {/* Calendar Grid */}
-            <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+            <div class="bg-bg-card border border-border rounded-none overflow-hidden">
               {/* Day headers */}
               <div class="grid grid-cols-7 border-b border-border">
                 <For each={DAYS_OF_WEEK}>
                   {(day) => (
-                    <div class="py-2 text-center text-xs text-text-dim font-medium">
+                    <div class="py-2 text-center text-xs text-text-dim font-bold font-mono uppercase">
                       {day}
                     </div>
                   )}
@@ -165,7 +165,7 @@ export default function CalendarView() {
               </div>
 
               {/* Calendar days */}
-              <div class="grid grid-cols-7">
+              <div class="grid grid-cols-7 bg-bg">
                 <For each={calendarDays()}>
                   {(item) => {
                     const dayWorkouts = () => item.day ? (workoutsByDay()[item.day] || []) : []
@@ -174,18 +174,17 @@ export default function CalendarView() {
 
                     return (
                       <button
-                        class={`relative aspect-square flex flex-col items-center justify-center border-b border-r border-border last:border-r-0 transition-colors ${
-                          item.day === null
-                            ? 'bg-bg-card cursor-default'
-                            : isSelected()
-                              ? 'bg-bg-hover'
-                              : 'hover:bg-bg-hover'
-                        } ${item.isToday ? 'ring-1 ring-inset ring-text-muted' : ''}`}
+                        class={`relative aspect-square flex flex-col items-center justify-center border-b border-r border-border last:border-r-0 transition-colors ${item.day === null
+                          ? 'bg-bg-card cursor-default'
+                          : isSelected()
+                            ? 'bg-text text-bg'
+                            : 'hover:bg-bg-hover'
+                          } ${item.isToday ? 'ring-1 ring-inset ring-text' : ''}`}
                         onClick={() => handleDayClick(item.day)}
                         disabled={item.day === null}
                       >
                         <Show when={item.day !== null}>
-                          <span class={`text-sm ${item.isToday ? 'font-bold' : ''} ${hasWorkouts() ? 'text-text' : 'text-text-dim'}`}>
+                          <span class={`text-sm font-mono ${item.isToday ? 'font-bold' : ''} ${hasWorkouts() ? (isSelected() ? 'text-bg' : 'text-text') : 'text-text-dim'}`}>
                             {item.day}
                           </span>
                           <Show when={hasWorkouts()}>
@@ -193,8 +192,8 @@ export default function CalendarView() {
                               <For each={dayWorkouts().slice(0, 4)}>
                                 {(workout) => (
                                   <div
-                                    class="w-1.5 h-1.5 rounded-full"
-                                    style={{ "background-color": LIFT_COLORS[workout.liftId] }}
+                                    class="w-1.5 h-1.5 rounded-none"
+                                    style={{ "background-color": isSelected() ? 'currentColor' : LIFT_COLORS[workout.liftId] }}
                                   />
                                 )}
                               </For>
@@ -213,8 +212,8 @@ export default function CalendarView() {
               <For each={Object.entries(LIFT_COLORS)}>
                 {([liftId, color]) => (
                   <div class="flex items-center gap-1.5">
-                    <div class="w-2 h-2 rounded-full" style={{ "background-color": color }} />
-                    <span class="text-xs text-text-muted">{LIFT_NAMES[liftId].split(' ')[0]}</span>
+                    <div class="w-2 h-2 rounded-none" style={{ "background-color": color }} />
+                    <span class="text-xs text-text-muted font-mono uppercase">{LIFT_NAMES[liftId].split(' ')[0]}</span>
                   </div>
                 )}
               </For>
@@ -222,9 +221,9 @@ export default function CalendarView() {
 
             {/* Selected Day Details */}
             <Show when={selectedDay() !== null && selectedDayWorkouts().length > 0}>
-              <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+              <div class="bg-bg-card border border-border rounded-none overflow-hidden">
                 <div class="px-4 py-3 border-b border-border">
-                  <h3 class="font-semibold">
+                  <h3 class="font-bold font-mono uppercase">
                     {new Date(currentYear(), currentMonth(), selectedDay()).toLocaleDateString(undefined, {
                       weekday: 'long',
                       month: 'short',
@@ -235,23 +234,29 @@ export default function CalendarView() {
                 <div class="divide-y divide-border">
                   <For each={selectedDayWorkouts()}>
                     {(workout) => (
-                      <div class="px-4 py-3">
+                      <div
+                        class="px-4 py-3 hover:bg-bg-hover cursor-pointer transition-colors"
+                        onClick={() => {
+                          haptic()
+                          setWorkoutToView(workout)
+                        }}
+                      >
                         <div class="flex items-center gap-2 mb-1">
                           <div
-                            class="w-2 h-2 rounded-full"
+                            class="w-2 h-2 rounded-none"
                             style={{ "background-color": LIFT_COLORS[workout.liftId] }}
                           />
-                          <span class="font-medium">{LIFT_NAMES[workout.liftId]}</span>
-                          <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded">
+                          <span class="font-bold font-mono uppercase">{LIFT_NAMES[workout.liftId]}</span>
+                          <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded-none font-mono">
                             Week {workout.week}
                           </span>
                           <Show when={workout.rpe}>
-                            <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded">
+                            <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded-none font-mono">
                               RPE {workout.rpe}
                             </span>
                           </Show>
                         </div>
-                        <div class="flex items-center gap-4 text-sm text-text-muted">
+                        <div class="flex items-center gap-4 text-sm text-text-muted font-mono">
                           <span>{workout.mainSets.filter(s => s.completed).length}/{workout.mainSets.length} sets</span>
                           <span>{formatDuration(workout.duration)}</span>
                           <Show when={workout.mainSets.find(s => s.isAmrap && s.actualReps)}>

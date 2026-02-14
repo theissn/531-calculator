@@ -21,11 +21,10 @@ export default function WeekTabs() {
         <For each={weeks}>
           {(week, index) => (
             <button
-              class={`flex-1 py-3 text-sm font-medium text-center ${
-                week === state.currentWeek
-                  ? 'text-text border-b-2 border-text'
-                  : 'text-text-dim hover:text-text-muted'
-              }`}
+              class={`flex-1 py-3 text-sm font-bold font-mono text-center border-r border-border last:border-r-0 uppercase tracking-tight transition-colors rounded-none ${week === state.currentWeek
+                ? 'bg-text text-bg'
+                : 'text-text-muted hover:text-text hover:bg-bg-hover'
+                }`}
               onClick={() => handleWeekClick(week)}
             >
               {weekLabels[index()]}

@@ -109,58 +109,58 @@ export default function FinishWorkoutModal(props) {
   return (
     <Portal>
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
-        <div class="absolute inset-0 bg-black/50" />
-        <div class="relative bg-bg border border-border rounded-lg w-full max-w-sm overflow-hidden">
-          <div class="px-4 py-3 border-b border-border">
-            <h2 class="text-lg font-semibold">Finish Workout</h2>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+        <div class="relative bg-bg border border-border rounded-none w-full max-w-sm overflow-hidden shadow-2xl">
+          <div class="px-4 py-3 border-b border-border bg-bg-card">
+            <h2 class="text-lg font-bold font-mono uppercase tracking-wide">Session Complete</h2>
           </div>
 
           <div class="p-4">
             <Show when={!saved()} fallback={
-              <div class="text-center py-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-text mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <div class="text-center py-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-text mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                <div class="text-lg font-medium">Workout Saved</div>
+                <div class="text-xl font-bold font-mono uppercase tracking-wider">Data Secured</div>
               </div>
             }>
               <Show when={summary()}>
                 {(s) => (
-                  <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                      <span class="text-text-muted">Lift</span>
-                      <span class="font-medium">{s().liftName}</span>
+                  <div class="space-y-3 bg-bg-hover/50 p-4 border border-border/50 mb-6">
+                    <div class="flex justify-between items-center text-sm">
+                      <span class="text-text-muted font-mono uppercase text-xs">Lift</span>
+                      <span class="font-bold font-mono uppercase">{s().liftName}</span>
                     </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-text-muted">Week</span>
-                      <span class="font-medium">{s().week}</span>
+                    <div class="flex justify-between items-center text-sm">
+                      <span class="text-text-muted font-mono uppercase text-xs">Week</span>
+                      <span class="font-bold font-mono">{s().week}</span>
                     </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-text-muted">Duration</span>
-                      <span class="font-medium">{s().duration}</span>
+                    <div class="flex justify-between items-center text-sm">
+                      <span class="text-text-muted font-mono uppercase text-xs">Duration</span>
+                      <span class="font-bold font-mono">{s().duration}</span>
                     </div>
 
                     <div class="border-t border-border pt-3 mt-3">
-                      <div class="flex justify-between items-center">
-                        <span class="text-text-muted">Main Sets</span>
-                        <span class="font-medium">{s().mainSets}</span>
+                      <div class="flex justify-between items-center text-sm">
+                        <span class="text-text-muted font-mono uppercase text-xs">Main Sets</span>
+                        <span class="font-bold font-mono">{s().mainSets}</span>
                       </div>
                       <Show when={s().supplementalSets}>
-                        <div class="flex justify-between items-center mt-2">
-                          <span class="text-text-muted">Supplemental</span>
-                          <span class="font-medium">{s().supplementalSets}</span>
+                        <div class="flex justify-between items-center mt-2 text-sm">
+                          <span class="text-text-muted font-mono uppercase text-xs">Supplemental</span>
+                          <span class="font-bold font-mono">{s().supplementalSets}</span>
                         </div>
                       </Show>
                       <Show when={s().accessories > 0}>
-                        <div class="flex justify-between items-center mt-2">
-                          <span class="text-text-muted">Accessories</span>
-                          <span class="font-medium">{s().accessories} exercises</span>
+                        <div class="flex justify-between items-center mt-2 text-sm">
+                          <span class="text-text-muted font-mono uppercase text-xs">Accessories</span>
+                          <span class="font-bold font-mono">{s().accessories} items</span>
                         </div>
                       </Show>
                       <Show when={s().amrapReps}>
-                        <div class="flex justify-between items-center mt-2">
-                          <span class="text-text-muted">AMRAP</span>
-                          <span class="font-medium">{s().amrapReps} reps</span>
+                        <div class="flex justify-between items-center mt-2 text-sm">
+                          <span class="text-text-muted font-mono uppercase text-xs">AMRAP Result</span>
+                          <span class="font-bold font-mono">{s().amrapReps} reps</span>
                         </div>
                       </Show>
                     </div>
@@ -170,21 +170,20 @@ export default function FinishWorkoutModal(props) {
 
               {/* RPE Selector */}
               <div class="mt-4 pt-4 border-t border-border">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm text-text-muted">Session RPE</span>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold text-text-muted font-mono uppercase">Session RPE</span>
                   <Show when={rpe()}>
-                    <span class="text-xs text-text-dim">{RPE_LABELS[rpe()]}</span>
+                    <span class="text-xs font-bold text-text font-mono uppercase">{RPE_LABELS[rpe()]}</span>
                   </Show>
                 </div>
-                <div class="grid grid-cols-10 gap-1">
+                <div class="grid grid-cols-10 gap-px bg-border p-px">
                   <For each={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}>
                     {(value) => (
                       <button
-                        class={`py-2 text-sm font-medium rounded transition-colors ${
-                          rpe() === value
+                        class={`py-3 text-xs font-bold font-mono transition-colors ${rpe() === value
                             ? 'bg-text text-bg'
-                            : 'bg-bg-hover text-text-muted hover:text-text'
-                        }`}
+                            : 'bg-bg hover:bg-bg-hover text-text-muted hover:text-text'
+                          }`}
                         onClick={() => { haptic(); setRpe(rpe() === value ? null : value) }}
                       >
                         {value}
@@ -192,32 +191,32 @@ export default function FinishWorkoutModal(props) {
                     )}
                   </For>
                 </div>
-                <div class="flex justify-between text-xs text-text-dim mt-1 px-0.5">
+                <div class="flex justify-between text-[10px] text-text-dim mt-2 px-0.5 font-mono uppercase tracking-wider">
                   <span>Easy</span>
                   <span>Hard</span>
                   <span>Max</span>
                 </div>
               </div>
 
-              <div class="flex gap-2 mt-6">
+              <div class="flex gap-3 mt-8">
                 <button
-                  class="flex-1 py-3 text-text-dim hover:text-text-muted text-sm"
+                  class="flex-1 py-3 text-text-muted hover:text-text font-mono uppercase text-xs font-bold border border-transparent hover:border-border transition-colors rounded-none"
                   onClick={handleDiscard}
                   disabled={saving()}
                 >
                   Discard
                 </button>
                 <button
-                  class="flex-1 py-3 bg-text text-bg rounded-lg font-medium disabled:opacity-50"
+                  class="flex-1 py-3 bg-text text-bg hover:bg-white rounded-none font-bold font-mono uppercase text-xs disabled:opacity-50 transition-colors"
                   onClick={handleSave}
                   disabled={saving()}
                 >
-                  {saving() ? 'Saving...' : 'Save Workout'}
+                  {saving() ? 'SAVING...' : 'CONFIRM SAVE'}
                 </button>
               </div>
 
               <button
-                class="w-full py-2 mt-2 text-text-dim hover:text-text-muted text-sm"
+                class="w-full py-2 mt-2 text-text-dim hover:text-text-muted text-[10px] font-mono uppercase tracking-widest"
                 onClick={props.onClose}
                 disabled={saving()}
               >

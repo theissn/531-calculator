@@ -7,6 +7,14 @@ import { createSignal, createEffect, createRoot } from 'solid-js'
 import { getData, updateData, resetData } from './db.js'
 import { calculateTM, generateWorkingSets, estimate1RM } from './calculator.js'
 import { TEMPLATES, generateSupplementalSets, generate5x531Sets } from './templates.js'
+// We need to move getTemplateForLift up or define it before use, but it's exported from this file.
+// Actually, since we are inside the module, we can just call the function if it's hoisted or defined.
+// However, `getTemplateForLift` is defined below `finishWorkout`. 
+// Function declarations are hoisted, so it should be fine. 
+// BUT, `getTemplateForLift` uses `state` which is defined at the top.
+// The issue is `finishWorkout` is using `getTemplateForLift` which is defined later in the file.
+// In JS function declarations are hoisted, so it works. 
+// Just ensuring no circular dependencies or issues.
 
 // Create reactive store
 const [state, setState] = createStore({
@@ -31,6 +39,9 @@ const [showCalendar, setShowCalendar] = createSignal(false)
 
 // Incomplete workout for resume prompt (set during init if exists)
 const [incompleteWorkout, setIncompleteWorkout] = createSignal(null)
+
+// Workout to view (historical)
+const [workoutToView, setWorkoutToView] = createSignal(null)
 
 /**
  * Initialize store from IndexedDB
@@ -121,7 +132,7 @@ export async function updateSettings(settings) {
  */
 export async function updateLift(liftId, oneRepMax) {
   const oldOneRepMax = state.lifts[liftId]?.oneRepMax || 0
-  
+
   // Only log if actually changing and not initial setup (oneRepMax > 0)
   if (oneRepMax !== oldOneRepMax && oldOneRepMax > 0) {
     const trainingMax = calculateTM(oneRepMax, state.settings.tmPercentage)
@@ -134,7 +145,7 @@ export async function updateLift(liftId, oneRepMax) {
     // Clone existing history to plain objects (SolidJS proxies can't be stored in IndexedDB)
     const existingHistory = JSON.parse(JSON.stringify(state.tmHistory || []))
     const tmHistory = [...existingHistory, tmRecord]
-    
+
     await update({
       lifts: {
         ...state.lifts,
@@ -202,12 +213,12 @@ export function exportData() {
 export async function importData(jsonString) {
   try {
     const data = JSON.parse(jsonString)
-    
+
     // Validate required fields exist
     if (!data.lifts || !data.settings) {
       throw new Error('Invalid backup file: missing required data')
     }
-    
+
     // Merge with defaults to ensure all fields exist
     const { DEFAULT_DATA } = await import('./db.js')
     const mergedData = {
@@ -215,7 +226,7 @@ export async function importData(jsonString) {
       ...data,
       isOnboarded: true // If they have data, they're onboarded
     }
-    
+
     await update(mergedData)
     return { success: true }
   } catch (err) {
@@ -236,12 +247,12 @@ export async function recordPR(liftId, weight, reps, week) {
     estimated1RM,
     week
   }
-  
+
   // Clone existing history to plain objects (SolidJS proxies can't be stored in IndexedDB)
   const existingHistory = JSON.parse(JSON.stringify(state.prHistory || []))
   const prHistory = [...existingHistory, record]
   await update({ prHistory })
-  
+
   return record
 }
 
@@ -308,10 +319,10 @@ export async function saveWorkoutNote(note, week) {
   const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
   // Clone existing notes to plain objects (SolidJS proxies can't be stored in IndexedDB)
   const workoutNotes = JSON.parse(JSON.stringify(state.workoutNotes || []))
-  
+
   // Find existing note for today, or create new
   const existingIndex = workoutNotes.findIndex(n => n.date === today)
-  
+
   let updatedNotes
   if (existingIndex >= 0) {
     updatedNotes = [...workoutNotes]
@@ -319,7 +330,7 @@ export async function saveWorkoutNote(note, week) {
   } else {
     updatedNotes = [...workoutNotes, { date: today, week, note }]
   }
-  
+
   await update({ workoutNotes: updatedNotes })
 }
 
@@ -344,10 +355,10 @@ export function getAllWorkoutNotes() {
 export async function createAccessoryTemplate(name, exercises = []) {
   const id = Date.now().toString()
   const template = { id, name, exercises }
-  
+
   const existingTemplates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
   const accessoryTemplates = [...existingTemplates, template]
-  
+
   await update({ accessoryTemplates })
   return template
 }
@@ -358,7 +369,7 @@ export async function createAccessoryTemplate(name, exercises = []) {
 export async function updateAccessoryTemplate(id, updates) {
   const templates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
   const index = templates.findIndex(t => t.id === id)
-  
+
   if (index >= 0) {
     templates[index] = { ...templates[index], ...updates }
     await update({ accessoryTemplates: templates })
@@ -371,7 +382,7 @@ export async function updateAccessoryTemplate(id, updates) {
 export async function deleteAccessoryTemplate(id) {
   const templates = JSON.parse(JSON.stringify(state.accessoryTemplates || []))
   const accessoryTemplates = templates.filter(t => t.id !== id)
-  
+
   // Clear from any lifts that had this template assigned
   const lifts = JSON.parse(JSON.stringify(state.lifts))
   for (const liftId of Object.keys(lifts)) {
@@ -379,7 +390,7 @@ export async function deleteAccessoryTemplate(id) {
       lifts[liftId].accessoryTemplateId = null
     }
   }
-  
+
   await update({ accessoryTemplates, lifts })
 }
 
@@ -539,6 +550,33 @@ export async function finishWorkout(rpe = null) {
   // Filter out warmup sets - only include work sets in history
   const workSets = liftData.mainSets.filter(set => set.type !== 'warmup')
 
+  // Snapshot assistance work
+  const accessoryTemplate = getTemplateForLift(current.liftId)
+  const accessories = (accessoryTemplate?.exercises || []).map((exercise, index) => {
+    const exName = typeof exercise === 'string' ? exercise : exercise.name
+    const exSets = typeof exercise === 'string' ? 3 : exercise.sets
+    const exReps = typeof exercise === 'string' ? 10 : exercise.reps
+
+    // Calculate completed sets for this exercise
+    let completedCount = 0
+    for (let i = 0; i < exSets; i++) {
+      if (current.accessories?.completed?.includes(`${current.liftId}-${index}-${i}`)) {
+        completedCount++
+      } else if (Array.isArray(current.accessories) && current.accessories.includes(`${current.liftId}-${index}-${i}`)) {
+        // Legacy fallback
+        completedCount++
+      }
+    }
+
+    return {
+      name: exName,
+      weight: current.accessories?.weights?.[index] || null,
+      sets: exSets,
+      reps: exReps,
+      completedSets: completedCount
+    }
+  }).filter(a => a.completedSets > 0 || a.weight) // Only include started/weighted exercises
+
   const workoutRecord = {
     id: current.id,
     liftId: current.liftId,
@@ -566,7 +604,7 @@ export async function finishWorkout(rpe = null) {
       weight: current.supplemental.weight || 0,
       reps: current.supplemental.reps || 0
     } : null,
-    accessories: current.accessories || [],
+    accessories: accessories, // Use the snapshot
     note: current.note || '',
     rpe: rpe
   }
@@ -682,4 +720,4 @@ export function getLatestBodyWeight() {
   )
 }
 
-export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, TEMPLATES }
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, workoutToView, setWorkoutToView, TEMPLATES }

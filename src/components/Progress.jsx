@@ -32,27 +32,27 @@ function LineChart(props) {
   const points = createMemo(() => {
     const data = props.data || []
     if (data.length === 0) return null
-    
+
     const values = data.map(d => d.value)
     const minVal = Math.min(...values)
     const maxVal = Math.max(...values)
     const range = maxVal - minVal || 1
-    
+
     const width = 280
     const height = 100
     const padding = 10
-    
+
     const chartWidth = width - padding * 2
     const chartHeight = height - padding * 2
-    
+
     const pts = data.map((d, i) => {
       const x = padding + (data.length === 1 ? chartWidth / 2 : (i / (data.length - 1)) * chartWidth)
       const y = padding + chartHeight - ((d.value - minVal) / range) * chartHeight
       return { x, y, ...d }
     })
-    
+
     const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-    
+
     return { pts, pathD, minVal, maxVal, width, height }
   })
 
@@ -72,16 +72,17 @@ function LineChart(props) {
         {/* Points */}
         <For each={points().pts}>
           {(pt) => (
-            <circle
-              cx={pt.x}
-              cy={pt.y}
-              r="4"
+            <rect
+              x={pt.x - 3}
+              y={pt.y - 3}
+              width="6"
+              height="6"
               class="fill-text"
             />
           )}
         </For>
       </svg>
-      <div class="flex justify-between text-xs text-text-dim px-2">
+      <div class="flex justify-between text-xs text-text-dim px-2 font-mono">
         <span>{Math.round(points().minVal)}</span>
         <span>{Math.round(points().maxVal)}</span>
       </div>
@@ -118,13 +119,13 @@ function BodyWeightCard() {
   })
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <div class="px-4 py-3 border-b border-border">
         <div class="flex items-baseline justify-between">
-          <h3 class="font-semibold">Body Weight</h3>
+          <h3 class="font-bold font-mono uppercase">Body Weight</h3>
           <Show when={latest()}>
-            <span class="text-sm">
-              <span class="font-medium">{latest().weight}</span>
+            <span class="text-sm font-mono">
+              <span class="font-bold">{latest().weight}</span>
               <span class="text-text-dim ml-1">{state.settings?.unit || 'lbs'}</span>
             </span>
           </Show>
@@ -133,13 +134,13 @@ function BodyWeightCard() {
 
       <div class="p-4">
         <Show when={data().length > 0} fallback={
-          <div class="text-center text-text-dim text-sm py-8">
+          <div class="text-center text-text-dim text-sm py-8 font-mono">
             No weight logged yet. Log your weight in Settings.
           </div>
         }>
           <LineChart data={data()} />
           <Show when={trend()}>
-            <div class="text-center text-sm text-text-muted mt-2">
+            <div class="text-center text-sm text-text-muted mt-2 font-mono">
               <Show when={trend().direction === 'up'}>
                 <span class="text-amber-500">+{trend().value}</span> since first log
               </Show>
@@ -164,49 +165,49 @@ function ComparisonChart(props) {
   const chartData = createMemo(() => {
     const datasets = props.datasets || []
     if (datasets.length === 0 || datasets.every(d => d.data.length === 0)) return null
-    
+
     // Get all values across all datasets for scaling
     const allValues = datasets.flatMap(d => d.data.map(p => p.value))
     if (allValues.length === 0) return null
-    
+
     const minVal = Math.min(...allValues)
     const maxVal = Math.max(...allValues)
     const range = maxVal - minVal || 1
-    
+
     const width = 300
     const height = 160
     const padding = { top: 15, right: 15, bottom: 25, left: 15 }
-    
+
     const chartWidth = width - padding.left - padding.right
     const chartHeight = height - padding.top - padding.bottom
-    
+
     // Process each dataset into points and path
     const lines = datasets.map(dataset => {
       const data = dataset.data
       if (data.length === 0) return null
-      
+
       const pts = data.map((d, i) => {
         const x = padding.left + (data.length === 1 ? chartWidth / 2 : (i / (data.length - 1)) * chartWidth)
         const y = padding.top + chartHeight - ((d.value - minVal) / range) * chartHeight
         return { x, y, ...d }
       })
-      
+
       const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-      
-      return { 
-        liftId: dataset.liftId, 
-        color: LIFT_COLORS[dataset.liftId], 
-        pts, 
-        pathD 
+
+      return {
+        liftId: dataset.liftId,
+        color: LIFT_COLORS[dataset.liftId],
+        pts,
+        pathD
       }
     }).filter(Boolean)
-    
+
     return { lines, minVal, maxVal, width, height }
   })
 
   return (
     <Show when={chartData()} fallback={
-      <div class="text-center text-text-dim text-sm py-8">No data yet</div>
+      <div class="text-center text-text-dim text-sm py-8 font-mono">No data yet</div>
     }>
       <svg viewBox={`0 0 ${chartData().width} ${chartData().height}`} class="w-full h-40">
         {/* Lines */}
@@ -223,10 +224,11 @@ function ComparisonChart(props) {
               />
               <For each={line.pts}>
                 {(pt) => (
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="3"
+                  <rect
+                    x={pt.x - 2.5}
+                    y={pt.y - 2.5}
+                    width="5"
+                    height="5"
                     fill={line.color}
                   />
                 )}
@@ -235,7 +237,7 @@ function ComparisonChart(props) {
           )}
         </For>
       </svg>
-      <div class="flex justify-between text-xs text-text-dim px-2 -mt-1">
+      <div class="flex justify-between text-xs text-text-dim px-2 -mt-1 font-mono">
         <span>{Math.round(chartData().minVal)}</span>
         <span>{Math.round(chartData().maxVal)}</span>
       </div>
@@ -244,8 +246,8 @@ function ComparisonChart(props) {
         <For each={chartData().lines}>
           {(line) => (
             <div class="flex items-center gap-1.5">
-              <div class="w-3 h-0.5 rounded" style={{ "background-color": line.color }} />
-              <span class="text-xs text-text-muted">{LIFT_NAMES[line.liftId]}</span>
+              <div class="w-3 h-3 rounded-none" style={{ "background-color": line.color }} />
+              <span class="text-xs text-text-muted font-mono uppercase">{LIFT_NAMES[line.liftId]}</span>
             </div>
           )}
         </For>
@@ -281,9 +283,9 @@ function AllLiftsComparison() {
   return (
     <div class="space-y-4">
       {/* TM Comparison */}
-      <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+      <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
         <div class="px-4 py-3 border-b border-border">
-          <h3 class="font-semibold">Training Max Comparison</h3>
+          <h3 class="font-bold font-mono uppercase">Training Max Comparison</h3>
         </div>
         <div class="p-4">
           <ComparisonChart datasets={tmDatasets()} />
@@ -291,9 +293,9 @@ function AllLiftsComparison() {
       </div>
 
       {/* 1RM Comparison */}
-      <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+      <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
         <div class="px-4 py-3 border-b border-border">
-          <h3 class="font-semibold">Estimated 1RM Comparison</h3>
+          <h3 class="font-bold font-mono uppercase">Estimated 1RM Comparison</h3>
         </div>
         <div class="p-4">
           <ComparisonChart datasets={prDatasets()} />
@@ -333,29 +335,29 @@ function LiftProgressCard(props) {
   }
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <div class="px-4 py-3 border-b border-border">
         <div class="flex items-baseline justify-between">
-          <h3 class="font-semibold">{LIFT_NAMES[props.liftId]}</h3>
+          <h3 class="font-bold font-mono uppercase">{LIFT_NAMES[props.liftId]}</h3>
           <Show when={currentTM()}>
-            <span class="text-sm text-text-dim">TM: {currentTM()}</span>
+            <span class="text-sm text-text-dim font-mono">TM: {currentTM()}</span>
           </Show>
         </div>
       </div>
-      
+
       <div class="p-4 space-y-4">
         {/* TM History Chart */}
         <div>
-          <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Training Max History</div>
+          <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Training Max History</div>
           <LineChart data={tmData()} />
         </div>
-        
+
         {/* PR History Chart */}
         <div>
           <div class="flex items-baseline justify-between mb-2">
-            <span class="text-xs text-text-muted uppercase tracking-wider">Estimated 1RM</span>
+            <span class="text-xs text-text-muted uppercase tracking-wider font-mono">Estimated 1RM</span>
             <Show when={bestPR()}>
-              <span class="text-xs text-text-dim">Best: {bestPR().estimated1RM}</span>
+              <span class="text-xs text-text-dim font-mono">Best: {bestPR().estimated1RM}</span>
             </Show>
           </div>
           <LineChart data={prData()} />
@@ -402,33 +404,30 @@ export default function Progress() {
 
           <div class="p-4 space-y-4">
             {/* View Toggle */}
-            <div class="flex rounded-lg bg-bg-card border border-border p-1">
+            <div class="flex rounded-none bg-bg-card border border-border p-px">
               <button
-                class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view() === 'per-lift'
-                    ? 'bg-bg-hover text-text'
-                    : 'text-text-muted hover:text-text'
-                }`}
+                class={`flex-1 px-3 py-1.5 text-sm font-bold font-mono uppercase rounded-none transition-colors ${view() === 'per-lift'
+                  ? 'bg-text text-bg'
+                  : 'text-text-muted hover:text-text'
+                  }`}
                 onClick={() => toggleView('per-lift')}
               >
                 Per Lift
               </button>
               <button
-                class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view() === 'compare'
-                    ? 'bg-bg-hover text-text'
-                    : 'text-text-muted hover:text-text'
-                }`}
+                class={`flex-1 px-3 py-1.5 text-sm font-bold font-mono uppercase rounded-none transition-colors ${view() === 'compare'
+                  ? 'bg-text text-bg'
+                  : 'text-text-muted hover:text-text'
+                  }`}
                 onClick={() => toggleView('compare')}
               >
                 Compare
               </button>
               <button
-                class={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  view() === 'history'
-                    ? 'bg-bg-hover text-text'
-                    : 'text-text-muted hover:text-text'
-                }`}
+                class={`flex-1 px-3 py-1.5 text-sm font-bold font-mono uppercase rounded-none transition-colors ${view() === 'history'
+                  ? 'bg-text text-bg'
+                  : 'text-text-muted hover:text-text'
+                  }`}
                 onClick={() => toggleView('history')}
               >
                 History
@@ -455,19 +454,19 @@ export default function Progress() {
 
             {/* Recent Notes (only show on per-lift and compare views) */}
             <Show when={view() !== 'history' && getAllWorkoutNotes().length > 0}>
-              <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+              <div class="bg-bg-card border border-border rounded-none overflow-hidden">
                 <div class="px-4 py-3 border-b border-border">
-                  <h3 class="font-semibold">Recent Notes</h3>
+                  <h3 class="font-bold font-mono uppercase">Recent Notes</h3>
                 </div>
                 <div class="divide-y divide-border">
                   <For each={getAllWorkoutNotes().slice(0, 5)}>
                     {(noteEntry) => (
                       <div class="px-4 py-3">
                         <div class="flex items-baseline justify-between mb-1">
-                          <span class="text-xs text-text-dim">
+                          <span class="text-xs text-text-dim font-mono">
                             {new Date(noteEntry.date).toLocaleDateString()}
                           </span>
-                          <span class="text-xs text-text-dim">Week {noteEntry.week}</span>
+                          <span class="text-xs text-text-dim font-mono">Week {noteEntry.week}</span>
                         </div>
                         <p class="text-sm text-text-muted">{noteEntry.note}</p>
                       </div>

@@ -12,7 +12,7 @@ import { toggleMainSet, isMainSetComplete, setAmrapReps } from '../hooks/useComp
 export default function AmrapModal() {
   const [reps, setReps] = createSignal('')
   const [saved, setSaved] = createSignal(false)
-  
+
   const modal = () => amrapModal()
   const estimated = () => {
     const r = parseInt(reps(), 10)
@@ -91,38 +91,38 @@ export default function AmrapModal() {
     <Show when={modal()}>
       <Portal>
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
-          <div class="absolute inset-0 bg-black/50" />
-          <div class="relative bg-bg border border-border rounded-lg w-full max-w-sm overflow-hidden">
-            <div class="px-4 py-3 border-b border-border">
-              <h2 class="text-lg font-semibold">{LIFT_NAMES[modal().liftId]} AMRAP</h2>
-              <p class="text-sm text-text-muted">{modal().weight} × {modal().minReps}+</p>
+          <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <div class="relative bg-bg border border-border rounded-none w-full max-w-sm overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 border-b border-border bg-bg-card">
+              <h2 class="text-lg font-bold font-mono uppercase tracking-wide">{LIFT_NAMES[modal().liftId]} AMRAP</h2>
+              <p class="text-xs text-text-dim font-mono uppercase">{modal().weight} × {modal().minReps}+</p>
             </div>
-            
+
             <div class="p-4 space-y-4">
               <Show when={!saved()} fallback={
                 <div class="text-center py-4">
-                  <div class="text-2xl font-bold text-text">{estimated()}</div>
-                  <div class="text-sm text-text-muted">Estimated 1RM recorded</div>
+                  <div class="text-2xl font-bold text-text font-mono">{estimated()}</div>
+                  <div class="text-sm text-text-muted font-mono uppercase">Estimated 1RM recorded</div>
                 </div>
               }>
                 {/* Previous Performance Card */}
                 <Show when={previousPerformance()}>
-                  <div class="bg-bg-hover border border-border rounded-lg px-3 py-2">
-                    <div class="text-xs text-text-dim mb-1">Last time at {previousPerformance().weight} {state.settings?.unit || 'lbs'}</div>
+                  <div class="bg-bg-hover border border-border rounded-none px-3 py-2">
+                    <div class="text-[10px] text-text-dim mb-1 font-mono uppercase">Last time at {previousPerformance().weight} {state.settings?.unit || 'lbs'}</div>
                     <div class="flex items-baseline justify-between">
-                      <span class="text-lg font-bold">{previousPerformance().reps} reps</span>
-                      <span class="text-xs text-text-dim">{formatPreviousDate(previousPerformance().date)}</span>
+                      <span class="text-lg font-bold font-mono">{previousPerformance().reps} REPS</span>
+                      <span class="text-[10px] text-text-dim font-mono uppercase">{formatPreviousDate(previousPerformance().date)}</span>
                     </div>
                   </div>
                 </Show>
 
                 <div>
-                  <label class="block text-sm text-text-muted mb-2">Reps completed</label>
+                  <label class="block text-xs font-bold text-text-muted mb-2 font-mono uppercase">Reps completed</label>
                   <input
                     type="number"
                     inputmode="numeric"
                     min="1"
-                    class="w-full bg-bg border border-border rounded-lg px-4 py-3 text-2xl text-center font-bold focus:outline-none focus:border-border-hover"
+                    class="w-full bg-bg border border-border rounded-none px-4 py-3 text-2xl text-center font-bold focus:outline-none focus:border-text font-mono"
                     value={reps()}
                     onInput={(e) => setReps(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -130,37 +130,37 @@ export default function AmrapModal() {
                     autofocus
                   />
                   <Show when={expectedReps()}>
-                    <div class="text-center mt-2 text-sm text-text-dim">
+                    <div class="text-center mt-2 text-[10px] text-text-dim font-mono uppercase">
                       Target: {expectedReps()} reps
                       <Show when={parseInt(reps(), 10) > 0}>
                         {(() => {
                           const r = parseInt(reps(), 10)
                           const expected = expectedReps()
-                          if (r >= expected + 2) return <span class="text-green-500 ml-2">+{r - expected} above</span>
-                          if (r >= expected) return <span class="text-text-muted ml-2">on track</span>
-                          return <span class="text-amber-500 ml-2">{r - expected} below</span>
+                          if (r >= expected + 2) return <span class="text-text font-bold ml-2">+{r - expected} ABOVE</span>
+                          if (r >= expected) return <span class="text-text-muted ml-2">ON TRACK</span>
+                          return <span class="text-text-dim ml-2">{r - expected} BELOW</span>
                         })()}
                       </Show>
                     </div>
                   </Show>
                 </div>
-                
+
                 <Show when={estimated()}>
                   <div class="text-center py-2">
-                    <div class="text-sm text-text-muted">Estimated 1RM</div>
-                    <div class="text-3xl font-bold">{estimated()}</div>
+                    <div class="text-xs text-text-muted font-mono uppercase">Estimated 1RM</div>
+                    <div class="text-3xl font-bold font-mono">{estimated()}</div>
                   </div>
                 </Show>
-                
+
                 <div class="flex gap-2">
                   <button
-                    class="flex-1 py-3 text-text-muted hover:text-text"
+                    class="flex-1 py-3 text-text-muted hover:text-text font-mono uppercase text-xs font-bold border border-transparent hover:border-border transition-colors rounded-none"
                     onClick={handleClose}
                   >
                     Cancel
                   </button>
                   <button
-                    class="flex-1 py-3 bg-border hover:bg-border-hover rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="flex-1 py-3 bg-text text-bg hover:bg-white rounded-none font-bold font-mono uppercase text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     onClick={handleSave}
                     disabled={!estimated()}
                   >

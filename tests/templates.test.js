@@ -39,6 +39,6 @@ describe('templates', () => {
       expect(set.weight).toBe(180)
     })
     expect(sets[0]).toMatchObject({ reps: 3, isAmrap: false })
-    expect(sets[4]).toMatchObject({ reps: '3+', isAmrap: true })
+    expect(sets[4]).toMatchObject({ reps: 3, isAmrap: true })
   })
 })

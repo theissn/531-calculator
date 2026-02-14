@@ -51,7 +51,7 @@ export default function FinishWorkoutButton() {
     <Show when={hasProgress()}>
       <div class="mt-6 pt-4 border-t border-border">
         <button
-          class="w-full py-3 px-4 bg-text text-bg font-medium rounded-lg flex items-center justify-center gap-2"
+          class="w-full py-3 px-4 bg-text text-bg font-bold font-mono uppercase tracking-wider rounded-none flex items-center justify-center gap-2 hover:bg-white transition-colors border border-transparent"
           onClick={() => setShowModal(true)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -59,7 +59,7 @@ export default function FinishWorkoutButton() {
           </svg>
           Finish Workout
         </button>
-        <p class="text-xs text-text-dim text-center mt-2">{progressSummary()}</p>
+        <p class="text-[10px] text-text-dim text-center mt-2 font-mono uppercase tracking-widest">{progressSummary()}</p>
       </div>
 
       <Show when={showModal()}>

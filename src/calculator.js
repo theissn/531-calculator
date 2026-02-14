@@ -65,15 +65,15 @@ export function estimateReps(weight, oneRepMax) {
  */
 export function calculatePlates(totalWeight, barWeight, availablePlates) {
   let weightPerSide = (totalWeight - barWeight) / 2
-  
+
   if (weightPerSide <= 0) {
     return { plates: [], remainder: 0 }
   }
-  
+
   // Sort plates descending
   const sortedPlates = [...availablePlates].sort((a, b) => b - a)
   const plates = []
-  
+
   for (const plateWeight of sortedPlates) {
     if (weightPerSide >= plateWeight) {
       const count = Math.floor(weightPerSide / plateWeight)
@@ -81,10 +81,10 @@ export function calculatePlates(totalWeight, barWeight, availablePlates) {
       weightPerSide -= count * plateWeight
     }
   }
-  
+
   // Round remainder to avoid floating point issues
   const remainder = Math.round(weightPerSide * 100) / 100
-  
+
   return { plates, remainder }
 }
 
@@ -108,17 +108,17 @@ export const WEEK_SCHEMES = {
   1: [
     { percentage: 65, reps: 5 },
     { percentage: 75, reps: 5 },
-    { percentage: 85, reps: '5+', isAmrap: true }
+    { percentage: 85, reps: 5, isAmrap: true }
   ],
   2: [
     { percentage: 70, reps: 3 },
     { percentage: 80, reps: 3 },
-    { percentage: 90, reps: '3+', isAmrap: true }
+    { percentage: 90, reps: 3, isAmrap: true }
   ],
   3: [
     { percentage: 75, reps: 5 },
     { percentage: 85, reps: 3 },
-    { percentage: 95, reps: '1+', isAmrap: true }
+    { percentage: 95, reps: 1, isAmrap: true }
   ],
   4: [
     { percentage: 40, reps: 5 },

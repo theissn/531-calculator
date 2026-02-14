@@ -81,45 +81,45 @@ export default function ResumeWorkoutModal() {
   return (
     <Portal>
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/50" />
-        <div class="relative bg-bg border border-border rounded-lg w-full max-w-sm overflow-hidden">
-          <div class="px-4 py-3 border-b border-border">
-            <h2 class="text-lg font-semibold">Resume Workout?</h2>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+        <div class="relative bg-bg border border-border rounded-none w-full max-w-sm overflow-hidden shadow-2xl">
+          <div class="px-4 py-3 border-b border-border bg-bg-card">
+            <h2 class="text-lg font-bold font-mono uppercase tracking-wide">Resume Session?</h2>
           </div>
 
           <div class="p-4">
-            <p class="text-text-muted mb-4">
-              You have an incomplete workout from a previous session.
+            <p class="text-text-muted mb-6 text-sm font-mono">
+              Incomplete session data detected in local storage.
             </p>
 
-            <div class="bg-bg-hover rounded-lg p-3 space-y-2 mb-4">
-              <div class="flex justify-between">
-                <span class="text-text-muted">Lift</span>
-                <span class="font-medium">{LIFT_NAMES[workout()?.liftId]}</span>
+            <div class="bg-bg-hover border border-border/50 rounded-none p-4 space-y-3 mb-6">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-text-muted font-mono uppercase text-xs">Lift</span>
+                <span class="font-bold font-mono uppercase">{LIFT_NAMES[workout()?.liftId]}</span>
               </div>
-              <div class="flex justify-between">
-                <span class="text-text-muted">Week</span>
-                <span class="font-medium">{workout()?.week}</span>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-text-muted font-mono uppercase text-xs">Week</span>
+                <span class="font-bold font-mono">{workout()?.week}</span>
               </div>
-              <div class="flex justify-between">
-                <span class="text-text-muted">Started</span>
-                <span class="font-medium">{formatTimeAgo(workout()?.startedAt)}</span>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-text-muted font-mono uppercase text-xs">Started</span>
+                <span class="font-bold font-mono">{formatTimeAgo(workout()?.startedAt)}</span>
               </div>
-              <div class="flex justify-between">
-                <span class="text-text-muted">Progress</span>
-                <span class="font-medium text-sm">{formatProgress(workout())}</span>
+              <div class="flex justify-between items-center text-sm border-t border-border/50 pt-2 mt-2">
+                <span class="text-text-muted font-mono uppercase text-xs">Progress</span>
+                <span class="font-bold font-mono text-xs uppercase">{formatProgress(workout())}</span>
               </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-3">
               <button
-                class="flex-1 py-3 text-text-dim hover:text-text-muted"
+                class="flex-1 py-3 text-text-muted hover:text-text font-mono uppercase text-xs font-bold border border-transparent hover:border-border transition-colors rounded-none"
                 onClick={handleDiscard}
               >
-                Discard
+                Discard Data
               </button>
               <button
-                class="flex-1 py-3 bg-text text-bg rounded-lg font-medium"
+                class="flex-1 py-3 bg-text text-bg hover:bg-white rounded-none font-bold font-mono uppercase text-xs transition-colors"
                 onClick={handleResume}
               >
                 Resume

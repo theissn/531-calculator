@@ -8,12 +8,24 @@ import { state, getCurrentWorkout, persistCurrentWorkout, startWorkout } from '.
 
 const [completedAccessories, setCompletedAccessories] = createSignal(new Set())
 
+const [accessoryWeights, setAccessoryWeights] = createSignal({})
+
 /**
  * Initialize from saved workout state (call on app load/resume)
  */
 export function initAccessoriesFromWorkout(currentWorkout) {
-  if (!currentWorkout?.accessories) return
-  setCompletedAccessories(new Set(currentWorkout.accessories))
+  if (currentWorkout?.accessories) {
+    // Handle legacy array format (just completed keys)
+    if (Array.isArray(currentWorkout.accessories)) {
+      setCompletedAccessories(new Set(currentWorkout.accessories))
+      setAccessoryWeights({})
+    }
+    // Handle new object format { completed: [], weights: {} }
+    else if (currentWorkout.accessories.completed) {
+      setCompletedAccessories(new Set(currentWorkout.accessories.completed))
+      setAccessoryWeights(currentWorkout.accessories.weights || {})
+    }
+  }
 }
 
 /**
@@ -21,6 +33,21 @@ export function initAccessoriesFromWorkout(currentWorkout) {
  */
 export function isAccessoryComplete(key) {
   return completedAccessories().has(key)
+}
+
+/**
+ * Get weight for an accessory by key (exerciseIndex)
+ */
+export function getAccessoryWeight(key) {
+  return accessoryWeights()[key] || ''
+}
+
+/**
+ * Update weight for an accessory (persists to IndexedDB)
+ */
+export async function updateAccessoryWeight(key, weight, liftId) {
+  setAccessoryWeights(prev => ({ ...prev, [key]: weight }))
+  await persistAccessories(liftId)
 }
 
 /**
@@ -38,14 +65,24 @@ export async function toggleAccessory(key, liftId) {
     return newSet
   })
 
-  // Ensure workout exists and persist
+  await persistAccessories(liftId)
+}
+
+/**
+ * Helper to persist current state to store
+ */
+async function persistAccessories(liftId) {
+  // Ensure workout exists
   const current = getCurrentWorkout()
   if (!current || current.liftId !== liftId || current.week !== state.currentWeek) {
     await startWorkout(liftId, state.currentWeek)
   }
 
   await persistCurrentWorkout({
-    accessories: Array.from(newSet)
+    accessories: {
+      completed: Array.from(completedAccessories()),
+      weights: accessoryWeights()
+    }
   })
 }
 
@@ -64,10 +101,18 @@ export function getCompletedAccessories() {
 }
 
 /**
+ * Get all accessory weights
+ */
+export function getAllAccessoryWeights() {
+  return accessoryWeights()
+}
+
+/**
  * Reset all completed accessories
  */
 export function resetAccessories() {
   setCompletedAccessories(new Set())
+  setAccessoryWeights({})
 }
 
 /**

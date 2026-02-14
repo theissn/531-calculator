@@ -22,15 +22,14 @@ export default function LiftSelector() {
   }
 
   return (
-    <div class="flex border-b border-border bg-bg overflow-x-auto">
+    <div class="flex border-b border-border bg-bg overflow-x-auto no-scrollbar">
       <For each={LIFT_OPTIONS}>
         {(option) => (
           <button
-            class={`flex-1 min-w-0 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-              currentLift() === option.id
-                ? 'text-text border-b-2 border-text'
-                : 'text-text-dim hover:text-text-muted'
-            }`}
+            class={`flex-1 min-w-[100px] px-3 py-3 text-sm font-bold uppercase tracking-wider font-mono border-r border-border last:border-r-0 transition-colors whitespace-nowrap rounded-none ${currentLift() === option.id
+              ? 'bg-text text-bg'
+              : 'text-text-muted hover:text-text hover:bg-bg-hover'
+              }`}
             onClick={() => handleSelect(option.id)}
           >
             {option.name}

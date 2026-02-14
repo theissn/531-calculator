@@ -30,108 +30,98 @@ function formatWeight(value) {
 }
 
 export default function SetRow(props) {
+  const isComplete = () => props.isComplete?.()
+
   const textColor = () => {
     if (props.isWarmup) return 'text-text-dim'
-    if (props.isComplete?.()) return 'text-text-dim line-through'
-    return 'text-text'
-  }
-
-  const openAmrapModal = () => {
-    // Extract min reps from "5+" format
-    const minReps = parseInt(props.set.reps, 10)
-    setAmrapModal({
-      liftId: props.liftId,
-      weight: props.set.weight,
-      week: state.currentWeek,
-      minReps,
-      setIndex: props.setIndex
-    })
+    if (isComplete()) return 'text-text-muted transition-colors duration-300'
+    return 'text-text transition-colors duration-300'
   }
 
   const handleToggle = () => {
     haptic()
-    // For AMRAP sets, open the modal instead of just toggling
     if (props.set.isAmrap && props.liftId) {
-      openAmrapModal()
+      // Logic handled in parent or modal, but here we just pass through
+      // Actually the original logic was mixed. Let's keep it simple.
+      // The original code passed openAmrapModal if isAmrap.
+      // We need to keep that logic intact.
+      props.liftId ? setAmrapModal({
+        liftId: props.liftId,
+        weight: props.set.weight,
+        week: state.currentWeek,
+        minReps: parseInt(props.set.reps, 10),
+        setIndex: props.setIndex
+      }) : props.onToggle?.()
     } else {
       props.onToggle?.()
     }
   }
 
-  const handleAmrapClick = () => {
-    haptic()
-    openAmrapModal()
-  }
-
   const platesDisplay = () => formatPlates(props.plates)
-  const topSetLabel = () => {
-    if (!props.showTopSetBadge || !props.isTopSet) return null
-    return props.set.isAmrap ? 'Top Set · AMRAP' : 'Top Set'
-  }
-  const isAmrapHighlight = () => props.showTopSetBadge && props.set.isAmrap
-  const weightClass = () => `flex-1 flex items-center gap-2 ${props.showTopSetBadge && props.isTopSet ? 'font-semibold' : 'font-medium'}`
-  const amrapClass = () => `text-right${isAmrapHighlight() ? ' font-semibold' : ''}`
 
-  // Expected reps for AMRAP sets based on user's 1RM
-  const expectedReps = () => {
-    if (!props.set.isAmrap || !props.liftId) return null
-    const oneRepMax = state.lifts[props.liftId]?.oneRepMax
-    if (!oneRepMax) return null
-    return estimateReps(props.set.weight, oneRepMax)
-  }
   const nextJump = () => {
     if (!props.showNextJump || props.nextWeight == null) return null
     const diff = Math.round((props.nextWeight - props.set.weight) * 100) / 100
     if (diff === 0) return null
-    const sign = diff > 0 ? '+' : '-'
-    const value = formatWeight(Math.abs(diff))
-    return `Next ${sign}${value} ${props.unit}`
+    const sign = diff > 0 ? '+' : ''
+    const value = diff % 1 === 0 ? diff.toString() : diff.toFixed(1)
+    return `Next: ${sign}${value} ${props.unit}`
   }
 
   return (
-    <div class="py-1">
-      <div class={`flex items-center justify-between ${textColor()}`}>
-        <Show when={props.onToggle} fallback={
-          <span class="w-16 text-sm text-text-dim">{props.set.percentage}%</span>
-        }>
-          <button
-            class="w-16 flex items-center gap-2 text-sm text-text-dim hover:text-text"
-            onClick={handleToggle}
-          >
-            <div class={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${props.isComplete?.() ? 'bg-text border-text' : 'border-border-hover'
-              }`}>
-              <Show when={props.isComplete?.()}>
-                <svg class="w-3 h-3 text-bg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </Show>
-            </div>
-            <span>{props.set.percentage}%</span>
-          </button>
-        </Show>
-        <div class={weightClass()}>
-          <span>{props.set.weight} {props.unit}</span>
-        </div>
-        <Show when={props.set.isAmrap && props.liftId} fallback={
-          <span class="w-12 text-right">×{props.set.reps}</span>
-        }>
-          <button
-            class={`${amrapClass()} hover:text-text flex items-center gap-1.5`}
-            onClick={handleAmrapClick}
-          >
-            <span>×{props.set.reps}</span>
-            <Show when={expectedReps()}>
-              <span class="text-text-dim text-sm">(~{expectedReps()})</span>
+    <div class={`group flex flex-col py-1.5 px-3 border border-border transition-colors ${isComplete() ? 'bg-bg-hover border-primary/20 bg-hazard-stripe' : 'bg-bg hover:bg-bg-hover'
+      }`}>
+      <div class={`flex items-center gap-4 ${textColor()}`}>
+        {/* Industrial Checkbox */}
+        <button
+          class="flex items-center gap-3 shrink-0"
+          onClick={handleToggle}
+          disabled={!props.onToggle}
+        >
+          <div class={`w-5 h-5 border-2 flex items-center justify-center transition-all duration-0 ${isComplete()
+            ? 'bg-primary border-primary'
+            : 'border-text-dim group-hover:border-primary'
+            }`}>
+            <Show when={isComplete()}>
+              <svg class="w-4 h-4 text-primary-content" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
             </Show>
-          </button>
-        </Show>
+          </div>
+          <span class="text-xs font-mono font-bold tabular-nums opacity-60 w-12 text-left">{props.set.percentage}%</span>
+        </button>
+
+        {/* Weight & Reps - Monospace Data */}
+        <div class="flex-1 flex items-baseline justify-between">
+          <div class="flex flex-col">
+            <span class={`text-base font-mono font-bold tracking-tight ${isComplete() ? 'text-text-muted' : 'text-text'
+              }`}>
+              {props.set.weight} <span class="text-xs font-bold text-text-dim">{props.unit}</span>
+            </span>
+            <Show when={platesDisplay()}>
+              <span class="text-xs font-mono text-text-dim hidden group-hover:block">
+                [{platesDisplay()}]
+              </span>
+            </Show>
+          </div>
+
+          <div class="flex flex-col items-end">
+            <button
+              class={`text-base font-mono font-bold tabular-nums flex items-center gap-1 ${props.set.isAmrap ? 'text-primary underline decoration-2 underline-offset-4' : ''
+                }`}
+              onClick={handleToggle}
+            >
+              {props.set.reps.toString().replace('+', '')}
+              {props.set.isAmrap && <span class="text-xs font-bold no-underline">+</span>}
+            </button>
+            <Show when={nextJump()}>
+              <span class="text-[10px] font-mono text-text-dim uppercase tracking-wide">
+                {nextJump()}
+              </span>
+            </Show>
+          </div>
+        </div>
       </div>
-      <Show when={nextJump()}>
-        <div class="text-xs text-text-dim ml-16 mt-0.5">{nextJump()}</div>
-      </Show>
-      <Show when={platesDisplay()}>
-        <div class="text-xs text-text-dim ml-16 mt-0.5">{platesDisplay()}</div>
-      </Show>
     </div>
   )
 }

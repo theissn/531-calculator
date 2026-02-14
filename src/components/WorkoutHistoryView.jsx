@@ -3,7 +3,7 @@
  */
 
 import { Show, For, createSignal, createMemo } from 'solid-js'
-import { getWorkoutHistory, deleteWorkoutFromHistory, LIFT_NAMES } from '../store.js'
+import { getWorkoutHistory, deleteWorkoutFromHistory, LIFT_NAMES, setWorkoutToView } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
 import CopyButton from './CopyButton.jsx'
 import { formatWorkoutForLLM, formatCycleForLLM } from '../utils/formatForLLM.js'
@@ -61,7 +61,7 @@ function WorkoutCard(props) {
   }
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <button
         class="w-full px-4 py-3 flex items-center justify-between text-left"
         onClick={() => { haptic(); setExpanded(!expanded()) }}
@@ -69,23 +69,23 @@ function WorkoutCard(props) {
         <div class="flex-1">
           <div class="flex items-center gap-2">
             <span class="font-medium">{LIFT_NAMES[workout().liftId]}</span>
-            <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded">
+            <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded-none font-mono">
               Week {workout().week}
             </span>
           </div>
-          <div class="text-sm text-text-muted mt-0.5">
+          <div class="text-sm text-text-muted mt-0.5 font-mono">
             {formatDate(workout().completedAt)} at {formatTime(workout().completedAt)}
           </div>
         </div>
         <div class="flex items-center gap-3">
           <Show when={workout().rpe}>
-            <div class="text-xs bg-bg-hover px-1.5 py-0.5 rounded text-text-muted">
+            <div class="text-xs bg-bg-hover px-1.5 py-0.5 rounded-none text-text-muted font-mono font-bold">
               RPE {workout().rpe}
             </div>
           </Show>
           <div class="text-right">
-            <div class="text-sm font-medium">{mainSetsCompleted()}/{mainSetsTotal()}</div>
-            <div class="text-xs text-text-dim">{formatDuration(workout().duration)}</div>
+            <div class="text-sm font-bold font-mono">{mainSetsCompleted()}/{mainSetsTotal()}</div>
+            <div class="text-xs text-text-dim font-mono">{formatDuration(workout().duration)}</div>
           </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -104,13 +104,13 @@ function WorkoutCard(props) {
         <div class="px-4 pb-4 border-t border-border pt-3 space-y-3">
           {/* Main Sets */}
           <div>
-            <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Main Sets</div>
+            <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Main Sets</div>
             <div class="space-y-1.5">
               <For each={workout().mainSets}>
                 {(set) => (
-                  <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center justify-between text-sm font-mono">
                     <span class={set.completed ? '' : 'text-text-dim line-through'}>
-                      {set.weight} x {set.targetReps}
+                      {set.weight} x {String(set.targetReps).replace('+', '')}
                       <Show when={set.isAmrap}>
                         <span class="text-text-muted">+</span>
                       </Show>
@@ -118,7 +118,7 @@ function WorkoutCard(props) {
                     <span class="text-text-muted text-xs">
                       {set.percentage}%
                       <Show when={set.isAmrap && set.actualReps}>
-                        <span class="text-text ml-2">{set.actualReps} reps</span>
+                        <span class="text-text ml-2 font-bold">{set.actualReps} reps</span>
                       </Show>
                     </span>
                   </div>
@@ -130,8 +130,8 @@ function WorkoutCard(props) {
           {/* Supplemental */}
           <Show when={workout().supplemental && workout().supplemental.targetSets > 0}>
             <div>
-              <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Supplemental</div>
-              <div class="flex items-center justify-between text-sm">
+              <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Supplemental</div>
+              <div class="flex items-center justify-between text-sm font-mono">
                 <span>{workout().supplemental.weight} x {workout().supplemental.reps}</span>
                 <span class="text-text-muted">
                   {workout().supplemental.completedSets}/{workout().supplemental.targetSets} sets
@@ -143,31 +143,47 @@ function WorkoutCard(props) {
           {/* Accessories */}
           <Show when={workout().accessories && workout().accessories.length > 0}>
             <div>
-              <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Accessories</div>
-              <div class="text-sm text-text-muted">
-                {workout().accessories.length} exercises completed
-              </div>
+              <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Accessories</div>
+              <Show when={typeof workout().accessories[0] === 'object'} fallback={
+                <div class="text-sm text-text-muted font-mono">
+                  {workout().accessories.length} exercises completed
+                </div>
+              }>
+                <div class="space-y-1">
+                  <For each={workout().accessories}>
+                    {(accessory) => (
+                      <div class="flex items-center justify-between text-sm font-mono">
+                        <span>{accessory.name}</span>
+                        <span class="text-text-muted">
+                          {accessory.weight ? <span>{accessory.weight} lbs <span class="text-text-dim">/</span> </span> : ''}
+                          {accessory.completedSets}/{accessory.sets}
+                        </span>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
             </div>
           </Show>
 
           {/* Note */}
           <Show when={workout().note}>
             <div>
-              <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Note</div>
-              <p class="text-sm text-text-muted">{workout().note}</p>
+              <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Note</div>
+              <p class="text-sm text-text-muted font-mono">{workout().note}</p>
             </div>
           </Show>
 
           {/* RPE */}
           <Show when={workout().rpe}>
             <div>
-              <div class="text-xs text-text-muted uppercase tracking-wider mb-2">Session RPE</div>
-              <div class="text-sm">{workout().rpe}/10</div>
+              <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Session RPE</div>
+              <div class="text-sm font-mono">{workout().rpe}/10</div>
             </div>
           </Show>
 
           {/* Snapshot Info */}
-          <div class="pt-2 border-t border-border flex items-center justify-between text-xs text-text-dim">
+          <div class="pt-2 border-t border-border flex items-center justify-between text-xs text-text-dim font-mono">
             <span>TM: {Math.round(workout().trainingMax)} {workout().unit}</span>
             <span>1RM: {workout().oneRepMax} {workout().unit}</span>
           </div>
@@ -185,13 +201,13 @@ function WorkoutCard(props) {
             <Show when={!confirmDelete()} fallback={
               <div class="flex gap-2">
                 <button
-                  class="flex-1 py-2 text-sm text-text-muted hover:text-text"
+                  class="flex-1 py-2 text-sm text-text-muted hover:text-text font-mono uppercase rounded-none border border-transparent hover:border-border"
                   onClick={() => setConfirmDelete(false)}
                 >
                   Cancel
                 </button>
                 <button
-                  class="flex-1 py-2 text-sm text-red-500 hover:text-red-400"
+                  class="flex-1 py-2 text-sm text-red-500 hover:text-red-400 font-mono uppercase rounded-none border border-transparent hover:border-red-900/30"
                   onClick={handleDelete}
                 >
                   Delete
@@ -199,12 +215,22 @@ function WorkoutCard(props) {
               </div>
             }>
               <button
-                class="w-full py-2 text-xs text-text-dim hover:text-text-muted"
+                class="w-full py-2 text-xs text-text-dim hover:text-text-muted font-mono uppercase tracking-widest"
                 onClick={() => { haptic(); setConfirmDelete(true) }}
               >
                 Delete from history
               </button>
             </Show>
+          </div>
+
+          {/* View Detail Action */}
+          <div class="pt-2">
+            <button
+              class="w-full py-2 bg-text text-bg text-xs font-bold uppercase font-mono tracking-widest hover:bg-text/90 transition-colors rounded-none"
+              onClick={() => { haptic(); setWorkoutToView(workout()) }}
+            >
+              View Details
+            </button>
           </div>
         </div>
       </Show>
@@ -242,11 +268,10 @@ export default function WorkoutHistoryView() {
       {/* Filter */}
       <div class="flex gap-2 flex-wrap">
         <button
-          class={`px-3 py-1.5 text-sm rounded-lg border ${
-            filterLift() === null
-              ? 'bg-bg-hover border-border-hover text-text'
-              : 'border-border text-text-muted hover:border-border-hover'
-          }`}
+          class={`px-3 py-1.5 text-xs font-bold font-mono uppercase rounded-none border ${filterLift() === null
+            ? 'bg-text text-bg border-text'
+            : 'border-border text-text-muted hover:border-text hover:text-text'
+            }`}
           onClick={() => { haptic(); setFilterLift(null) }}
         >
           All
@@ -254,11 +279,10 @@ export default function WorkoutHistoryView() {
         <For each={['squat', 'bench', 'deadlift', 'ohp']}>
           {(liftId) => (
             <button
-              class={`px-3 py-1.5 text-sm rounded-lg border ${
-                filterLift() === liftId
-                  ? 'bg-bg-hover border-border-hover text-text'
-                  : 'border-border text-text-muted hover:border-border-hover'
-              }`}
+              class={`px-3 py-1.5 text-xs font-bold font-mono uppercase rounded-none border ${filterLift() === liftId
+                ? 'bg-text text-bg border-text'
+                : 'border-border text-text-muted hover:border-text hover:text-text'
+                }`}
               onClick={() => { haptic(); setFilterLift(liftId) }}
             >
               {LIFT_NAMES[liftId].split(' ')[0]}

@@ -43,7 +43,7 @@ describe('calculator', () => {
     expect(setsWithoutWarmups).toHaveLength(3)
     expect(setsWithoutWarmups[2]).toMatchObject({
       weight: 170,
-      reps: '5+',
+      reps: 5,
       isAmrap: true
     })
 

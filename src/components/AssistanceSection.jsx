@@ -13,13 +13,18 @@ function formatExercise(exercise) {
   return exercise
 }
 
+import { getAccessoryWeight, updateAccessoryWeight } from '../hooks/useAccessoryTracking.js'
+
 function ExerciseRow(props) {
   const exercise = () => formatExercise(props.exercise)
   const totalSets = () => exercise().sets
-  
+
   // Track completed sets for this exercise using keys like "liftId-exerciseIndex-setIndex"
   const getSetKey = (setIndex) => `${props.liftId}-${props.exerciseIndex}-${setIndex}`
-  
+
+  // Track weight using key "liftId-exerciseIndex" (shared across sets for this exercise)
+  const getWeightKey = () => `${props.liftId}-${props.exerciseIndex}`
+
   const completedCount = createMemo(() => {
     let count = 0
     for (let i = 0; i < totalSets(); i++) {
@@ -27,9 +32,9 @@ function ExerciseRow(props) {
     }
     return count
   })
-  
+
   const allDone = () => completedCount() >= totalSets()
-  
+
   const handleSetDone = () => {
     haptic()
     // Mark the next incomplete set as done
@@ -54,22 +59,31 @@ function ExerciseRow(props) {
   }
 
   return (
-    <div class="py-3">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm text-text-muted">{exercise().name}</span>
-        <span class="text-xs text-text-dim">{completedCount()}/{totalSets()} sets</span>
-      </div>
-      
-      <div class="text-sm mb-2">
-        {exercise().reps} reps
+    <div class="border border-border p-3 bg-bg">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-sm font-bold uppercase tracking-wide text-text font-mono">{exercise().name}</span>
+        <span class="text-[10px] font-bold text-text-dim font-mono border border-border px-1">{completedCount()}/{totalSets()}</span>
       </div>
 
-      <div class="flex gap-1 mb-2">
+      <div class="flex items-center justify-start gap-2 mb-3 text-xs text-text-muted font-mono">
+        <span class="font-bold text-text">{exercise().reps}</span> REPS
+        <span class="text-text-dim">@</span>
+        <input
+          type="number"
+          placeholder="___"
+          class="w-12 bg-transparent border-b border-border focus:border-primary outline-none text-center text-text font-bold p-0 rounded-none placeholder:text-text-dim"
+          value={getAccessoryWeight(getWeightKey())}
+          onInput={(e) => updateAccessoryWeight(getWeightKey(), e.currentTarget.value, props.liftId)}
+        />
+        <span class="text-text-dim">LBS</span>
+      </div>
+
+      <div class="flex gap-1 mb-4">
         <For each={Array.from({ length: totalSets() }, (_, i) => i)}>
           {(i) => {
             const isDone = () => isAccessoryComplete(getSetKey(i))
             return (
-              <div class={`flex-1 h-1.5 rounded-full ${isDone() ? 'bg-text' : 'bg-border'}`} />
+              <div class={`flex-1 h-1.5 border border-border transition-colors duration-0 ${isDone() ? 'bg-primary' : 'bg-transparent'}`} />
             )
           }}
         </For>
@@ -77,17 +91,17 @@ function ExerciseRow(props) {
 
       <Show when={!allDone()} fallback={
         <button
-          class="w-full py-2 px-4 bg-bg-hover text-text-dim hover:text-text-muted text-sm rounded-lg"
+          class="w-full py-2 bg-bg hover:bg-bg-hover text-text-dim hover:text-text-muted text-xs font-bold uppercase font-mono border border-border transition-colors rounded-none"
           onClick={handleReset}
         >
           Reset
         </button>
       }>
         <button
-          class="w-full py-2 px-4 bg-border hover:bg-border-hover text-sm font-medium rounded-lg flex items-center justify-center gap-2"
+          class="w-full py-2 bg-primary hover:bg-primary-hover text-primary-content text-xs font-bold uppercase font-mono border border-transparent flex items-center justify-center gap-2 transition-all active:translate-y-px rounded-none"
           onClick={handleSetDone}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12" />
           </svg>
           Set Done
@@ -103,17 +117,22 @@ export default function AssistanceSection(props) {
 
   return (
     <Show when={exercises().length > 0}>
-      <div class="mt-4 pt-3 border-t border-border">
-        <div class="text-xs text-text-dim uppercase tracking-wider mb-1">Assistance</div>
-        
-        <div class="divide-y divide-border">
+      <div class="mt-4 pt-2">
+        <div class="flex items-center justify-between mb-4 px-2">
+          <span class="text-xs font-bold text-text-dim uppercase tracking-widest font-mono">Assistance Work</span>
+          <div class="h-px flex-1 bg-border ml-4"></div>
+        </div>
+
+        <div class="space-y-4">
           <For each={exercises()}>
             {(exercise, index) => (
-              <ExerciseRow
-                exercise={exercise}
-                liftId={props.liftId}
-                exerciseIndex={index()}
-              />
+              <div class="p-0">
+                <ExerciseRow
+                  exercise={exercise}
+                  liftId={props.liftId}
+                  exerciseIndex={index()}
+                />
+              </div>
             )}
           </For>
         </div>

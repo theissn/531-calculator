@@ -2,41 +2,72 @@
 
 /* Define static theme tokens for Tailwind utility generation */
 @theme {
-  --color-bg: #0a0a0a;
-  --color-bg-card: #141414;
-  --color-bg-hover: #1a1a1a;
-  --color-text: #fafafa;
-  --color-text-muted: #a3a3a3;
-  --color-text-dim: #525252;
-  --color-border: #262626;
-  --color-border-hover: #404040;
+  --color-bg: #09090b;
+  /* Zinc 950 */
+  --color-bg-card: #141417;
+  /* High contrast dark */
+  --color-bg-hover: #27272a;
+  /* Zinc 800 */
+  --color-text: #e4e4e7;
+  /* Zinc 200 */
+  --color-text-muted: #71717a;
+  /* Zinc 500 */
+  --color-text-dim: #52525b;
+  /* Zinc 600 */
+  --color-border: #27272a;
+  /* Zinc 800 */
+  --color-border-hover: #3f3f46;
+  /* Zinc 700 */
+
+  /* Muted Industrial Accent - White/Grey/Slate */
+  --color-primary: #d4d4d8;
+  /* Zinc 300 */
+  --color-primary-hover: #ffffff;
+  --color-primary-content: #000000;
+  --color-primary-dim: rgba(255, 255, 255, 0.05);
+
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --radius: 0px;
 }
 
-/* Light theme overrides applied to all elements */
+/* Light theme overrides - Blueprint Style */
 html.light,
 html.light *,
 html.light *::before,
 html.light *::after {
-  --color-bg: #f5f5f5;
-  --color-bg-card: #ffffff;
-  --color-bg-hover: #e5e5e5;
-  --color-text: #171717;
-  --color-text-muted: #525252;
-  --color-text-dim: #a3a3a3;
-  --color-border: #d4d4d4;
-  --color-border-hover: #a3a3a3;
+  --color-bg: #ffffff;
+  --color-bg-card: #f4f4f5;
+  /* Zinc 100 */
+  --color-bg-hover: #e4e4e7;
+  /* Zinc 200 */
+  --color-text: #09090b;
+  /* Zinc 950 - Stark Black */
+  --color-text-muted: #52525b;
+  /* Zinc 600 */
+  --color-text-dim: #a1a1aa;
+  /* Zinc 400 */
+  --color-border: #d4d4d8;
+  /* Zinc 300 - High contrast border */
+  --color-border-hover: #71717a;
+  /* Zinc 500 */
+
+  --color-primary: #18181b;
+  /* Zinc 900 */
+  --color-primary-hover: #000000;
+  --color-primary-content: #ffffff;
+  --color-primary-dim: rgba(0, 0, 0, 0.05);
 }
 
-/* Base styles - dark mode default */
+/* Base styles */
 html {
-  background-color: #0a0a0a;
-  color: #fafafa;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Light mode - explicit overrides for html element */
 html.light {
-  background-color: #f5f5f5 !important;
-  color: #171717 !important;
+  background-color: #ffffff !important;
+  color: #18181b !important;
   color-scheme: light;
 }
 
@@ -45,7 +76,106 @@ html:not(.light) {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility for monospace data */
+.font-mono-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Industrial Border Utility */
+.industrial-border {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+}
+
+/* Industrial Texture Utilities */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  opacity: 0.15;
+}
+
+.scanline {
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.2));
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.1;
+}
+
+/* Technical Corner Markers */
+.corner-marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--color-text-muted);
+  border-width: 0;
+  transition: all 0.2s ease;
+}
+
+.corner-marker-tl {
+  top: 0;
+  left: 0;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.corner-marker-tr {
+  top: 0;
+  right: 0;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.corner-marker-bl {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+
+.corner-marker-br {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+.industrial-card:hover .corner-marker {
+  border-color: var(--color-primary);
+  width: 12px;
+  height: 12px;
+}
+
+/* HARSH INDUSTRIAL POLISH */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-mono) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.05em !important;
+}
+
+.bg-hazard-stripe {
+  background-image: repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 5px,
+      var(--color-primary-dim) 5px,
+      var(--color-primary-dim) 10px);
 }

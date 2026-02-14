@@ -18,6 +18,7 @@ import CalendarView from './CalendarView.jsx'
 import WorkoutNotes from './WorkoutNotes.jsx'
 import FinishWorkoutButton from './FinishWorkoutButton.jsx'
 import ResumeWorkoutModal from './ResumeWorkoutModal.jsx'
+import WorkoutDetailModal from './WorkoutDetailModal.jsx'
 
 export default function App() {
   const allLiftsData = () => getAllLiftsForWeek(state.currentWeek)
@@ -32,13 +33,15 @@ export default function App() {
 
   return (
     <Show when={!state.isLoading} fallback={<div class="min-h-screen bg-bg" />}>
+      <div class="fixed inset-0 pointer-events-none bg-grid-pattern z-0" />
+      <div class="fixed inset-0 pointer-events-none scanline z-50 mix-blend-overlay" />
       <Show when={state.isOnboarded} fallback={<Onboarding />}>
         <div class="flex flex-col min-h-screen">
           <Header />
           <WeekTabs />
           <LiftSelector />
-          <main class={`flex-1 px-4 pt-4 ${isRunning() ? 'pb-24' : 'pb-8'}`}>
-            <div class="space-y-6">
+          <main class={`flex-1 px-4 pt-6 ${isRunning() ? 'pb-24' : 'pb-10'} max-w-lg mx-auto w-full`}>
+            <div class="space-y-8">
               <For each={liftsData()}>
                 {(lift) => <LiftCard lift={lift} isDeload={isDeload()} />}
               </For>
@@ -60,6 +63,7 @@ export default function App() {
         <Show when={incompleteWorkout()}>
           <ResumeWorkoutModal />
         </Show>
+        <WorkoutDetailModal />
       </Show>
     </Show>
   )

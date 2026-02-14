@@ -114,35 +114,35 @@ function LiftSettingsCard(props) {
   }
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
-        <span class="font-medium">{LIFT_LABELS[props.liftId]}</span>
+        <span class="font-medium font-mono uppercase">{LIFT_LABELS[props.liftId]}</span>
         <div class="flex items-center gap-2 text-sm">
           <button
             type="button"
-            class="text-text-muted hover:text-text disabled:text-text-dim disabled:opacity-60"
+            class="text-text-muted hover:text-text disabled:text-text-dim disabled:opacity-60 font-mono"
             onClick={handleOneRepMaxCancel}
             disabled={!isOneRepMaxDirty()}
           >
-            Cancel
+            CANCEL
           </button>
           <button
             type="button"
-            class="px-2 py-1 bg-border hover:bg-border-hover rounded text-xs font-medium disabled:opacity-60"
+            class="px-2 py-1 bg-border hover:bg-border-hover rounded-none text-xs font-bold font-mono disabled:opacity-60"
             onClick={handleOneRepMaxSave}
             disabled={!isOneRepMaxDirty()}
           >
-            Save
+            SAVE
           </button>
         </div>
       </div>
       <div class="p-4 space-y-3">
         <div class="flex items-center justify-between">
-          <span class="text-sm text-text-muted">1RM</span>
+          <span class="text-sm text-text-muted font-mono uppercase">1RM</span>
           <div class="flex items-center gap-2">
             <button
               type="button"
-              class="w-8 h-8 flex items-center justify-center rounded border border-border text-text-dim hover:text-text hover:border-border-hover"
+              class="w-8 h-8 flex items-center justify-center rounded-none border border-border text-text-dim hover:text-text hover:border-text"
               onClick={() => handleOneRepMaxAdjust(-2.5)}
             >
               -
@@ -151,23 +151,23 @@ function LiftSettingsCard(props) {
               type="number"
               step="any"
               inputmode="decimal"
-              class="w-20 bg-bg border border-border rounded px-3 py-1.5 text-right font-medium focus:outline-none focus:border-border-hover"
+              class="w-20 bg-bg border border-border rounded-none px-3 py-1.5 text-right font-medium font-mono focus:outline-none focus:border-text"
               value={draftOneRepMax()}
               onInput={handleOneRepMaxInput}
             />
             <button
               type="button"
-              class="w-8 h-8 flex items-center justify-center rounded border border-border text-text-dim hover:text-text hover:border-border-hover"
+              class="w-8 h-8 flex items-center justify-center rounded-none border border-border text-text-dim hover:text-text hover:border-text"
               onClick={() => handleOneRepMaxAdjust(2.5)}
             >
               +
             </button>
-            <span class="text-text-dim w-8">{props.unit}</span>
+            <span class="text-text-dim w-8 font-mono">{props.unit}</span>
           </div>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-text-muted">
-          <span>Top set</span>
+        <div class="flex items-center justify-between text-xs text-text-muted font-mono">
+          <span class="uppercase">Top set</span>
           <div class="flex items-center gap-3">
             <For each={topSetPreview()}>
               {(preview) => (
@@ -180,9 +180,9 @@ function LiftSettingsCard(props) {
         </div>
 
         <div class="flex items-center justify-between">
-          <span class="text-sm text-text-muted">Template</span>
+          <span class="text-sm text-text-muted font-mono uppercase">Template</span>
           <select
-            class="bg-bg border border-border rounded px-3 py-1.5 text-sm"
+            class="bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
             value={props.lift.template || 'classic'}
             onChange={handleTemplateChange}
           >
@@ -194,12 +194,12 @@ function LiftSettingsCard(props) {
 
         <Show when={showSupplPct()}>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-text-muted">Suppl. %</span>
+            <span class="text-sm text-text-muted font-mono uppercase">Suppl. %</span>
             <div class="flex items-center gap-1">
               <input
                 type="number"
                 inputmode="decimal"
-                class="w-16 bg-bg border border-border rounded px-2 py-1.5 text-right text-sm focus:outline-none focus:border-border-hover"
+                class="w-16 bg-bg border border-border rounded-none px-2 py-1.5 text-right text-sm font-mono focus:outline-none focus:border-text"
                 value={props.lift.supplementalPercentage || 50}
                 min="40"
                 max="70"
@@ -212,9 +212,9 @@ function LiftSettingsCard(props) {
 
         <Show when={hasSupplemental()}>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-text-muted">Suppl. Lift</span>
+            <span class="text-sm text-text-muted font-mono uppercase">Suppl. Lift</span>
             <select
-              class="bg-bg border border-border rounded px-3 py-1.5 text-sm"
+              class="bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
               value={props.lift.supplementalLiftId || ''}
               onChange={handleSupplementalLiftChange}
             >
@@ -228,9 +228,9 @@ function LiftSettingsCard(props) {
 
         <Show when={accessoryTemplates().length > 0}>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-text-muted">Accessories</span>
+            <span class="text-sm text-text-muted font-mono uppercase">Accessories</span>
             <select
-              class="bg-bg border border-border rounded px-3 py-1.5 text-sm"
+              class="bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
               value={props.lift.accessoryTemplateId || ''}
               onChange={handleAccessoryTemplateChange}
             >
@@ -295,13 +295,13 @@ function BodyWeightInput() {
   }
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <div class="p-4 space-y-3">
         <Show when={latestWeight()}>
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-text-muted">Current</span>
+          <div class="flex items-center justify-between text-sm font-mono">
+            <span class="text-text-muted uppercase">Current</span>
             <span>
-              <span class="font-medium">{latestWeight().weight}</span>
+              <span class="font-bold">{latestWeight().weight}</span>
               <span class="text-text-dim ml-1">{state.settings?.unit || 'lbs'}</span>
               <span class="text-text-dim text-xs ml-2">({formatDate(latestWeight().date)})</span>
             </span>
@@ -313,14 +313,14 @@ function BodyWeightInput() {
             type="number"
             step="any"
             inputmode="decimal"
-            class="flex-1 bg-bg border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-border-hover"
+            class="flex-1 bg-bg border border-border rounded-none px-3 py-2 text-sm font-mono focus:outline-none focus:border-text"
             placeholder={`Enter weight (${state.settings?.unit || 'lbs'})`}
             value={weight()}
             onInput={(e) => setWeight(e.target.value)}
             onKeyDown={handleKeyDown}
           />
           <button
-            class="px-4 py-2 bg-border hover:bg-border-hover rounded text-sm font-medium disabled:opacity-50"
+            class="px-4 py-2 bg-border hover:bg-border-hover rounded-none text-sm font-bold font-mono uppercase disabled:opacity-50"
             onClick={handleSave}
             disabled={!weight() || parseFloat(weight()) <= 0}
           >
@@ -343,13 +343,13 @@ function AccessoriesManager() {
   const handleAdd = async () => {
     if (!newName().trim()) return
     haptic()
-    
+
     const exercises = newExercises()
       .split('\n')
       .map(e => e.trim())
       .filter(e => e.length > 0)
       .map(parseExercise)
-    
+
     await createAccessoryTemplate(newName().trim(), exercises)
     setNewName('')
     setNewExercises('')
@@ -365,13 +365,13 @@ function AccessoriesManager() {
   const handleSaveEdit = async () => {
     if (!newName().trim()) return
     haptic()
-    
+
     const exercises = newExercises()
       .split('\n')
       .map(e => e.trim())
       .filter(e => e.length > 0)
       .map(parseExercise)
-    
+
     await updateAccessoryTemplate(editingId(), { name: newName().trim(), exercises })
     setEditingId(null)
     setNewName('')
@@ -391,9 +391,9 @@ function AccessoriesManager() {
   }
 
   return (
-    <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <Show when={templates().length === 0 && !isAdding()}>
-        <div class="p-4 text-center text-text-dim text-sm">
+        <div class="p-4 text-center text-text-dim text-sm font-mono">
           No accessory templates yet
         </div>
       </Show>
@@ -404,10 +404,10 @@ function AccessoriesManager() {
             <Show when={editingId() === template.id} fallback={
               <div class="p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="font-medium">{template.name}</span>
+                  <span class="font-bold font-mono uppercase">{template.name}</span>
                   <div class="flex items-center gap-2">
                     <button
-                      class="p-1 text-text-dim hover:text-text"
+                      class="p-1 text-text-dim hover:text-text rounded-none"
                       onClick={() => handleEdit(template)}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -415,7 +415,7 @@ function AccessoriesManager() {
                       </svg>
                     </button>
                     <button
-                      class="p-1 text-text-dim hover:text-red-500"
+                      class="p-1 text-text-dim hover:text-red-500 rounded-none"
                       onClick={() => handleDelete(template.id)}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -424,7 +424,7 @@ function AccessoriesManager() {
                     </button>
                   </div>
                 </div>
-                <div class="text-sm text-text-dim space-y-0.5">
+                <div class="text-sm text-text-dim space-y-0.5 font-mono">
                   <For each={template.exercises}>
                     {(ex) => <div>{formatExercise(ex)}</div>}
                   </For>
@@ -435,13 +435,13 @@ function AccessoriesManager() {
               <div class="p-4 space-y-3">
                 <input
                   type="text"
-                  class="w-full bg-bg border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-border-hover"
+                  class="w-full bg-bg border border-border rounded-none px-3 py-2 text-sm font-mono focus:outline-none focus:border-text"
                   placeholder="Template name"
                   value={newName()}
                   onInput={(e) => setNewName(e.target.value)}
                 />
                 <textarea
-                  class="w-full bg-bg border border-border rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
+                  class="w-full bg-bg border border-border rounded-none px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:border-text"
                   rows="4"
                   placeholder="One per line, e.g.:&#10;Face Pulls 3x15&#10;Dips 3x10"
                   value={newExercises()}
@@ -449,13 +449,13 @@ function AccessoriesManager() {
                 />
                 <div class="flex gap-2">
                   <button
-                    class="flex-1 py-2 text-sm text-text-muted hover:text-text"
+                    class="flex-1 py-2 text-sm text-text-muted hover:text-text font-mono uppercase rounded-none border border-transparent hover:border-border"
                     onClick={handleCancel}
                   >
                     Cancel
                   </button>
                   <button
-                    class="flex-1 py-2 bg-border hover:bg-border-hover rounded text-sm font-medium"
+                    class="flex-1 py-2 bg-border hover:bg-border-hover rounded-none text-sm font-bold font-mono uppercase"
                     onClick={handleSaveEdit}
                   >
                     Save
@@ -471,14 +471,14 @@ function AccessoriesManager() {
         <div class="p-4 space-y-3 border-t border-border">
           <input
             type="text"
-            class="w-full bg-bg border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-border-hover"
+            class="w-full bg-bg border border-border rounded-none px-3 py-2 text-sm font-mono focus:outline-none focus:border-text"
             placeholder="Template name"
             value={newName()}
             onInput={(e) => setNewName(e.target.value)}
             autofocus
           />
           <textarea
-            class="w-full bg-bg border border-border rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-border-hover"
+            class="w-full bg-bg border border-border rounded-none px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:border-text"
             rows="4"
             placeholder="One per line, e.g.:&#10;Face Pulls 3x15&#10;Dips 3x10"
             value={newExercises()}
@@ -486,13 +486,13 @@ function AccessoriesManager() {
           />
           <div class="flex gap-2">
             <button
-              class="flex-1 py-2 text-sm text-text-muted hover:text-text"
+              class="flex-1 py-2 text-sm text-text-muted hover:text-text font-mono uppercase rounded-none border border-transparent hover:border-border"
               onClick={handleCancel}
             >
               Cancel
             </button>
             <button
-              class="flex-1 py-2 bg-border hover:bg-border-hover rounded text-sm font-medium"
+              class="flex-1 py-2 bg-border hover:bg-border-hover rounded-none text-sm font-bold font-mono uppercase"
               onClick={handleAdd}
             >
               Add
@@ -503,7 +503,7 @@ function AccessoriesManager() {
 
       <Show when={!isAdding() && !editingId()}>
         <button
-          class="w-full p-4 text-sm text-text-muted hover:text-text hover:bg-bg-hover border-t border-border flex items-center justify-center gap-2"
+          class="w-full p-4 text-sm text-text-muted hover:text-text hover:bg-bg-hover border-t border-border flex items-center justify-center gap-2 font-mono uppercase tracking-wider rounded-none transition-colors"
           onClick={() => setIsAdding(true)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -587,14 +587,14 @@ export default function Settings() {
     haptic()
     const text = await file.text()
     const result = await importData(text)
-    
+
     if (result.success) {
       alert('Backup restored successfully!')
       handleClose()
     } else {
       alert(`Import failed: ${result.error}`)
     }
-    
+
     // Reset the input so the same file can be selected again
     e.target.value = ''
   }
@@ -613,8 +613,8 @@ export default function Settings() {
         <div class="absolute inset-y-0 right-0 w-full max-w-md bg-bg border-l border-border overflow-y-auto">
           <div class="sticky top-0 z-10 bg-bg border-b border-border">
             <div class="flex items-center justify-between px-4 h-14">
-              <h2 class="text-lg font-semibold">Settings</h2>
-              <button class="p-2 -mr-2 text-text-muted hover:text-text" onClick={handleClose}>
+              <h2 class="text-lg font-bold font-mono uppercase tracking-wider">Settings</h2>
+              <button class="p-2 -mr-2 text-text-muted hover:text-text rounded-none" onClick={handleClose}>
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -624,25 +624,25 @@ export default function Settings() {
 
           <div class="p-4 space-y-8">
             {/* 1RM Quick View */}
-            <section class="bg-bg-card border border-border rounded-lg p-3">
+            <section class="bg-bg-card border border-border rounded-none p-3 shadow-sm hover:border-text/30 transition-colors">
               <div class="flex items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h1m3 0H5m0 0V8m0 4v4m14-4h1m-3 0h2m0 0V8m0 4v4M8 12h8M8 12V7a1 1 0 011-1h1a1 1 0 011 1v5m-3 0v5a1 1 0 001 1h1a1 1 0 001-1v-5m5 0V7a1 1 0 00-1-1h-1a1 1 0 00-1 1v5m3 0v5a1 1 0 01-1 1h-1a1 1 0 01-1-1v-5" />
                 </svg>
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                  <span><span class="text-text-muted">S:</span> <span class="font-medium">{lifts().squat?.oneRepMax || '—'}</span></span>
-                  <span><span class="text-text-muted">B:</span> <span class="font-medium">{lifts().bench?.oneRepMax || '—'}</span></span>
-                  <span><span class="text-text-muted">D:</span> <span class="font-medium">{lifts().deadlift?.oneRepMax || '—'}</span></span>
-                  <span><span class="text-text-muted">O:</span> <span class="font-medium">{lifts().ohp?.oneRepMax || '—'}</span></span>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm font-mono">
+                  <span><span class="text-text-muted">S:</span> <span class="font-bold">{lifts().squat?.oneRepMax || '—'}</span></span>
+                  <span><span class="text-text-muted">B:</span> <span class="font-bold">{lifts().bench?.oneRepMax || '—'}</span></span>
+                  <span><span class="text-text-muted">D:</span> <span class="font-bold">{lifts().deadlift?.oneRepMax || '—'}</span></span>
+                  <span><span class="text-text-muted">O:</span> <span class="font-bold">{lifts().ohp?.oneRepMax || '—'}</span></span>
                 </div>
-                <span class="text-text-dim text-sm ml-auto">{settings().unit}</span>
+                <span class="text-text-dim text-sm ml-auto font-mono uppercase">{settings().unit}</span>
                 <CopyButton getText={formatSettingsForLLM} label="Copy for LLM" />
               </div>
             </section>
 
             {/* Lifts Section */}
             <section>
-              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Lifts</h3>
+              <h3 class="text-sm font-bold text-text-muted font-mono uppercase tracking-wider mb-4">Lifts</h3>
               <div class="space-y-4">
                 <For each={['squat', 'bench', 'deadlift', 'ohp']}>
                   {(liftId) => (
@@ -660,10 +660,10 @@ export default function Settings() {
 
             {/* Training Max Section */}
             <section>
-              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Training Max</h3>
-              <div class="bg-bg-card border border-border rounded-lg p-4">
+              <h3 class="text-sm font-bold text-text-muted font-mono uppercase tracking-wider mb-4">Training Max</h3>
+              <div class="bg-bg-card border border-border rounded-none p-4 hover:border-text/50 transition-colors">
                 <label class="flex items-center justify-between">
-                  <span>TM Percentage</span>
+                  <span class="font-mono uppercase text-sm">TM Percentage</span>
                   <div class="flex items-center gap-2">
                     <input
                       type="range"
@@ -672,9 +672,9 @@ export default function Settings() {
                       step="5"
                       value={settings().tmPercentage}
                       onInput={handleTmChange}
-                      class="w-24 accent-current"
+                      class="w-24 accent-current rounded-none"
                     />
-                    <span class="w-12 text-right font-medium">{settings().tmPercentage}%</span>
+                    <span class="w-12 text-right font-medium font-mono">{settings().tmPercentage}%</span>
                   </div>
                 </label>
               </div>
@@ -682,17 +682,17 @@ export default function Settings() {
 
             {/* Units Section */}
             <section>
-              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Units</h3>
-              <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+              <h3 class="text-sm font-bold text-text-muted font-mono uppercase tracking-wider mb-4">Units</h3>
+              <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
                 <div class="flex border-b border-border">
                   <button
-                    class={`flex-1 py-3 text-center ${settings().unit === 'lbs' ? 'bg-bg-hover font-medium' : 'text-text-dim'}`}
+                    class={`flex-1 py-3 text-center font-mono uppercase text-sm ${settings().unit === 'lbs' ? 'bg-bg-hover font-bold text-text' : 'text-text-dim hover:text-text'}`}
                     onClick={() => handleUnitChange('lbs')}
                   >
                     lbs
                   </button>
                   <button
-                    class={`flex-1 py-3 text-center ${settings().unit === 'kg' ? 'bg-bg-hover font-medium' : 'text-text-dim'}`}
+                    class={`flex-1 py-3 text-center font-mono uppercase text-sm ${settings().unit === 'kg' ? 'bg-bg-hover font-bold text-text' : 'text-text-dim hover:text-text'}`}
                     onClick={() => handleUnitChange('kg')}
                   >
                     kg
@@ -700,9 +700,9 @@ export default function Settings() {
                 </div>
                 <div class="p-4">
                   <label class="flex items-center justify-between">
-                    <span class="text-sm">Rounding increment</span>
+                    <span class="text-sm font-mono uppercase">Rounding</span>
                     <select
-                      class="bg-bg border border-border rounded px-3 py-1.5 text-sm"
+                      class="bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
                       value={settings().roundingIncrement}
                       onChange={handleRoundingChange}
                     >
@@ -717,26 +717,26 @@ export default function Settings() {
 
             {/* Display Section */}
             <section>
-              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Display</h3>
-              <div class="bg-bg-card border border-border rounded-lg overflow-hidden">
+              <h3 class="text-sm font-bold text-text-muted font-mono uppercase tracking-wider mb-4">Display</h3>
+              <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
                 <div class="p-4 border-b border-border">
                   <label class="flex items-center justify-between">
-                    <span>Theme</span>
-                    <div class="flex bg-bg border border-border rounded overflow-hidden">
+                    <span class="font-mono uppercase text-sm">Theme</span>
+                    <div class="flex bg-bg border border-border rounded-none overflow-hidden">
                       <button
-                        class={`px-3 py-1.5 text-sm ${settings().theme === 'system' ? 'bg-bg-hover font-medium' : 'text-text-dim'}`}
+                        class={`px-3 py-1.5 text-sm font-mono uppercase ${settings().theme === 'system' ? 'bg-bg-hover font-bold' : 'text-text-dim hover:text-text'}`}
                         onClick={() => handleThemeChange('system')}
                       >
                         System
                       </button>
                       <button
-                        class={`px-3 py-1.5 text-sm ${settings().theme === 'dark' ? 'bg-bg-hover font-medium' : 'text-text-dim'}`}
+                        class={`px-3 py-1.5 text-sm font-mono uppercase ${settings().theme === 'dark' ? 'bg-bg-hover font-bold' : 'text-text-dim hover:text-text'}`}
                         onClick={() => handleThemeChange('dark')}
                       >
                         Dark
                       </button>
                       <button
-                        class={`px-3 py-1.5 text-sm ${settings().theme === 'light' ? 'bg-bg-hover font-medium' : 'text-text-dim'}`}
+                        class={`px-3 py-1.5 text-sm font-mono uppercase ${settings().theme === 'light' ? 'bg-bg-hover font-bold' : 'text-text-dim hover:text-text'}`}
                         onClick={() => handleThemeChange('light')}
                       >
                         Light
@@ -745,59 +745,59 @@ export default function Settings() {
                   </label>
                 </div>
                 <div class="p-4 border-b border-border">
-                  <label class="flex items-center justify-between cursor-pointer">
-                    <span>Show warm-up sets</span>
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-mono uppercase text-sm group-hover:text-text transition-colors">Show warm-up sets</span>
                     <input
                       type="checkbox"
                       checked={settings().showWarmups}
                       onChange={handleWarmupsChange}
-                      class="w-5 h-5 accent-current"
+                      class="w-5 h-5 accent-current rounded-none cursor-pointer"
                     />
                   </label>
                 </div>
                 <div class="p-4 border-b border-border">
-                  <label class="flex items-center justify-between cursor-pointer">
-                    <span>Highlight top set</span>
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-mono uppercase text-sm group-hover:text-text transition-colors">Highlight top set</span>
                     <input
                       type="checkbox"
                       checked={settings()?.showTopSetBadge ?? true}
                       onChange={handleTopSetBadgeChange}
-                      class="w-5 h-5 accent-current"
+                      class="w-5 h-5 accent-current rounded-none cursor-pointer"
                     />
                   </label>
                 </div>
                 <div class="p-4 border-b border-border">
-                  <label class="flex items-center justify-between cursor-pointer">
-                    <span>Show next set jump</span>
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-mono uppercase text-sm group-hover:text-text transition-colors">Show next set jump</span>
                     <input
                       type="checkbox"
                       checked={settings()?.showNextWeightJump ?? true}
                       onChange={handleNextWeightJumpChange}
-                      class="w-5 h-5 accent-current"
+                      class="w-5 h-5 accent-current rounded-none cursor-pointer"
                     />
                   </label>
                 </div>
                 <div class="p-4 border-b border-border">
-                  <label class="flex items-center justify-between cursor-pointer">
-                    <span>Show plate calculator</span>
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-mono uppercase text-sm group-hover:text-text transition-colors">Show plate calculator</span>
                     <input
                       type="checkbox"
                       checked={settings().showPlates}
                       onChange={handlePlatesChange}
-                      class="w-5 h-5 accent-current"
+                      class="w-5 h-5 accent-current rounded-none cursor-pointer"
                     />
                   </label>
                 </div>
                 <Show when={settings().showPlates}>
                   <div class="p-4">
                     <label class="flex items-center justify-between">
-                      <span class="text-sm">Bar weight</span>
+                      <span class="text-sm font-mono uppercase">Bar weight</span>
                       <div class="flex items-center gap-2">
                         <input
                           type="number"
                           step="any"
                           inputmode="decimal"
-                          class="w-20 bg-bg border border-border rounded px-3 py-1.5 text-right text-sm focus:outline-none focus:border-border-hover"
+                          class="w-20 bg-bg border border-border rounded-none px-3 py-1.5 text-right text-sm font-mono focus:outline-none focus:border-text"
                           value={settings().barWeight || (settings().unit === 'kg' ? 20 : 45)}
                           onChange={handleBarWeightChange}
                         />
