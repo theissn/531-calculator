@@ -59,15 +59,6 @@ export default function SetRow(props) {
 
   const platesDisplay = () => formatPlates(props.plates)
 
-  const nextJump = () => {
-    if (!props.showNextJump || props.nextWeight == null) return null
-    const diff = Math.round((props.nextWeight - props.set.weight) * 100) / 100
-    if (diff === 0) return null
-    const sign = diff > 0 ? '+' : ''
-    const value = diff % 1 === 0 ? diff.toString() : diff.toFixed(1)
-    return `Next: ${sign}${value} ${props.unit}`
-  }
-
   return (
     <div class={`group flex flex-col py-1.5 px-3 border border-border transition-colors ${isComplete() ? 'bg-bg-hover border-primary/20 bg-hazard-stripe' : 'bg-bg hover:bg-bg-hover'
       }`}>
@@ -114,11 +105,6 @@ export default function SetRow(props) {
               {props.set.reps.toString().replace('+', '')}
               {props.set.isAmrap && <span class="text-xs font-bold no-underline">+</span>}
             </button>
-            <Show when={nextJump()}>
-              <span class="text-[10px] font-mono text-text-dim uppercase tracking-wide">
-                {nextJump()}
-              </span>
-            </Show>
           </div>
         </div>
       </div>
