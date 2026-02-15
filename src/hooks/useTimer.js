@@ -7,6 +7,7 @@ import { requestWakeLock, releaseWakeLock } from './useMobile.js'
 
 const [seconds, setSeconds] = createSignal(0)
 const [isRunning, setIsRunning] = createSignal(false)
+const [startTime, setStartTime] = createSignal(null)
 let interval = null
 
 /**
@@ -14,6 +15,8 @@ let interval = null
  */
 export function startTimer() {
   stopTimer()
+  const now = Date.now()
+  setStartTime(now)
   setSeconds(0)
   setIsRunning(true)
 
@@ -21,7 +24,8 @@ export function startTimer() {
   requestWakeLock('timer')
 
   interval = setInterval(() => {
-    setSeconds(s => s + 1)
+    const elapsed = Math.floor((Date.now() - startTime()) / 1000)
+    setSeconds(elapsed)
   }, 1000)
 }
 
@@ -34,6 +38,7 @@ export function stopTimer() {
     interval = null
   }
   setIsRunning(false)
+  setStartTime(null)
   setSeconds(0)
   
   // Allow screen to sleep again

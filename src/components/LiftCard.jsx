@@ -2,8 +2,8 @@
  * LiftCard Component - Display a single lift with sets
  */
 
-import { For, Show, createSignal } from 'solid-js'
-import { state, LIFT_NAMES } from '../store.js'
+import { For, Show, createSignal, createMemo } from 'solid-js'
+import { state, LIFT_NAMES, getLatestBodyWeight } from '../store.js'
 import { roundWeight, calculatePlates, DEFAULT_PLATES_LBS, DEFAULT_PLATES_KG } from '../calculator.js'
 import { isMainSetComplete, toggleMainSet } from '../hooks/useCompletedSets.js'
 import SetRow from './SetRow.jsx'
@@ -12,6 +12,13 @@ import AssistanceSection from './AssistanceSection.jsx'
 
 export default function LiftCard(props) {
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
+  
+  const bwRatio = createMemo(() => {
+    const latestBW = getLatestBodyWeight()
+    if (!latestBW || !latestBW.weight) return null
+    return (props.lift.trainingMax / latestBW.weight).toFixed(2)
+  })
+
   const warmupSets = () => props.isDeload ? [] : props.lift.mainSets.filter(s => s.type === 'warmup')
   const workSets = () => props.lift.mainSets.filter(s => s.type === 'work')
 
@@ -39,6 +46,10 @@ export default function LiftCard(props) {
         <div class="flex items-baseline justify-between mb-4">
           <h2 class="text-2xl font-bold tracking-tight text-text">{LIFT_NAMES[props.lift.liftId]}</h2>
           <div class="flex items-center gap-2 px-3 py-1 rounded-none bg-bg-hover/50 border border-border">
+            <Show when={bwRatio()}>
+              <span class="text-[10px] font-bold text-primary mr-1">{bwRatio()} BW</span>
+              <div class="w-px h-3 bg-border mr-1" />
+            </Show>
             <span class="text-xs text-text-muted uppercase tracking-wider font-semibold">TM</span>
             <span class="text-sm font-bold tabular-nums text-text">{displayTM()}</span>
             <span class="text-[10px] text-text-dim">{props.lift.unit}</span>
