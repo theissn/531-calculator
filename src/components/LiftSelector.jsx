@@ -7,10 +7,10 @@ import { state, setCurrentLift, LIFT_NAMES } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
 
 const LIFT_OPTIONS = [
-  { id: 'squat', name: 'Squat' },
-  { id: 'bench', name: 'Bench' },
-  { id: 'deadlift', name: 'Deadlift' },
-  { id: 'ohp', name: 'OHP' }
+  { id: 'squat', name: 'S' },
+  { id: 'bench', name: 'B' },
+  { id: 'deadlift', name: 'D' },
+  { id: 'ohp', name: 'O' }
 ]
 
 export default function LiftSelector() {
