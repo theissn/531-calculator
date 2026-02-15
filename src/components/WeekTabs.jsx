@@ -16,7 +16,7 @@ export default function WeekTabs() {
   }
 
   return (
-    <nav class="sticky top-14 z-10 bg-bg border-b border-border">
+    <nav class="sticky top-14 z-10 bg-bg border-b border-border overflow-x-auto no-scrollbar">
       <div class="flex">
         <For each={weeks}>
           {(week, index) => (

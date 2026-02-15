@@ -52,10 +52,9 @@ export default function LiftCard(props) {
             </div>
             <div class="space-y-px">
               <For each={warmupSets()}>
-                <For each={warmupSets()}>
-                  {(set) => (
-                    <SetRow
-                      set={set}
+                {(set) => (
+                  <SetRow
+                    set={set}
                       unit={props.lift.unit}
                       isWarmup={true}
                       plates={getPlates(set.weight)}
@@ -82,7 +81,6 @@ export default function LiftCard(props) {
                     />
                   )}
                 </For>
-              </For>
             </div>
           </div>
         </Show>

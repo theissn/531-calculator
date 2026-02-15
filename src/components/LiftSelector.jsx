@@ -26,7 +26,7 @@ export default function LiftSelector() {
       <For each={LIFT_OPTIONS}>
         {(option) => (
           <button
-            class={`flex-1 min-w-[100px] px-3 py-3 text-sm font-bold uppercase tracking-wider font-mono border-r border-border last:border-r-0 transition-colors whitespace-nowrap rounded-none ${currentLift() === option.id
+            class={`flex-1 px-3 py-3 text-sm font-bold uppercase tracking-wider font-mono border-r border-border last:border-r-0 transition-colors whitespace-nowrap rounded-none ${currentLift() === option.id
               ? 'bg-text text-bg'
               : 'text-text-muted hover:text-text hover:bg-bg-hover'
               }`}
