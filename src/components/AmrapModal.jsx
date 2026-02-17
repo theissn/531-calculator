@@ -4,8 +4,8 @@
 
 import { createSignal, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES, state, getPreviousAmrapPerformance } from '../store.js'
-import { estimate1RM, estimateReps } from '../calculator.js'
+import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES, state, getPreviousAmrapPerformance, getBestPR } from '../store.js'
+import { estimate1RM, estimateReps, repsToBeat } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 import { toggleMainSet, isMainSetComplete, setAmrapReps } from '../hooks/useCompletedSets.js'
 
@@ -34,6 +34,18 @@ export default function AmrapModal() {
     const m = modal()
     if (!m) return null
     return getPreviousAmrapPerformance(m.liftId, m.weight)
+  }
+
+  // Reps needed to beat all-time best estimated 1RM
+  const repsToBeatPR = () => {
+    const m = modal()
+    if (!m) return null
+    const bestPR = getBestPR(m.liftId)
+    if (!bestPR) return null
+    return {
+      reps: repsToBeat(m.weight, bestPR.estimated1RM),
+      best1RM: bestPR.estimated1RM
+    }
   }
 
   const formatPreviousDate = (dateStr) => {
@@ -106,15 +118,26 @@ export default function AmrapModal() {
                 </div>
               }>
                 {/* Previous Performance Card */}
-                <Show when={previousPerformance()}>
-                  <div class="bg-bg-hover border border-border rounded-none px-3 py-2">
-                    <div class="text-[10px] text-text-dim mb-1 font-mono uppercase">Last time at {previousPerformance().weight} {state.settings?.unit || 'lbs'}</div>
-                    <div class="flex items-baseline justify-between">
-                      <span class="text-lg font-bold font-mono">{previousPerformance().reps} REPS</span>
-                      <span class="text-[10px] text-text-dim font-mono uppercase">{formatPreviousDate(previousPerformance().date)}</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <Show when={previousPerformance()}>
+                    <div class="bg-bg-hover border border-border rounded-none px-3 py-2">
+                      <div class="text-[10px] text-text-dim mb-1 font-mono uppercase leading-tight">Last time at {previousPerformance().weight}</div>
+                      <div class="flex items-baseline justify-between">
+                        <span class="text-lg font-bold font-mono">{previousPerformance().reps} REPS</span>
+                      </div>
+                      <div class="text-[9px] text-text-dim font-mono uppercase mt-1">{formatPreviousDate(previousPerformance().date)}</div>
                     </div>
-                  </div>
-                </Show>
+                  </Show>
+                  <Show when={repsToBeatPR()}>
+                    <div class="bg-bg-hover border border-primary/30 rounded-none px-3 py-2">
+                      <div class="text-[10px] text-primary mb-1 font-mono uppercase leading-tight">To beat all-time PR</div>
+                      <div class="flex items-baseline justify-between">
+                        <span class="text-lg font-bold font-mono text-primary">{repsToBeatPR().reps} REPS</span>
+                      </div>
+                      <div class="text-[9px] text-text-dim font-mono uppercase mt-1">Best E1RM: {repsToBeatPR().best1RM}</div>
+                    </div>
+                  </Show>
+                </div>
 
                 <div>
                   <label class="block text-xs font-bold text-text-muted mb-2 font-mono uppercase">Reps completed</label>

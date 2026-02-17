@@ -57,6 +57,62 @@ export function estimateReps(weight, oneRepMax) {
 }
 
 /**
+ * Calculate reps needed to beat a target 1RM using Epley formula
+ * @param {number} weight - Weight being lifted
+ * @param {number} target1RM - 1RM to beat
+ * @returns {number} Required reps
+ */
+export function repsToBeat(weight, target1RM) {
+  if (weight >= target1RM) return 1
+  // weight * (1 + reps/30) > target1RM
+  // 1 + reps/30 > target1RM / weight
+  // reps/30 > (target1RM / weight) - 1
+  // reps > 30 * ((target1RM / weight) - 1)
+  return Math.ceil(30 * ((target1RM / weight) - 1) + 0.001) // Add small epsilon to ensure it beats
+}
+
+/**
+ * Calculate DOTS score for relative strength
+ * @param {number} bodyWeight - Body weight
+ * @param {number} totalLifted - Total weight lifted (S+B+D) or 1RM
+ * @param {string} unit - 'lbs' or 'kg'
+ * @param {string} gender - 'male' (default) or 'female'
+ * @returns {number} DOTS score
+ */
+export function calculateDOTS(bodyWeight, totalLifted, unit = 'lbs', gender = 'male') {
+  let bw = bodyWeight
+  let total = totalLifted
+
+  // DOTS constants are for kg
+  if (unit === 'lbs') {
+    bw = bodyWeight * 0.45359237
+    total = totalLifted * 0.45359237
+  }
+
+  const male = [
+    -0.000001093,
+    0.0007391293,
+    -0.1918759221,
+    24.9653911277,
+    -1511.14028827,
+    -0.0000000000
+  ]
+
+  // For simplicity we use male coefficients as default for now, 
+  // but could expand if user wants female coefficients.
+  const c = male
+
+  const denom = 
+    c[0] * Math.pow(bw, 4) + 
+    c[1] * Math.pow(bw, 3) + 
+    c[2] * Math.pow(bw, 2) + 
+    c[3] * bw + 
+    c[4]
+
+  return (500 / denom) * total
+}
+
+/**
  * Calculate plates needed per side for a given weight
  * @param {number} totalWeight - Total weight including bar
  * @param {number} barWeight - Weight of the bar

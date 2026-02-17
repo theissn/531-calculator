@@ -12,6 +12,8 @@ import {
   getAllWorkoutNotes,
   getBodyWeightHistory,
   getLatestBodyWeight,
+  getTonnageHistory,
+  getDOTSHistory,
   LIFT_NAMES
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -305,6 +307,42 @@ function AllLiftsComparison() {
   )
 }
 
+/**
+ * Analytics View - Tonnage and DOTS
+ */
+function AnalyticsView() {
+  const tonnageData = createMemo(() => getTonnageHistory())
+  const dotsData = createMemo(() => getDOTSHistory())
+
+  return (
+    <div class="space-y-4">
+      <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
+        <div class="px-4 py-3 border-b border-border">
+          <h3 class="font-bold font-mono uppercase">Tonnage (Total Volume)</h3>
+        </div>
+        <div class="p-4">
+          <LineChart data={tonnageData()} />
+          <div class="text-[10px] text-text-dim mt-2 font-mono uppercase text-center">
+            Sum of (Sets × Reps × Weight) for all lifts
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
+        <div class="px-4 py-3 border-b border-border">
+          <h3 class="font-bold font-mono uppercase">Relative Strength (DOTS)</h3>
+        </div>
+        <div class="p-4">
+          <LineChart data={dotsData()} />
+          <div class="text-[10px] text-text-dim mt-2 font-mono uppercase text-center">
+            Estimated 1RM relative to body weight
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function LiftProgressCard(props) {
   const tmData = createMemo(() => {
     const history = getTMHistory(props.liftId)
@@ -368,7 +406,7 @@ function LiftProgressCard(props) {
 }
 
 export default function Progress() {
-  const [view, setView] = createSignal('per-lift') // 'per-lift' | 'compare' | 'history'
+  const [view, setView] = createSignal('per-lift') // 'per-lift' | 'compare' | 'analytics' | 'history'
 
   const handleClose = () => {
     haptic()
@@ -404,18 +442,18 @@ export default function Progress() {
 
           <div class="p-4 space-y-4">
             {/* View Toggle */}
-            <div class="flex rounded-none bg-bg-card border border-border p-px">
+            <div class="flex flex-wrap rounded-none bg-bg-card border border-border p-px">
               <button
-                class={`flex-1 px-3 py-1.5 text-sm font-bold font-mono uppercase rounded-none transition-colors ${view() === 'per-lift'
+                class={`flex-1 px-3 py-1.5 text-[10px] font-bold font-mono uppercase rounded-none transition-colors ${view() === 'per-lift'
                   ? 'bg-text text-bg'
                   : 'text-text-muted hover:text-text'
                   }`}
                 onClick={() => toggleView('per-lift')}
               >
-                Per Lift
+                Lifts
               </button>
               <button
-                class={`flex-1 px-3 py-1.5 text-sm font-bold font-mono uppercase rounded-none transition-colors ${view() === 'compare'
+                class={`flex-1 px-3 py-1.5 text-[10px] font-bold font-mono uppercase rounded-none transition-colors ${view() === 'compare'
                   ? 'bg-text text-bg'
                   : 'text-text-muted hover:text-text'
                   }`}
@@ -424,13 +462,22 @@ export default function Progress() {
                 Compare
               </button>
               <button
-                class={`flex-1 px-3 py-1.5 text-sm font-bold font-mono uppercase rounded-none transition-colors ${view() === 'history'
+                class={`flex-1 px-3 py-1.5 text-[10px] font-bold font-mono uppercase rounded-none transition-colors ${view() === 'analytics'
+                  ? 'bg-text text-bg'
+                  : 'text-text-muted hover:text-text'
+                  }`}
+                onClick={() => toggleView('analytics')}
+              >
+                Stats
+              </button>
+              <button
+                class={`flex-1 px-3 py-1.5 text-[10px] font-bold font-mono uppercase rounded-none transition-colors ${view() === 'history'
                   ? 'bg-text text-bg'
                   : 'text-text-muted hover:text-text'
                   }`}
                 onClick={() => toggleView('history')}
               >
-                History
+                Logs
               </button>
             </div>
 
@@ -447,12 +494,17 @@ export default function Progress() {
               <AllLiftsComparison />
             </Show>
 
+            {/* Analytics view */}
+            <Show when={view() === 'analytics'}>
+              <AnalyticsView />
+            </Show>
+
             {/* History view */}
             <Show when={view() === 'history'}>
               <WorkoutHistoryView />
             </Show>
 
-            {/* Recent Notes (only show on per-lift and compare views) */}
+            {/* Recent Notes (only show on main views) */}
             <Show when={view() !== 'history' && getAllWorkoutNotes().length > 0}>
               <div class="bg-bg-card border border-border rounded-none overflow-hidden">
                 <div class="px-4 py-3 border-b border-border">

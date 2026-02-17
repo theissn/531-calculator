@@ -5,7 +5,7 @@
 import { createStore, reconcile } from 'solid-js/store'
 import { createSignal, createEffect, createRoot } from 'solid-js'
 import { getData, updateData, resetData } from './db.js'
-import { calculateTM, generateWorkingSets, estimate1RM } from './calculator.js'
+import { calculateTM, generateWorkingSets, estimate1RM, calculateDOTS } from './calculator.js'
 import { TEMPLATES, generateSupplementalSets, generate5x531Sets } from './templates.js'
 // We need to move getTemplateForLift up or define it before use, but it's exported from this file.
 // Actually, since we are inside the module, we can just call the function if it's hoisted or defined.
@@ -180,6 +180,47 @@ export async function updateLiftSettings(liftId, liftSettings) {
  */
 export async function setCurrentWeek(week) {
   await update({ currentWeek: week })
+}
+
+/**
+ * Finish a cycle - increment TMs and reset week to 1
+ */
+export async function finishCycle() {
+  const lifts = JSON.parse(JSON.stringify(state.lifts))
+  const settings = state.settings
+  const unit = settings.unit
+
+  // Standard 5/3/1 increments: 5 lbs for upper, 10 lbs for lower
+  // For kg: ~2.5 kg for upper, ~5 kg for lower
+  const increments = unit === 'kg' 
+    ? { squat: 5, bench: 2.5, deadlift: 5, ohp: 2.5 }
+    : { squat: 10, bench: 5, deadlift: 10, ohp: 5 }
+
+  for (const liftId of Object.keys(lifts)) {
+    const lift = lifts[liftId]
+    const currentTM = Math.round(lift.oneRepMax * (settings.tmPercentage / 100))
+    const nextTM = currentTM + increments[liftId]
+    
+    // Back-calculate new 1RM from the increased TM
+    lift.oneRepMax = Math.round(nextTM / (settings.tmPercentage / 100))
+    
+    // Log TM history for the increase
+    const tmRecord = {
+      liftId,
+      date: new Date().toISOString(),
+      oneRepMax: lift.oneRepMax,
+      trainingMax: nextTM,
+      isCycleIncrement: true
+    }
+    const existingHistory = JSON.parse(JSON.stringify(state.tmHistory || []))
+    state.tmHistory = [...existingHistory, tmRecord]
+  }
+
+  await update({ 
+    lifts, 
+    currentWeek: 1, 
+    tmHistory: state.tmHistory 
+  })
 }
 
 /**
@@ -718,6 +759,80 @@ export function getLatestBodyWeight() {
   return history.reduce((latest, entry) =>
     new Date(entry.date) > new Date(latest.date) ? entry : latest
   )
+}
+
+// ============================================
+// Analytics Helpers
+// ============================================
+
+/**
+ * Get tonnage history (total volume per workout)
+ */
+export function getTonnageHistory() {
+  const history = state.workoutHistory || []
+  return history.map(w => {
+    let tonnage = 0
+    
+    // Main sets volume
+    w.mainSets.forEach(s => {
+      if (s.completed) {
+        const reps = s.isAmrap ? (s.actualReps || 0) : (s.targetReps || 0)
+        tonnage += s.weight * reps
+      }
+    })
+
+    // Supplemental volume
+    if (w.supplemental) {
+      tonnage += w.supplemental.weight * w.supplemental.reps * (w.supplemental.completedSets || 0)
+    }
+
+    // Accessory volume
+    if (w.accessories) {
+      w.accessories.forEach(a => {
+        if (a.weight && a.completedSets) {
+          tonnage += a.weight * a.reps * a.completedSets
+        }
+      })
+    }
+
+    return {
+      date: w.completedAt,
+      value: tonnage,
+      liftId: w.liftId
+    }
+  }).sort((a, b) => new Date(a.date) - new Date(b.date))
+}
+
+/**
+ * Get DOTS history based on body weight and estimated 1RMs
+ */
+export function getDOTSHistory() {
+  const prHistory = state.prHistory || []
+  const bwHistory = getBodyWeightHistory()
+  if (prHistory.length === 0 || bwHistory.length === 0) return []
+
+  // We need to group PRs by date to get "best of day" or just use all records
+  // For a trend, we'll map each PR to the closest preceding body weight
+  return prHistory.map(pr => {
+    const prDate = new Date(pr.date)
+    
+    // Find body weight on or before this PR date
+    const bwEntry = [...bwHistory]
+      .reverse()
+      .find(bw => new Date(bw.date) <= prDate) || bwHistory[0]
+
+    const dots = calculateDOTS(
+      bwEntry.weight,
+      pr.estimated1RM,
+      state.settings.unit
+    )
+
+    return {
+      date: pr.date,
+      value: Math.round(dots * 100) / 100,
+      liftId: pr.liftId
+    }
+  }).sort((a, b) => new Date(a.date) - new Date(b.date))
 }
 
 export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, workoutToView, setWorkoutToView, TEMPLATES }
