@@ -12,7 +12,19 @@ import AssistanceSection from './AssistanceSection.jsx'
 
 export default function LiftCard(props) {
   const [showMobility, setShowMobility] = createSignal(false)
+  const [completedWarmups, setCompletedWarmups] = createSignal(new Set())
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
+
+  const toggleWarmup = (index) => {
+    haptic()
+    const newSet = new Set(completedWarmups())
+    if (newSet.has(index)) {
+      newSet.delete(index)
+    } else {
+      newSet.add(index)
+    }
+    setCompletedWarmups(newSet)
+  }
   
   const bwRatio = createMemo(() => {
     const latestBW = getLatestBodyWeight()
@@ -94,35 +106,17 @@ export default function LiftCard(props) {
             </div>
             <div class="space-y-px">
               <For each={warmupSets()}>
-                {(set) => (
+                {(set, index) => (
                   <SetRow
                     set={set}
-                      unit={props.lift.unit}
-                      isWarmup={true}
-                      plates={getPlates(set.weight)}
-                      onToggle={() => {
-                        // Warmups don't need persistence, but this enables the UI checkbox
-                        haptic()
-                      }}
-                      isComplete={() => false} // Warmups are always "visual only" for now, or we could track local state if needed.
-                    // The user just wants to click them. SetRow handles local visual toggle if we don't pass isComplete prop?
-                    // Wait, SetRow only uses isComplete() from props.
-                    // If I want them to toggle, I need state.
-                    // KEEP IT SIMPLE: Just let them click it visually?
-                    // SetRow logic: `isComplete` comes from props.
-                    // If I want it to toggle, I need to track it.
-                    // Use a local signal in SetRow? No, SetRow is controlled.
-                    // Re-reading SetRow: `isComplete` is a function.
-                    // If I don't pass `isComplete`, it's undefined.
-                    // Actually, warmups in this app are usually just reference.
-                    // User requests "checkboxes... are disabled".
-                    // I'll add a dummy toggle for now to 'enable' the button, but without state it won't check.
-                    // I should probably track warmups locally in LiftCard or just let them be unchecked but clickable?
-                    // Better: Track local state for warmups in LiftCard or just allow the click effect.
-                    // Let's use a local Set in LiftCard for checked warmups to make it satisfying.
-                    />
-                  )}
-                </For>
+                    unit={props.lift.unit}
+                    isWarmup={true}
+                    plates={getPlates(set.weight)}
+                    onToggle={() => toggleWarmup(index())}
+                    isComplete={() => completedWarmups().has(index())}
+                  />
+                )}
+              </For>
             </div>
           </div>
         </Show>
