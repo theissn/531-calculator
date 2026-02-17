@@ -4,7 +4,8 @@
 
 import { For } from 'solid-js'
 import { state, setCurrentWeek, finishCycle } from '../store.js'
-import { stopTimer, haptic } from '../hooks/useTimer.js'
+import { stopTimer } from '../hooks/useTimer.js'
+import { haptic } from '../hooks/useMobile.js'
 
 const weeks = [1, 2, 3, 4]
 const weekLabels = ['Week 1', 'Week 2', 'Week 3', 'Deload']

@@ -838,4 +838,4 @@ export function getDOTSHistory() {
   }).sort((a, b) => new Date(a.date) - new Date(b.date))
 }
 
-export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, workoutToView, setWorkoutToView, TEMPLATES }
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, workoutToView, setWorkoutToView, TEMPLATES, MOBILITY_PROTOCOLS }
