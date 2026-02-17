@@ -470,7 +470,7 @@ export function getLiftData(liftId, week) {
   if (template === '5x531') {
     mainSets = generate5x531Sets(tm, week, settings.roundingIncrement)
   } else {
-    mainSets = generateWorkingSets(tm, week, settings.roundingIncrement, settings.showWarmups)
+    mainSets = generateWorkingSets(tm, week, settings.roundingIncrement, settings.showWarmups, settings.deloadScheme)
   }
 
   const supplemental = generateSupplementalSets(
@@ -493,7 +493,8 @@ export function getLiftData(liftId, week) {
     supplemental,
     supplementalLiftId,
     supplementalLiftName: LIFT_NAMES[supplementalLiftId],
-    mobility: mobilityProtocol
+    mobility: mobilityProtocol,
+    jokerSetsEnabled: settings.jokerSetsEnabled
   }
 }
 

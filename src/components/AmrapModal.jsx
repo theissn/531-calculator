@@ -8,6 +8,7 @@ import { amrapModal, setAmrapModal, recordPR, LIFT_NAMES, state, getPreviousAmra
 import { estimate1RM, estimateReps, repsToBeat } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 import { toggleMainSet, isMainSetComplete, setAmrapReps } from '../hooks/useCompletedSets.js'
+import confetti from 'canvas-confetti'
 
 export default function AmrapModal() {
   const [reps, setReps] = createSignal('')
@@ -76,7 +77,20 @@ export default function AmrapModal() {
     const r = parseInt(reps(), 10)
     if (!r || r <= 0 || !modal()) return
 
+    const newEstimated = estimate1RM(modal().weight, r)
+    const bestPR = getBestPR(modal().liftId)
+    const isNewPR = !bestPR || newEstimated > bestPR.estimated1RM
+
     haptic()
+    if (isNewPR) {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff0000', '#ffffff', '#00ff00', '#0000ff', '#ffff00']
+      })
+    }
+
     await recordPR(modal().liftId, modal().weight, r, modal().week)
 
     // Save AMRAP reps to current workout for history

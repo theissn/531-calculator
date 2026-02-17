@@ -193,18 +193,44 @@ export const WARMUP_SETS = [
 ]
 
 /**
+ * Deload protocols
+ */
+export const DELOAD_SCHEMES = {
+  standard: [
+    { percentage: 40, reps: 5 },
+    { percentage: 50, reps: 5 },
+    { percentage: 60, reps: 5 }
+  ],
+  high_intensity: [
+    { percentage: 40, reps: 5 },
+    { percentage: 50, reps: 5 },
+    { percentage: 60, reps: 3 },
+    { percentage: 70, reps: 1 },
+    { percentage: 80, reps: 1 },
+    { percentage: 90, reps: 1 },
+    { percentage: 100, reps: 1, isTM: true } // Single at Training Max
+  ],
+  volume_reduction: [
+    { percentage: 50, reps: 5 },
+    { percentage: 50, reps: 5 },
+    { percentage: 50, reps: 5 }
+  ]
+}
+
+/**
  * Generate all sets for a lift on a given week
  * @param {number} trainingMax - Training max for the lift
  * @param {number} week - Week number (1-4)
  * @param {number} roundingIncrement - Rounding increment
  * @param {boolean} showWarmups - Whether to include warmup sets
+ * @param {string} deloadScheme - Scheme to use for week 4
  * @returns {Array} Array of set objects with weight, reps, type
  */
-export function generateWorkingSets(trainingMax, week, roundingIncrement, showWarmups = false) {
+export function generateWorkingSets(trainingMax, week, roundingIncrement, showWarmups = false, deloadScheme = 'standard') {
   const sets = []
 
   // Add warmup sets if enabled
-  if (showWarmups) {
+  if (showWarmups && (week !== 4 || deloadScheme !== 'high_intensity')) {
     WARMUP_SETS.forEach((set, index) => {
       sets.push({
         type: 'warmup',
@@ -217,7 +243,11 @@ export function generateWorkingSets(trainingMax, week, roundingIncrement, showWa
   }
 
   // Add working sets for the week
-  const weekScheme = WEEK_SCHEMES[week]
+  const isDeload = week === 4
+  const weekScheme = isDeload 
+    ? (DELOAD_SCHEMES[deloadScheme] || DELOAD_SCHEMES.standard)
+    : WEEK_SCHEMES[week]
+
   weekScheme.forEach((set, index) => {
     sets.push({
       type: 'work',
@@ -225,7 +255,8 @@ export function generateWorkingSets(trainingMax, week, roundingIncrement, showWa
       weight: calculateWeight(trainingMax, set.percentage, roundingIncrement),
       reps: set.reps,
       percentage: set.percentage,
-      isAmrap: set.isAmrap || false
+      isAmrap: set.isAmrap || false,
+      isTM: set.isTM || false
     })
   })
 

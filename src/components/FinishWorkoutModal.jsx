@@ -97,6 +97,18 @@ export default function FinishWorkoutModal(props) {
     }
   }
 
+  const handleExport = () => {
+    const s = summary()
+    if (!s) return
+
+    haptic()
+    const text = `5/3/1 ${s.liftName} - Week ${s.week}\nDuration: ${s.duration}\nMain: ${s.mainSets}${s.amrapReps ? ` (AMRAP: ${s.amrapReps} reps)` : ''}\n${s.supplementalSets ? `Supplemental: ${s.supplementalSets}\n` : ''}${s.accessories > 0 ? `Accessories: ${s.accessories} exercises\n` : ''}${rpe() ? `RPE: ${rpe()} (${RPE_LABELS[rpe()]})` : ''}\n#531workout`
+
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Workout copied to clipboard!')
+    })
+  }
+
   const handleDiscard = async () => {
     haptic()
     stopTimer()
@@ -167,6 +179,16 @@ export default function FinishWorkoutModal(props) {
                   </div>
                 )}
               </Show>
+
+              <button
+                class="w-full py-2 mb-4 bg-bg border border-border text-text-muted hover:text-text text-[10px] font-bold uppercase font-mono flex items-center justify-center gap-2 transition-colors rounded-none"
+                onClick={handleExport}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                Copy Summary to Clipboard
+              </button>
 
               {/* RPE Selector */}
               <div class="mt-4 pt-4 border-t border-border">

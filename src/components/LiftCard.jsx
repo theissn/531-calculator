@@ -14,6 +14,7 @@ import AssistanceSection from './AssistanceSection.jsx'
 export default function LiftCard(props) {
   const [showMobility, setShowMobility] = createSignal(false)
   const [completedWarmups, setCompletedWarmups] = createSignal(new Set())
+  const [jokerSets, setJokerSets] = createSignal([])
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
 
   const toggleWarmup = (index) => {
@@ -25,6 +26,34 @@ export default function LiftCard(props) {
       newSet.add(index)
     }
     setCompletedWarmups(newSet)
+  }
+
+  const addJokerSet = () => {
+    haptic()
+    const currentJokers = jokerSets()
+    const lastSet = currentJokers.length > 0 
+      ? currentJokers[currentJokers.length - 1] 
+      : workSets()[workSets().length - 1]
+    
+    const nextPercentage = (lastSet.percentage || 95) + 5
+    const weight = roundWeight(props.lift.trainingMax * (nextPercentage / 100), state.settings.roundingIncrement)
+    
+    const newJoker = {
+      type: 'joker',
+      weight,
+      reps: lastSet.reps === '1+' ? 1 : lastSet.reps,
+      percentage: nextPercentage,
+      isComplete: false
+    }
+    
+    setJokerSets([...currentJokers, newJoker])
+  }
+
+  const toggleJokerSet = (index) => {
+    haptic()
+    const newJokers = [...jokerSets()]
+    newJokers[index].isComplete = !newJokers[index].isComplete
+    setJokerSets(newJokers)
   }
   
   const bwRatio = createMemo(() => {
@@ -43,8 +72,11 @@ export default function LiftCard(props) {
   const availablePlates = () => state.settings?.availablePlates ||
     (props.lift.unit === 'kg' ? DEFAULT_PLATES_KG : DEFAULT_PLATES_LBS)
 
-  const getPlates = (weight) => {
+  const showWarmupPlates = () => state.settings?.showWarmupPlates ?? true
+
+  const getPlates = (weight, isWarmup = false) => {
     if (!showPlates()) return null
+    if (isWarmup && !showWarmupPlates()) return null
     return calculatePlates(weight, barWeight(), availablePlates())
   }
 
@@ -112,7 +144,7 @@ export default function LiftCard(props) {
                     set={set}
                     unit={props.lift.unit}
                     isWarmup={true}
-                    plates={getPlates(set.weight)}
+                    plates={getPlates(set.weight, true)}
                     onToggle={() => toggleWarmup(index())}
                     isComplete={() => completedWarmups().has(index())}
                   />
@@ -147,6 +179,32 @@ export default function LiftCard(props) {
               )}
             </For>
           </div>
+          
+          <Show when={props.lift.jokerSetsEnabled && !props.isDeload}>
+            <div class="mt-2 space-y-1">
+              <For each={jokerSets()}>
+                {(set, index) => (
+                  <SetRow
+                    set={set}
+                    unit={props.lift.unit}
+                    isWarmup={false}
+                    plates={getPlates(set.weight)}
+                    onToggle={() => toggleJokerSet(index())}
+                    isComplete={() => set.isComplete}
+                  />
+                )}
+              </For>
+              
+              <Show when={isMainSetComplete(props.lift.liftId, workSets().length - 1)}>
+                <button
+                  class="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-bold uppercase font-mono border border-primary/30 border-dashed transition-colors rounded-none mt-2"
+                  onClick={addJokerSet}
+                >
+                  + Suggest Joker Set ({jokerSets().length > 0 ? (jokerSets()[jokerSets().length - 1].percentage + 5) : 100}%)
+                </button>
+              </Show>
+            </div>
+          </Show>
         </div>
 
         <Show when={props.lift.supplemental && !props.isDeload}>

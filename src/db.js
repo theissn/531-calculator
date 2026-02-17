@@ -24,11 +24,14 @@ export const DEFAULT_DATA = {
     roundingIncrement: 5,
     showWarmups: false,
     showPlates: false,
+    showWarmupPlates: true,
     showTopSetBadge: true,
     showNextWeightJump: true,
     barWeight: 45,
     availablePlates: [45, 25, 10, 5, 2.5],
-    theme: 'system' // 'system' | 'dark' | 'light'
+    theme: 'system', // 'system' | 'dark' | 'light'
+    deloadScheme: 'standard',
+    jokerSetsEnabled: false
   },
   // PR history: array of { liftId, date, weight, reps, estimated1RM, week }
   prHistory: [],

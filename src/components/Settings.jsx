@@ -571,6 +571,10 @@ export default function Settings() {
     updateSettings({ showWarmups: e.target.checked })
   }
 
+  const handleWarmupPlatesChange = (e) => {
+    updateSettings({ showWarmupPlates: e.target.checked })
+  }
+
   const handlePlatesChange = (e) => {
     updateSettings({ showPlates: e.target.checked })
   }
@@ -585,6 +589,14 @@ export default function Settings() {
 
   const handleBarWeightChange = (e) => {
     updateSettings({ barWeight: parseFloat(e.target.value) || 45 })
+  }
+
+  const handleDeloadSchemeChange = (e) => {
+    updateSettings({ deloadScheme: e.target.value })
+  }
+
+  const handleJokerSetsToggle = (e) => {
+    updateSettings({ jokerSetsEnabled: e.target.checked })
   }
 
   const handleExport = () => {
@@ -716,6 +728,20 @@ export default function Settings() {
                     <span class="w-12 text-right font-medium font-mono">{settings().tmPercentage}%</span>
                   </div>
                 </label>
+                <div class="mt-4 pt-4 border-t border-border">
+                  <label class="flex items-center justify-between">
+                    <span class="font-mono uppercase text-sm">Deload Protocol</span>
+                    <select
+                      class="bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
+                      value={settings().deloadScheme}
+                      onChange={handleDeloadSchemeChange}
+                    >
+                      <option value="standard">Standard (40/50/60)</option>
+                      <option value="high_intensity">7th Week (100% TM)</option>
+                      <option value="volume_reduction">Volume Drop (3x5@50%)</option>
+                    </select>
+                  </label>
+                </div>
               </div>
             </section>
 
@@ -794,6 +820,19 @@ export default function Settings() {
                     />
                   </label>
                 </div>
+                <Show when={settings().showWarmups}>
+                  <div class="p-4 border-b border-border bg-bg-hover/30 ml-4">
+                    <label class="flex items-center justify-between cursor-pointer group">
+                      <span class="font-mono uppercase text-xs group-hover:text-text transition-colors">Show warm-up plates</span>
+                      <input
+                        type="checkbox"
+                        checked={settings()?.showWarmupPlates ?? true}
+                        onChange={handleWarmupPlatesChange}
+                        class="w-4 h-4 accent-current rounded-none cursor-pointer"
+                      />
+                    </label>
+                  </div>
+                </Show>
                 <div class="p-4 border-b border-border">
                   <label class="flex items-center justify-between cursor-pointer group">
                     <span class="font-mono uppercase text-sm group-hover:text-text transition-colors">Highlight top set</span>
@@ -828,7 +867,7 @@ export default function Settings() {
                   </label>
                 </div>
                 <Show when={settings().showPlates}>
-                  <div class="p-4">
+                  <div class="p-4 border-b border-border">
                     <label class="flex items-center justify-between">
                       <span class="text-sm font-mono uppercase">Bar weight</span>
                       <div class="flex items-center gap-2">
@@ -845,6 +884,20 @@ export default function Settings() {
                     </label>
                   </div>
                 </Show>
+                <div class="p-4">
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <div class="flex flex-col">
+                      <span class="font-mono uppercase text-sm group-hover:text-text transition-colors">Enable Joker Sets</span>
+                      <span class="text-[10px] text-text-dim uppercase">Suggest +5-10% after AMRAP</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings().jokerSetsEnabled}
+                      onChange={handleJokerSetsToggle}
+                      class="w-5 h-5 accent-current rounded-none cursor-pointer"
+                    />
+                  </label>
+                </div>
               </div>
             </section>
 

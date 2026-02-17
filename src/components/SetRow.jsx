@@ -6,6 +6,7 @@ import { Show, For } from 'solid-js'
 import { state, setAmrapModal } from '../store.js'
 import { estimateReps } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
+import { startTimer } from '../hooks/useTimer.js'
 
 /**
  * Format plates array for display
@@ -29,6 +30,49 @@ function formatWeight(value) {
   return value % 1 === 0 ? value.toString() : value.toFixed(1)
 }
 
+function BarbellVisualizer(props) {
+  if (!props.plates?.plates?.length) return null
+
+  // Flat array of all plates per side
+  const allPlates = []
+  props.plates.plates.forEach(p => {
+    for (let i = 0; i < p.count; i++) allPlates.push(p.weight)
+  })
+
+  const getPlateColor = (weight) => {
+    // Standard competition colors (or similar)
+    if (weight >= 45 || weight >= 20) return 'bg-red-500'    // 45lb / 20kg
+    if (weight >= 35 || weight >= 15) return 'bg-blue-500'   // 35lb / 15kg
+    if (weight >= 25 || weight >= 10) return 'bg-yellow-500' // 25lb / 10kg
+    if (weight >= 10 || weight >= 5) return 'bg-white'       // 10lb / 5kg
+    if (weight >= 5 || weight >= 2.5) return 'bg-blue-400'    // 5lb / 2.5kg
+    return 'bg-gray-400' // Microplates
+  }
+
+  const getPlateHeight = (weight) => {
+    if (weight >= 45 || weight >= 20) return 'h-6'
+    if (weight >= 25 || weight >= 10) return 'h-5'
+    if (weight >= 10 || weight >= 5) return 'h-4'
+    return 'h-3'
+  }
+
+  return (
+    <div class="flex items-center gap-0.5 mt-1 h-6">
+      {/* Barbell Sleeve */}
+      <div class="w-2 h-1 bg-text-dim/30 rounded-l-sm" />
+      <For each={allPlates}>
+        {(weight) => (
+          <div 
+            class={`w-1.5 ${getPlateHeight(weight)} ${getPlateColor(weight)} border-x border-black/20 shadow-sm`}
+            title={`${weight} ${props.unit}`}
+          />
+        )}
+      </For>
+      <div class="flex-1 h-px bg-text-dim/20 ml-1" />
+    </div>
+  )
+}
+
 export default function SetRow(props) {
   const isComplete = () => props.isComplete?.()
 
@@ -40,20 +84,21 @@ export default function SetRow(props) {
 
   const handleToggle = () => {
     haptic()
+    const willBeComplete = !isComplete()
+    
     if (props.set.isAmrap && props.liftId) {
-      // Logic handled in parent or modal, but here we just pass through
-      // Actually the original logic was mixed. Let's keep it simple.
-      // The original code passed openAmrapModal if isAmrap.
-      // We need to keep that logic intact.
-      props.liftId ? setAmrapModal({
+      setAmrapModal({
         liftId: props.liftId,
         weight: props.set.weight,
         week: state.currentWeek,
         minReps: parseInt(props.set.reps, 10),
         setIndex: props.setIndex
-      }) : props.onToggle?.()
+      })
     } else {
       props.onToggle?.()
+      if (willBeComplete) {
+        startTimer()
+      }
     }
   }
 
@@ -89,9 +134,10 @@ export default function SetRow(props) {
               }`}>
               {props.set.weight} <span class="text-xs font-bold text-text-dim">{props.unit}</span>
             </span>
-            <Show when={platesDisplay()}>
-              <span class="text-xs font-mono text-text-dim hidden group-hover:block">
-                [{platesDisplay()}]
+            <Show when={props.plates}>
+              <BarbellVisualizer plates={props.plates} unit={props.unit} />
+              <span class="text-[9px] font-mono text-text-dim opacity-50 hidden group-hover:block">
+                {platesDisplay()}
               </span>
             </Show>
           </div>
