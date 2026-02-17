@@ -19,7 +19,8 @@ import {
   deleteAccessoryTemplate,
   addBodyWeight,
   getLatestBodyWeight,
-  TEMPLATES
+  TEMPLATES,
+  MOBILITY_PROTOCOLS
 } from '../store.js'
 import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -113,6 +114,11 @@ function LiftSettingsCard(props) {
     updateLiftSettings(props.liftId, { accessoryTemplateId: value })
   }
 
+  const handleMobilityChange = (e) => {
+    const value = e.target.value || null
+    updateLiftSettings(props.liftId, { mobilityProtocolId: value })
+  }
+
   return (
     <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
@@ -188,6 +194,20 @@ function LiftSettingsCard(props) {
           >
             <For each={Object.values(TEMPLATES)}>
               {(t) => <option value={t.id}>{t.name}</option>}
+            </For>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-text-muted font-mono uppercase">Mobility</span>
+          <select
+            class="bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
+            value={props.lift.mobilityProtocolId || ''}
+            onChange={handleMobilityChange}
+          >
+            <option value="">None</option>
+            <For each={Object.values(MOBILITY_PROTOCOLS)}>
+              {(m) => <option value={m.id}>{m.name}</option>}
             </For>
           </select>
         </div>

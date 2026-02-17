@@ -11,6 +11,7 @@ import SupplementalSection from './SupplementalSection.jsx'
 import AssistanceSection from './AssistanceSection.jsx'
 
 export default function LiftCard(props) {
+  const [showMobility, setShowMobility] = createSignal(false)
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
   
   const bwRatio = createMemo(() => {
@@ -55,6 +56,36 @@ export default function LiftCard(props) {
             <span class="text-[10px] text-text-dim">{props.lift.unit}</span>
           </div>
         </div>
+
+        <Show when={props.lift.mobility}>
+          <div class="mb-4">
+            <button 
+              class="w-full flex items-center justify-between mb-2 pb-1 border-b border-border/50 text-left group/mobility"
+              onClick={() => setShowMobility(!showMobility())}
+            >
+              <span class="text-xs font-bold text-text-dim uppercase tracking-widest font-mono group-hover/mobility:text-text transition-colors">
+                Mobility: {props.lift.mobility.name}
+              </span>
+              <div class={`text-text-dim transition-transform duration-200 ${showMobility() ? 'rotate-180' : ''}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </div>
+            </button>
+            <Show when={showMobility()}>
+              <div class="bg-bg-card/30 border border-border/10 p-2 space-y-1">
+                <For each={props.lift.mobility.movements}>
+                  {(movement) => (
+                    <div class="flex items-start gap-2 text-[11px] text-text-muted font-mono leading-tight">
+                      <div class="mt-1 w-1 h-1 bg-primary shrink-0" />
+                      <span>{movement}</span>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </Show>
+          </div>
+        </Show>
 
         <Show when={warmupSets().length > 0}>
           <div class="mb-4">

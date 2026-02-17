@@ -51,6 +51,58 @@ export const TEMPLATES = {
 }
 
 /**
+ * Mobility Protocols
+ */
+export const MOBILITY_PROTOCOLS = {
+  'agile-8': {
+    id: 'agile-8',
+    name: 'Agile 8',
+    description: 'Jim Wendler\'s standard mobility warm-up',
+    movements: [
+      'Foam Roll: IT Band, Adductors, Quads, Glutes, Hamstrings',
+      'Pelvic Tilts (10-20 reps)',
+      'Cat/Camel (10-20 reps)',
+      'Fire Hydrants (10 reps/side)',
+      'Mountain Climbers (10 reps/side)',
+      'Groiners (10 reps)',
+      'Frog Stretches (10 reps)',
+      'Cossack Squats (10 reps/side)'
+    ]
+  },
+  'limber-11': {
+    id: 'limber-11',
+    name: 'Limber 11',
+    description: 'Joe DeFranco\'s expanded mobility routine',
+    movements: [
+      'Foam Roll: IT Band (10-15 passes/side)',
+      'Foam Roll: Adductors (10-15 passes/side)',
+      'SMR: Glute (Lacrosse ball, 2 mins/side)',
+      'Bent-knee Iron Cross (5-10 reps/side)',
+      'Rollover into V-sit (10-15 reps)',
+      'Rocking Frog Stretch (10 reps)',
+      'Fire Hydrant Circles (10 forward, 10 back/side)',
+      'Mountain Climbers (10-15 reps/side)',
+      'Cossack Squats (5-10 reps/side)',
+      'Seated Piriformis Stretch (30-60 secs/side)',
+      'Rear-foot Elevated Hip Flexor Stretch (30 secs/side)'
+    ]
+  },
+  'upper-body-warmup': {
+    id: 'upper-body-warmup',
+    name: 'Upper Body Prep',
+    description: 'Shoulder and thoracic spine mobility',
+    movements: [
+      'Thoracic Extension (Foam Roll, 10-15 reps)',
+      'Band Pull-aparts (20 reps)',
+      'Face Pulls (20 reps)',
+      'Scapular Push-ups (15 reps)',
+      'Shoulder Dislocations (PVC/Band, 15 reps)',
+      'Cat/Camel (10 reps)'
+    ]
+  }
+}
+
+/**
  * Generate supplemental sets for a template
  * @param {string} templateId - Template ID
  * @param {number} trainingMax - Training max for the lift

@@ -6,7 +6,7 @@ import { createStore, reconcile } from 'solid-js/store'
 import { createSignal, createEffect, createRoot } from 'solid-js'
 import { getData, updateData, resetData } from './db.js'
 import { calculateTM, generateWorkingSets, estimate1RM, calculateDOTS } from './calculator.js'
-import { TEMPLATES, generateSupplementalSets, generate5x531Sets } from './templates.js'
+import { TEMPLATES, generateSupplementalSets, generate5x531Sets, MOBILITY_PROTOCOLS } from './templates.js'
 // We need to move getTemplateForLift up or define it before use, but it's exported from this file.
 // Actually, since we are inside the module, we can just call the function if it's hoisted or defined.
 // However, `getTemplateForLift` is defined below `finishWorkout`. 
@@ -481,6 +481,8 @@ export function getLiftData(liftId, week) {
     settings.roundingIncrement
   )
 
+  const mobilityProtocol = lift.mobilityProtocolId ? MOBILITY_PROTOCOLS[lift.mobilityProtocolId] : null
+
   return {
     liftId,
     oneRepMax: lift.oneRepMax,
@@ -490,7 +492,8 @@ export function getLiftData(liftId, week) {
     mainSets,
     supplemental,
     supplementalLiftId,
-    supplementalLiftName: LIFT_NAMES[supplementalLiftId]
+    supplementalLiftName: LIFT_NAMES[supplementalLiftId],
+    mobility: mobilityProtocol
   }
 }
 
