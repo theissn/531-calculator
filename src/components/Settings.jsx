@@ -20,7 +20,8 @@ import {
   addBodyWeight,
   getLatestBodyWeight,
   TEMPLATES,
-  MOBILITY_PROTOCOLS
+  MOBILITY_PROTOCOLS,
+  finishCycle
 } from '../store.js'
 import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -626,6 +627,14 @@ export default function Settings() {
     }
   }
 
+  const handleFinishCycle = async () => {
+    if (confirm('Finish this cycle? This will increase your Training Maxes and reset to Week 1.')) {
+      haptic()
+      await finishCycle()
+      handleClose()
+    }
+  }
+
   return (
     <Portal>
       <div class="fixed inset-0 z-50" onClick={handleBackdropClick}>
@@ -643,6 +652,16 @@ export default function Settings() {
           </div>
 
           <div class="p-4 space-y-8">
+            {/* Finish Cycle Action */}
+            <Show when={state.currentWeek >= 3}>
+              <button
+                class="w-full py-4 bg-primary text-primary-content font-bold font-mono uppercase tracking-widest hover:opacity-90 transition-opacity border-b-4 border-black/20 active:border-b-0 active:translate-y-1"
+                onClick={handleFinishCycle}
+              >
+                Finish Cycle & Increment TMs
+              </button>
+            </Show>
+
             {/* 1RM Quick View */}
             <section class="bg-bg-card border border-border rounded-none p-3 shadow-sm hover:border-text/30 transition-colors">
               <div class="flex items-center gap-3">
