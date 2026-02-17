@@ -3,7 +3,7 @@
  */
 
 import { For, Show, createMemo } from 'solid-js'
-import { getTemplateForLift } from '../store.js'
+import { getTemplateForLift, state } from '../store.js'
 import { isAccessoryComplete, toggleAccessory } from '../hooks/useAccessoryTracking.js'
 import { startTimer, stopTimer } from '../hooks/useTimer.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -75,7 +75,7 @@ function ExerciseRow(props) {
           value={getAccessoryWeight(getWeightKey())}
           onInput={(e) => updateAccessoryWeight(getWeightKey(), e.currentTarget.value, props.liftId)}
         />
-        <span class="text-text-dim">LBS</span>
+        <span class="text-text-dim uppercase">{state.settings?.unit || 'lbs'}</span>
       </div>
 
       <div class="flex gap-1 mb-4">
