@@ -127,6 +127,30 @@ function WorkoutCard(props) {
             </div>
           </div>
 
+          {/* Joker Sets */}
+          <Show when={workout().jokerSets && workout().jokerSets.length > 0}>
+            <div>
+              <div class="text-xs text-text-muted uppercase tracking-wider mb-2 font-mono">Joker Sets</div>
+              <div class="space-y-1.5">
+                <For each={workout().jokerSets}>
+                  {(set) => (
+                    <div class="flex items-center justify-between text-sm font-mono">
+                      <span class={set.completed ? '' : 'text-text-dim line-through'}>
+                        {set.weight} x {set.reps}
+                      </span>
+                      <span class="text-text-muted text-xs">
+                        {set.percentage}%
+                        <Show when={set.completed}>
+                          <span class="text-text ml-2 font-bold">OK</span>
+                        </Show>
+                      </span>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </div>
+          </Show>
+
           {/* Supplemental */}
           <Show when={workout().supplemental && workout().supplemental.targetSets > 0}>
             <div>

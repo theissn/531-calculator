@@ -26,7 +26,169 @@ import {
 import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
 import CopyButton from './CopyButton.jsx'
-import { formatSettingsForLLM } from '../utils/formatForLLM.js'
+import { formatSettingsForLLM, formatHistoryForLLM } from '../utils/formatForLLM.js'
+import { estimate1RM, estimateReps, repsToBeat } from '../calculator.js'
+
+function CalculatorTools() {
+  const [weight, setWeight] = createSignal('')
+  const [reps, setReps] = createSignal('')
+  const [target1RM, setTarget1RM] = createSignal('')
+
+  const estimated1RM = () => {
+    const w = parseFloat(weight())
+    const r = parseInt(reps(), 10)
+    if (!w || !r) return 0
+    return estimate1RM(w, r)
+  }
+
+  const estimatedTM = () => {
+    const e1rm = estimated1RM()
+    if (!e1rm) return 0
+    return Math.round(e1rm * (state.settings.tmPercentage / 100))
+  }
+
+  const repsNeeded = () => {
+    const w = parseFloat(weight())
+    const t = parseFloat(target1RM())
+    if (!w || !t) return 0
+    return repsToBeat(w, t)
+  }
+
+  return (
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
+      <div class="p-4 space-y-6">
+        {/* 1RM Estimator */}
+        <div class="space-y-3">
+          <div class="text-xs font-bold text-text-muted font-mono uppercase tracking-widest border-b border-border pb-1">1RM Estimator</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="space-y-1">
+              <span class="text-[10px] text-text-dim font-mono uppercase">Weight</span>
+              <input
+                type="number"
+                inputmode="decimal"
+                class="w-full bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
+                placeholder="0"
+                value={weight()}
+                onInput={(e) => setWeight(e.target.value)}
+              />
+            </div>
+            <div class="space-y-1">
+              <span class="text-[10px] text-text-dim font-mono uppercase">Reps</span>
+              <input
+                type="number"
+                inputmode="numeric"
+                class="w-full bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
+                placeholder="0"
+                value={reps()}
+                onInput={(e) => setReps(e.target.value)}
+              />
+            </div>
+          </div>
+          <Show when={estimated1RM() > 0}>
+            <div class="grid grid-cols-2 gap-px bg-border border border-border">
+              <div class="bg-bg p-2 text-center">
+                <div class="text-[10px] text-text-dim font-mono uppercase">Est. 1RM</div>
+                <div class="text-lg font-bold font-mono text-primary">{estimated1RM()}</div>
+              </div>
+              <div class="bg-bg p-2 text-center">
+                <div class="text-[10px] text-text-dim font-mono uppercase">Est. TM ({state.settings.tmPercentage}%)</div>
+                <div class="text-lg font-bold font-mono text-text">{estimatedTM()}</div>
+              </div>
+            </div>
+          </Show>
+        </div>
+
+        {/* Reps to Beat */}
+        <div class="space-y-3">
+          <div class="text-xs font-bold text-text-muted font-mono uppercase tracking-widest border-b border-border pb-1">Reps to Beat</div>
+          <div class="space-y-1">
+            <span class="text-[10px] text-text-dim font-mono uppercase">Target 1RM</span>
+            <input
+              type="number"
+              inputmode="decimal"
+              class="w-full bg-bg border border-border rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-text"
+              placeholder="Enter target 1RM"
+              value={target1RM()}
+              onInput={(e) => setTarget1RM(e.target.value)}
+            />
+          </div>
+          <Show when={repsNeeded() > 0 && weight()}>
+            <div class="p-3 bg-bg border border-border text-center">
+              <div class="text-[10px] text-text-dim font-mono uppercase mb-1">Reps needed @ {weight()}</div>
+              <div class="text-xl font-bold font-mono text-primary">{repsNeeded()}</div>
+            </div>
+          </Show>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function LLMExportDropdown() {
+  const [isOpen, setIsOpen] = createSignal(false)
+  
+  const options = [
+    { label: 'Copy Configuration', getText: formatSettingsForLLM },
+    { label: 'Copy Recent History (10)', getText: () => formatHistoryForLLM(10) },
+    { label: 'Copy Full History', getText: () => formatHistoryForLLM() }
+  ]
+
+  const handleCopy = async (option) => {
+    haptic()
+    const text = option.getText()
+    try {
+      await navigator.clipboard.writeText(text)
+      setIsOpen(false)
+      // Success is implied, but could add a toast or similar if needed
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+    }
+  }
+
+  const handleToggle = (e) => {
+    e.stopPropagation()
+    setIsOpen(!isOpen())
+  }
+
+  // Close when clicking outside
+  const handleDocClick = () => setIsOpen(false)
+  createEffect(() => {
+    if (isOpen()) {
+      document.addEventListener('click', handleDocClick)
+    } else {
+      document.removeEventListener('click', handleDocClick)
+    }
+  })
+
+  return (
+    <div class="relative inline-block">
+      <button
+        onClick={handleToggle}
+        class="flex items-center gap-1 px-3 py-1.5 bg-border hover:bg-border-hover text-text-muted hover:text-text rounded-none text-xs font-bold font-mono transition-colors border border-transparent hover:border-text/30 uppercase tracking-widest"
+      >
+        <span>Copy for LLM</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class={`w-3 h-3 transition-transform ${isOpen() ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+
+      <Show when={isOpen()}>
+        <div class="absolute right-0 top-full mt-1 z-50 bg-bg border border-border shadow-2xl min-w-[200px] divide-y divide-border/50">
+          <For each={options}>
+            {(option) => (
+              <button
+                class="w-full text-left px-4 py-3 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-text hover:bg-bg-hover transition-colors"
+                onClick={() => handleCopy(option)}
+              >
+                {option.label}
+              </button>
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
+  )
+}
 
 const LIFT_LABELS = {
   squat: 'Squat',
@@ -686,8 +848,8 @@ export default function Settings() {
                   <span><span class="text-text-muted">D:</span> <span class="font-bold">{lifts().deadlift?.oneRepMax || '—'}</span></span>
                   <span><span class="text-text-muted">O:</span> <span class="font-bold">{lifts().ohp?.oneRepMax || '—'}</span></span>
                 </div>
-                <span class="text-text-dim text-sm ml-auto font-mono uppercase">{settings().unit}</span>
-                <CopyButton getText={formatSettingsForLLM} label="Copy for LLM" />
+                <span class="text-text-dim text-sm ml-auto font-mono uppercase mr-3">{settings().unit}</span>
+                <LLMExportDropdown />
               </div>
             </section>
 
@@ -905,6 +1067,12 @@ export default function Settings() {
             <section>
               <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Accessories</h3>
               <AccessoriesManager />
+            </section>
+
+            {/* Calculator Section */}
+            <section>
+              <h3 class="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">Calculator Tools</h3>
+              <CalculatorTools />
             </section>
 
             {/* Body Weight Section */}

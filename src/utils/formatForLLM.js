@@ -105,6 +105,21 @@ export function formatWorkoutForLLM(workout) {
     lines.push(setLine)
   }
 
+  // Joker Sets
+  if (workout.jokerSets && workout.jokerSets.length > 0) {
+    lines.push('')
+    lines.push('Joker Sets:')
+    for (const set of workout.jokerSets) {
+      let setLine = `  ${set.weight} x ${set.reps} @ ${set.percentage}%`
+      if (set.completed) {
+        setLine += ' ✓'
+      } else {
+        setLine += ' (skipped)'
+      }
+      lines.push(setLine)
+    }
+  }
+
   // Supplemental
   if (workout.supplemental && workout.supplemental.targetSets > 0) {
     const suppl = workout.supplemental
@@ -118,7 +133,16 @@ export function formatWorkoutForLLM(workout) {
   // Accessories
   if (workout.accessories && workout.accessories.length > 0) {
     lines.push('')
-    lines.push(`Accessories: ${workout.accessories.length} exercises`)
+    lines.push('Accessories:')
+    for (const acc of workout.accessories) {
+      let accLine = `  ${acc.name}: ${acc.completedSets}/${acc.sets}`
+      if (acc.weight) {
+        accLine += ` @ ${acc.weight} x ${acc.reps}`
+      } else {
+        accLine += ` x ${acc.reps}`
+      }
+      lines.push(accLine)
+    }
   }
 
   // Note
@@ -130,6 +154,35 @@ export function formatWorkoutForLLM(workout) {
   lines.push(`1RM: ${workout.oneRepMax} | TM: ${Math.round(workout.trainingMax)}`)
 
   return lines.join('\n')
+}
+
+/**
+ * Format workout history for LLM
+ * @param {number|null} limit - Optional limit on number of workouts (most recent first)
+ */
+export function formatHistoryForLLM(limit = null) {
+  const history = [...(state.workoutHistory || [])].sort(
+    (a, b) => new Date(b.completedAt) - new Date(a.completedAt)
+  )
+  
+  const toFormat = limit ? history.slice(0, limit) : history
+  
+  if (toFormat.length === 0) {
+    return 'No workout history found.'
+  }
+
+  const lines = [
+    `531 Workout History${limit ? ` (Last ${limit})` : ''}`,
+    '==========================',
+    ''
+  ]
+
+  for (const workout of toFormat) {
+    lines.push(formatWorkoutForLLM(workout))
+    lines.push('\n---\n')
+  }
+
+  return lines.join('\n').trim()
 }
 
 /**

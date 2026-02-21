@@ -124,6 +124,43 @@ export default function WorkoutDetailModal() {
                             </div>
                         </div>
 
+                        {/* Joker Sets */}
+                        <Show when={workout().jokerSets && workout().jokerSets.length > 0}>
+                            <div>
+                                <div class="flex items-center gap-4 mb-3">
+                                    <div class="h-px flex-1 bg-border"></div>
+                                    <span class="text-xs font-bold text-text-dim uppercase tracking-widest font-mono">Joker Sets</span>
+                                    <div class="h-px flex-1 bg-border"></div>
+                                </div>
+                                <div class="space-y-px bg-border border border-border">
+                                    <For each={workout().jokerSets}>
+                                        {(set) => (
+                                            <div class="flex items-center justify-between p-3 bg-bg">
+                                                <div class="flex items-baseline gap-3">
+                                                    <span class="text-sm font-bold text-text font-mono w-6 text-right">{set.setNumber}</span>
+                                                    <span class="text-sm font-bold text-text font-mono">
+                                                        {set.weight} <span class="text-xs text-text-dim font-normal">{workout().unit}</span>
+                                                    </span>
+                                                    <span class="text-xs text-text-dim font-mono">x</span>
+                                                    <span class="text-sm font-bold text-text font-mono">
+                                                        {set.reps}
+                                                    </span>
+                                                </div>
+                                                <div class="flex items-center gap-3">
+                                                    <span class="text-xs text-text-dim font-mono">{set.percentage}%</span>
+                                                    <Show when={set.completed} fallback={
+                                                        <span class="text-xs text-red-500 font-mono font-bold uppercase">Missed</span>
+                                                    }>
+                                                        <div class="w-6 h-6 flex items-center justify-center bg-text text-bg text-[10px] font-bold">OK</div>
+                                                    </Show>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </For>
+                                </div>
+                            </div>
+                        </Show>
+
                         {/* Supplemental */}
                         <Show when={workout().supplemental && workout().supplemental.targetSets > 0}>
                             <div>

@@ -5,7 +5,13 @@
 import { For, Show, createSignal, createMemo } from 'solid-js'
 import { state, LIFT_NAMES, getLatestBodyWeight } from '../store.js'
 import { roundWeight, calculatePlates, DEFAULT_PLATES_LBS, DEFAULT_PLATES_KG } from '../calculator.js'
-import { isMainSetComplete, toggleMainSet } from '../hooks/useCompletedSets.js'
+import { 
+  isMainSetComplete, 
+  toggleMainSet, 
+  getJokerSets, 
+  addJokerSetToStore, 
+  toggleJokerSetInStore 
+} from '../hooks/useCompletedSets.js'
 import { haptic } from '../hooks/useMobile.js'
 import SetRow from './SetRow.jsx'
 import SupplementalSection from './SupplementalSection.jsx'
@@ -14,7 +20,6 @@ import AssistanceSection from './AssistanceSection.jsx'
 export default function LiftCard(props) {
   const [showMobility, setShowMobility] = createSignal(false)
   const [completedWarmups, setCompletedWarmups] = createSignal(new Set())
-  const [jokerSets, setJokerSets] = createSignal([])
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
 
   const toggleWarmup = (index) => {
@@ -28,7 +33,9 @@ export default function LiftCard(props) {
     setCompletedWarmups(newSet)
   }
 
-  const addJokerSet = () => {
+  const jokerSets = () => getJokerSets(props.lift.liftId)
+
+  const addJokerSet = async () => {
     haptic()
     const currentJokers = jokerSets()
     const lastSet = currentJokers.length > 0 
@@ -46,14 +53,12 @@ export default function LiftCard(props) {
       isComplete: false
     }
     
-    setJokerSets([...currentJokers, newJoker])
+    await addJokerSetToStore(props.lift.liftId, newJoker)
   }
 
-  const toggleJokerSet = (index) => {
+  const toggleJokerSet = async (index) => {
     haptic()
-    const newJokers = [...jokerSets()]
-    newJokers[index].isComplete = !newJokers[index].isComplete
-    setJokerSets(newJokers)
+    await toggleJokerSetInStore(props.lift.liftId, index)
   }
   
   const bwRatio = createMemo(() => {

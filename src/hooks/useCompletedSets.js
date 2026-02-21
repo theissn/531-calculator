@@ -27,7 +27,71 @@ export function initFromWorkout(currentWorkout) {
     newState[supKey] = currentWorkout.supplemental.completedCount
   }
 
+  // Restore joker sets
+  if (currentWorkout.jokerSets) {
+    const jokerKey = `jokers-${currentWorkout.liftId}-${currentWorkout.week}`
+    newState[jokerKey] = currentWorkout.jokerSets
+  }
+
   setCompletedSets(newState)
+}
+
+/**
+ * Get joker sets for a lift
+ */
+export function getJokerSets(liftId) {
+  const key = `jokers-${liftId}-${state.currentWeek}`
+  return completedSets()[key] || []
+}
+
+/**
+ * Add a joker set (persists to IndexedDB)
+ */
+export async function addJokerSetToStore(liftId, jokerSet) {
+  const key = `jokers-${liftId}-${state.currentWeek}`
+  const newJokers = [...(completedSets()[key] || []), jokerSet]
+
+  setCompletedSets(prev => ({
+    ...prev,
+    [key]: newJokers
+  }))
+
+  // Ensure workout exists and persist
+  const current = getCurrentWorkout()
+  if (!current || current.liftId !== liftId || current.week !== state.currentWeek) {
+    await startWorkout(liftId, state.currentWeek)
+  }
+
+  await persistCurrentWorkout({
+    jokerSets: newJokers
+  })
+}
+
+/**
+ * Toggle joker set completion (persists to IndexedDB)
+ */
+export async function toggleJokerSetInStore(liftId, index) {
+  const key = `jokers-${liftId}-${state.currentWeek}`
+  let newJokers
+
+  setCompletedSets(prev => {
+    const jokers = [...(prev[key] || [])]
+    if (jokers[index]) {
+      jokers[index] = { ...jokers[index], isComplete: !jokers[index].isComplete }
+    }
+    newJokers = jokers
+    return { ...prev, [key]: newJokers }
+  })
+
+  // Ensure workout exists and persist
+  const current = getCurrentWorkout()
+  if (!current || current.liftId !== liftId || current.week !== state.currentWeek) {
+    await startWorkout(liftId, state.currentWeek)
+  }
+
+  await persistCurrentWorkout({
+    jokerSets: newJokers
+  })
 }
 
 /**

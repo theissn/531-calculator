@@ -538,6 +538,7 @@ export async function startWorkout(liftId, week) {
       completed: [],
       amrapReps: null
     },
+    jokerSets: [],
     supplemental: null,
     accessories: [],
     note: ''
@@ -564,6 +565,7 @@ export async function persistCurrentWorkout(updates) {
   if (updates.supplemental && current.supplemental) {
     updated.supplemental = { ...current.supplemental, ...updates.supplemental }
   }
+  // jokerSets is an array, so it will be replaced by ...updates if provided
 
   await update({ currentWorkout: updated })
 }
@@ -615,7 +617,7 @@ export async function finishWorkout(rpe = null) {
 
     return {
       name: exName,
-      weight: current.accessories?.weights?.[index] || null,
+      weight: current.accessories?.weights?.[`${current.liftId}-${index}`] || null,
       sets: exSets,
       reps: exReps,
       completedSets: completedCount
@@ -641,6 +643,13 @@ export async function finishWorkout(rpe = null) {
       percentage: set.percentage,
       completed: current.mainSets.completed.includes(idx),
       isAmrap: set.isAmrap || false
+    })),
+    jokerSets: (current.jokerSets || []).map((set, idx) => ({
+      setNumber: idx + 1,
+      weight: set.weight,
+      reps: set.reps,
+      percentage: set.percentage,
+      completed: set.isComplete
     })),
     supplemental: current.supplemental ? {
       templateName: lift.template || 'classic',

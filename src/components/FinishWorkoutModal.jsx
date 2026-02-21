@@ -12,7 +12,7 @@ import {
   getLiftData,
   state
 } from '../store.js'
-import { getMainCompletedCount, getCompletedCount, clearAllProgress } from '../hooks/useCompletedSets.js'
+import { getMainCompletedCount, getCompletedCount, clearAllProgress, getJokerSets } from '../hooks/useCompletedSets.js'
 import { getCompletedAccessoryCount, resetAccessories } from '../hooks/useAccessoryTracking.js'
 import { stopTimer } from '../hooks/useTimer.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -58,6 +58,8 @@ export default function FinishWorkoutModal(props) {
     const supCount = getCompletedCount(w.liftId)
     const supTotal = liftData.supplemental?.sets || 0
     const accessoryCount = getCompletedAccessoryCount()
+    const jokers = getJokerSets(w.liftId)
+    const jokerCount = jokers.filter(s => s.isComplete).length
 
     return {
       liftName: LIFT_NAMES[w.liftId],
@@ -65,6 +67,7 @@ export default function FinishWorkoutModal(props) {
       duration: formatDuration(w.startedAt),
       mainSets: `${mainCount}/${mainTotal}`,
       supplementalSets: supTotal > 0 ? `${supCount}/${supTotal}` : null,
+      jokerSets: jokerCount > 0 ? `${jokerCount} set${jokerCount > 1 ? 's' : ''}` : null,
       accessories: accessoryCount,
       amrapReps: w.mainSets?.amrapReps
     }
@@ -102,14 +105,13 @@ export default function FinishWorkoutModal(props) {
     if (!s) return
 
     haptic()
-    const text = `5/3/1 ${s.liftName} - Week ${s.week}\nDuration: ${s.duration}\nMain: ${s.mainSets}${s.amrapReps ? ` (AMRAP: ${s.amrapReps} reps)` : ''}\n${s.supplementalSets ? `Supplemental: ${s.supplementalSets}\n` : ''}${s.accessories > 0 ? `Accessories: ${s.accessories} exercises\n` : ''}${rpe() ? `RPE: ${rpe()} (${RPE_LABELS[rpe()]})` : ''}\n#531workout`
+    const text = `5/3/1 ${s.liftName} - Week ${s.week}\nDuration: ${s.duration}\nMain: ${s.mainSets}${s.amrapReps ? ` (AMRAP: ${s.amrapReps} reps)` : ''}\n${s.jokerSets ? `Jokers: ${s.jokerSets}\n` : ''}${s.supplementalSets ? `Supplemental: ${s.supplementalSets}\n` : ''}${s.accessories > 0 ? `Accessories: ${s.accessories} exercises\n` : ''}${rpe() ? `RPE: ${rpe()} (${RPE_LABELS[rpe()]})` : ''}\n#531workout`
 
     navigator.clipboard.writeText(text).then(() => {
       alert('Workout copied to clipboard!')
     })
   }
-
-  const handleDiscard = async () => {
+    const handleDiscard = async () => {
     haptic()
     stopTimer()
     await discardWorkout()
@@ -157,6 +159,12 @@ export default function FinishWorkoutModal(props) {
                         <span class="text-text-muted font-mono uppercase text-xs">Main Sets</span>
                         <span class="font-bold font-mono">{s().mainSets}</span>
                       </div>
+                      <Show when={s().jokerSets}>
+                        <div class="flex justify-between items-center mt-2 text-sm">
+                          <span class="text-text-muted font-mono uppercase text-xs">Joker Sets</span>
+                          <span class="font-bold font-mono">{s().jokerSets}</span>
+                        </div>
+                      </Show>
                       <Show when={s().supplementalSets}>
                         <div class="flex justify-between items-center mt-2 text-sm">
                           <span class="text-text-muted font-mono uppercase text-xs">Supplemental</span>
