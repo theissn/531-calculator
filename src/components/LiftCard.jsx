@@ -10,7 +10,9 @@ import {
   toggleMainSet, 
   getJokerSets, 
   addJokerSetToStore, 
-  toggleJokerSetInStore 
+  toggleJokerSetInStore,
+  isWarmupComplete,
+  toggleWarmupSet
 } from '../hooks/useCompletedSets.js'
 import { haptic } from '../hooks/useMobile.js'
 import { startTimer } from '../hooks/useTimer.js'
@@ -20,18 +22,11 @@ import AssistanceSection from './AssistanceSection.jsx'
 
 export default function LiftCard(props) {
   const [showMobility, setShowMobility] = createSignal(false)
-  const [completedWarmups, setCompletedWarmups] = createSignal(new Set())
   const displayTM = () => roundWeight(props.lift.trainingMax, 1)
 
   const toggleWarmup = (index) => {
     haptic()
-    const newSet = new Set(completedWarmups())
-    if (newSet.has(index)) {
-      newSet.delete(index)
-    } else {
-      newSet.add(index)
-    }
-    setCompletedWarmups(newSet)
+    toggleWarmupSet(props.lift.liftId, index)
   }
 
   const jokerSets = () => getJokerSets(props.lift.liftId)
@@ -153,7 +148,7 @@ export default function LiftCard(props) {
                     isWarmup={true}
                     plates={getPlates(set.weight, true)}
                     onToggle={() => toggleWarmup(index())}
-                    isComplete={() => completedWarmups().has(index())}
+                    isComplete={() => isWarmupComplete(props.lift.liftId, index())}
                   />
                 )}
               </For>

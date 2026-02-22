@@ -37,6 +37,33 @@ export function initFromWorkout(currentWorkout) {
 }
 
 /**
+ * Check if a warmup set is completed
+ */
+export function isWarmupComplete(liftId, index) {
+  const key = `warmup-${liftId}-${state.currentWeek}`
+  const completed = completedSets()[key] || []
+  return completed.includes(index)
+}
+
+/**
+ * Toggle a warmup set completion (session-only, not persisted to DB)
+ */
+export function toggleWarmupSet(liftId, index) {
+  const key = `warmup-${liftId}-${state.currentWeek}`
+  
+  setCompletedSets(prev => {
+    const completed = prev[key] || []
+    let newCompleted
+    if (completed.includes(index)) {
+      newCompleted = completed.filter(i => i !== index)
+    } else {
+      newCompleted = [...completed, index]
+    }
+    return { ...prev, [key]: newCompleted }
+  })
+}
+
+/**
  * Get joker sets for a lift
  */
 export function getJokerSets(liftId) {
