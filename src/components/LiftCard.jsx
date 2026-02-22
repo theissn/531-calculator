@@ -13,6 +13,7 @@ import {
   toggleJokerSetInStore 
 } from '../hooks/useCompletedSets.js'
 import { haptic } from '../hooks/useMobile.js'
+import { startTimer } from '../hooks/useTimer.js'
 import SetRow from './SetRow.jsx'
 import SupplementalSection from './SupplementalSection.jsx'
 import AssistanceSection from './AssistanceSection.jsx'
@@ -54,6 +55,7 @@ export default function LiftCard(props) {
     }
     
     await addJokerSetToStore(props.lift.liftId, newJoker)
+    startTimer()
   }
 
   const toggleJokerSet = async (index) => {
