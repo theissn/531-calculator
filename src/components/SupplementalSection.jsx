@@ -30,7 +30,7 @@ export default function SupplementalSection(props) {
 
   return (
     <div class="mt-2 pt-2">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-3">
         <span class="text-xs font-bold font-mono uppercase tracking-widest text-text-muted">
           {props.supplemental.templateName}
           <Show when={props.supplementalLiftId && props.supplementalLiftId !== props.liftId}>
@@ -42,13 +42,13 @@ export default function SupplementalSection(props) {
         </div>
       </div>
 
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-3">
         <span class="text-lg font-bold font-mono text-text">
           {props.supplemental.reps} <span class="text-xs font-bold text-text-dim">REPS @</span> {props.supplemental.weight} <span class="text-xs font-bold text-text-dim">{props.unit}</span>
         </span>
       </div>
 
-      <div class="flex gap-1 mb-4">
+      <div class="flex gap-1 mb-3">
         <For each={Array.from({ length: totalSets }, (_, i) => i)}>
           {(i) => {
             const isDone = () => i < completedCount()
@@ -64,14 +64,14 @@ export default function SupplementalSection(props) {
       <div class="flex gap-2">
         <Show when={!allDone()} fallback={
           <button
-            class="w-full py-3 px-4 bg-bg hover:bg-bg-hover text-text-dim hover:text-text text-xs font-bold font-mono uppercase tracking-wider border border-border transition-colors rounded-none"
+            class="w-full py-2.5 px-4 bg-bg hover:bg-bg-hover text-text-dim hover:text-text text-xs font-bold font-mono uppercase tracking-wider border border-border transition-colors rounded-none"
             onClick={handleReset}
           >
             Reset Section
           </button>
         }>
           <button
-            class="w-full py-3 px-4 bg-primary hover:bg-primary-hover text-primary-content text-xs font-bold font-mono uppercase tracking-wider border border-transparent flex items-center justify-center gap-2 transition-all active:translate-y-px rounded-none"
+            class="w-full py-2.5 px-4 bg-primary hover:bg-primary-hover text-primary-content text-xs font-bold font-mono uppercase tracking-wider border border-transparent flex items-center justify-center gap-2 transition-all active:translate-y-px rounded-none"
             onClick={handleSetDone}
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">

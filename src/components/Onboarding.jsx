@@ -54,7 +54,7 @@ export default function Onboarding() {
 
         <form onSubmit={handleSubmit} class="space-y-6">
           <div>
-            <label class="block text-xs font-bold text-text-muted mb-2 font-mono uppercase" for="squat">Squat</label>
+            <label class="block text-[10px] font-bold text-text-muted mb-1.5 font-mono uppercase" for="squat">Squat</label>
             <div class="relative group">
               <input
                 type="number"
@@ -62,7 +62,7 @@ export default function Onboarding() {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-bg-card border border-border rounded-none px-4 py-3 text-lg font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
+                class="w-full bg-bg-card border border-border rounded-none px-4 py-2 text-base font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
                 value={squat()}
                 onInput={(e) => setSquat(e.target.value)}
                 required
@@ -74,7 +74,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-text-muted mb-2 font-mono uppercase" for="bench">Bench Press</label>
+            <label class="block text-[10px] font-bold text-text-muted mb-1.5 font-mono uppercase" for="bench">Bench Press</label>
             <div class="relative group">
               <input
                 type="number"
@@ -82,7 +82,7 @@ export default function Onboarding() {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-bg-card border border-border rounded-none px-4 py-3 text-lg font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
+                class="w-full bg-bg-card border border-border rounded-none px-4 py-2 text-base font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
                 value={bench()}
                 onInput={(e) => setBench(e.target.value)}
                 required
@@ -93,7 +93,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-text-muted mb-2 font-mono uppercase" for="deadlift">Deadlift</label>
+            <label class="block text-[10px] font-bold text-text-muted mb-1.5 font-mono uppercase" for="deadlift">Deadlift</label>
             <div class="relative group">
               <input
                 type="number"
@@ -101,7 +101,7 @@ export default function Onboarding() {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-bg-card border border-border rounded-none px-4 py-3 text-lg font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
+                class="w-full bg-bg-card border border-border rounded-none px-4 py-2 text-base font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
                 value={deadlift()}
                 onInput={(e) => setDeadlift(e.target.value)}
                 required
@@ -112,7 +112,7 @@ export default function Onboarding() {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-text-muted mb-2 font-mono uppercase" for="ohp">Overhead Press</label>
+            <label class="block text-[10px] font-bold text-text-muted mb-1.5 font-mono uppercase" for="ohp">Overhead Press</label>
             <div class="relative group">
               <input
                 type="number"
@@ -120,7 +120,7 @@ export default function Onboarding() {
                 step="any"
                 inputmode="decimal"
                 placeholder="0"
-                class="w-full bg-bg-card border border-border rounded-none px-4 py-3 text-lg font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
+                class="w-full bg-bg-card border border-border rounded-none px-4 py-2 text-base font-bold font-mono placeholder-text-dim/50 focus:outline-none focus:border-text transition-colors"
                 value={ohp()}
                 onInput={(e) => setOhp(e.target.value)}
                 required
@@ -132,7 +132,7 @@ export default function Onboarding() {
 
           <button
             type="submit"
-            class="w-full bg-text text-bg font-bold font-mono uppercase tracking-wider py-4 rounded-none hover:bg-white transition-colors border border-transparent mt-8"
+            class="w-full bg-text text-bg font-bold font-mono uppercase tracking-wider py-3 rounded-none hover:bg-white transition-colors border border-transparent mt-6"
           >
             Initialize System
           </button>

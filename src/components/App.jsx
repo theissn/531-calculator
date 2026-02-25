@@ -40,8 +40,8 @@ export default function App() {
           <Header />
           <WeekTabs />
           <LiftSelector />
-          <main class={`flex-1 px-4 pt-6 ${isRunning() ? 'pb-24' : 'pb-10'} max-w-lg mx-auto w-full`}>
-            <div class="space-y-8">
+          <main class={`flex-1 px-4 pt-4 ${isRunning() ? 'pb-24' : 'pb-10'} max-w-lg mx-auto w-full`}>
+            <div class="space-y-6">
               <For each={liftsData()}>
                 {(lift) => <LiftCard lift={lift} isDeload={isDeload()} />}
               </For>

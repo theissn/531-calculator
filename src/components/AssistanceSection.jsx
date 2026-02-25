@@ -59,13 +59,13 @@ function ExerciseRow(props) {
   }
 
   return (
-    <div class="border border-border p-3 bg-bg">
-      <div class="flex items-baseline justify-between mb-2">
+    <div class="border border-border p-2.5 bg-bg">
+      <div class="flex items-baseline justify-between mb-1.5">
         <span class="text-sm font-bold uppercase tracking-wide text-text font-mono">{exercise().name}</span>
         <span class="text-[10px] font-bold text-text-dim font-mono border border-border px-1">{completedCount()}/{totalSets()}</span>
       </div>
 
-      <div class="flex items-center justify-start gap-2 mb-3 text-xs text-text-muted font-mono">
+      <div class="flex items-center justify-start gap-2 mb-2.5 text-xs text-text-muted font-mono">
         <span class="font-bold text-text">{exercise().reps}</span> REPS
         <span class="text-text-dim">@</span>
         <input
@@ -78,7 +78,7 @@ function ExerciseRow(props) {
         <span class="text-text-dim uppercase">{state.settings?.unit || 'lbs'}</span>
       </div>
 
-      <div class="flex gap-1 mb-4">
+      <div class="flex gap-1 mb-3">
         <For each={Array.from({ length: totalSets() }, (_, i) => i)}>
           {(i) => {
             const isDone = () => isAccessoryComplete(getSetKey(i))
@@ -117,13 +117,13 @@ export default function AssistanceSection(props) {
 
   return (
     <Show when={exercises().length > 0}>
-      <div class="mt-4 pt-2">
-        <div class="flex items-center justify-between mb-4 px-2">
+      <div class="mt-3 pt-1">
+        <div class="flex items-center justify-between mb-3 px-1">
           <span class="text-xs font-bold text-text-dim uppercase tracking-widest font-mono">Assistance Work</span>
-          <div class="h-px flex-1 bg-border ml-4"></div>
+          <div class="h-px flex-1 bg-border ml-3"></div>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3">
           <For each={exercises()}>
             {(exercise, index) => (
               <div class="p-0">

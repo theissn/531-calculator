@@ -16,12 +16,12 @@ export default function WeekTabs() {
   }
 
   return (
-    <nav class="sticky top-14 z-10 bg-bg border-b border-border overflow-x-auto no-scrollbar">
+    <nav class="sticky top-12 z-10 bg-bg border-b border-border overflow-x-auto no-scrollbar">
       <div class="flex">
         <For each={weeks}>
           {(week, index) => (
             <button
-              class={`flex-1 py-3 text-sm font-bold font-mono text-center border-r border-border last:border-r-0 uppercase tracking-tight transition-colors rounded-none ${week === state.currentWeek
+              class={`flex-1 py-2 text-sm font-bold font-mono text-center border-r border-border last:border-r-0 uppercase tracking-tight transition-colors rounded-none ${week === state.currentWeek
                 ? 'bg-text text-bg'
                 : 'text-text-muted hover:text-text hover:bg-bg-hover'
                 }`}

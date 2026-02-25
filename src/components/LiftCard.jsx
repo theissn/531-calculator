@@ -90,27 +90,27 @@ export default function LiftCard(props) {
       <div class="corner-marker corner-marker-br" />
       <div class="absolute inset-x-0 top-0 h-1 bg-primary" />
 
-      <div class="p-4 pb-3">
-        <div class="flex items-baseline justify-between mb-4">
-          <h2 class="text-2xl font-bold tracking-tight text-text">{LIFT_NAMES[props.lift.liftId]}</h2>
-          <div class="flex items-center gap-2 px-3 py-1 rounded-none bg-bg-hover/50 border border-border">
+      <div class="p-3.5 pb-2.5">
+        <div class="flex items-baseline justify-between mb-3">
+          <h2 class="text-xl font-bold tracking-tight text-text">{LIFT_NAMES[props.lift.liftId]}</h2>
+          <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-bg-hover/50 border border-border">
             <Show when={bwRatio()}>
-              <span class="text-[10px] font-bold text-primary mr-1">{bwRatio()} BW</span>
-              <div class="w-px h-3 bg-border mr-1" />
+              <span class="text-[9px] font-bold text-primary mr-1">{bwRatio()} BW</span>
+              <div class="w-px h-2.5 bg-border mr-1" />
             </Show>
-            <span class="text-xs text-text-muted uppercase tracking-wider font-semibold">TM</span>
-            <span class="text-sm font-bold tabular-nums text-text">{displayTM()}</span>
-            <span class="text-[10px] text-text-dim">{props.lift.unit}</span>
+            <span class="text-[10px] text-text-muted uppercase tracking-wider font-semibold">TM</span>
+            <span class="text-xs font-bold tabular-nums text-text">{displayTM()}</span>
+            <span class="text-[9px] text-text-dim">{props.lift.unit}</span>
           </div>
         </div>
 
         <Show when={props.lift.mobility}>
-          <div class="mb-4">
+          <div class="mb-3">
             <button 
-              class="w-full flex items-center justify-between mb-2 pb-1 border-b border-border/50 text-left group/mobility"
+              class="w-full flex items-center justify-between mb-1.5 pb-0.5 border-b border-border/50 text-left group/mobility"
               onClick={() => setShowMobility(!showMobility())}
             >
-              <span class="text-xs font-bold text-text-dim uppercase tracking-widest font-mono group-hover/mobility:text-text transition-colors">
+              <span class="text-[10px] font-bold text-text-dim uppercase tracking-widest font-mono group-hover/mobility:text-text transition-colors">
                 Mobility: {props.lift.mobility.name}
               </span>
               <div class={`text-text-dim transition-transform duration-200 ${showMobility() ? 'rotate-180' : ''}`}>
@@ -120,10 +120,10 @@ export default function LiftCard(props) {
               </div>
             </button>
             <Show when={showMobility()}>
-              <div class="bg-bg-card/30 border border-border/10 p-2 space-y-1">
+              <div class="bg-bg-card/30 border border-border/10 p-2 space-y-0.5">
                 <For each={props.lift.mobility.movements}>
                   {(movement) => (
-                    <div class="flex items-start gap-2 text-[11px] text-text-muted font-mono leading-tight">
+                    <div class="flex items-start gap-1.5 text-[10px] text-text-muted font-mono leading-tight">
                       <div class="mt-1 w-1 h-1 bg-primary shrink-0" />
                       <span>{movement}</span>
                     </div>
@@ -135,9 +135,9 @@ export default function LiftCard(props) {
         </Show>
 
         <Show when={warmupSets().length > 0}>
-          <div class="mb-4">
-            <div class="mb-2 pb-1 border-b border-border/50">
-              <span class="text-xs font-bold text-text-dim uppercase tracking-widest font-mono">Warm-up Protocol</span>
+          <div class="mb-3">
+            <div class="mb-1.5 pb-0.5 border-b border-border/50">
+              <span class="text-[10px] font-bold text-text-dim uppercase tracking-widest font-mono">Warm-up Protocol</span>
             </div>
             <div class="space-y-px">
               <For each={warmupSets()}>
@@ -157,8 +157,8 @@ export default function LiftCard(props) {
         </Show>
 
         <div>
-          <div class="mb-2 pb-1 border-b border-primary/30 flex justify-between items-end">
-            <span class="text-xs font-bold text-primary uppercase tracking-widest font-mono">Work Sets</span>
+          <div class="mb-1.5 pb-0.5 border-b border-primary/30 flex justify-between items-end">
+            <span class="text-[10px] font-bold text-primary uppercase tracking-widest font-mono">Work Sets</span>
             <div class="h-1 w-1 bg-primary"></div>
           </div>
           <div class="divide-y divide-border/20 bg-bg-card/50 overflow-hidden border border-border/20 rounded-none">
@@ -183,7 +183,7 @@ export default function LiftCard(props) {
           </div>
           
           <Show when={props.lift.jokerSetsEnabled && !props.isDeload}>
-            <div class="mt-2 space-y-1">
+            <div class="mt-1.5 space-y-1">
               <For each={jokerSets()}>
                 {(set, index) => (
                   <SetRow
@@ -199,7 +199,7 @@ export default function LiftCard(props) {
               
               <Show when={isMainSetComplete(props.lift.liftId, workSets().length - 1)}>
                 <button
-                  class="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-bold uppercase font-mono border border-primary/30 border-dashed transition-colors rounded-none mt-2"
+                  class="w-full py-1.5 bg-primary/10 hover:bg-primary/20 text-primary text-[9px] font-bold uppercase font-mono border border-primary/30 border-dashed transition-colors rounded-none mt-1.5"
                   onClick={addJokerSet}
                 >
                   + Suggest Joker Set ({jokerSets().length > 0 ? (jokerSets()[jokerSets().length - 1].percentage + 5) : 100}%)
@@ -210,7 +210,7 @@ export default function LiftCard(props) {
         </div>
 
         <Show when={props.lift.supplemental && !props.isDeload}>
-          <div class="mt-2 pt-2 border-t border-border/50">
+          <div class="mt-1.5 pt-1.5 border-t border-border/50">
             <SupplementalSection
               liftId={props.lift.liftId}
               supplemental={props.lift.supplemental}
@@ -222,7 +222,7 @@ export default function LiftCard(props) {
         </Show>
 
         <Show when={!props.isDeload}>
-          <div class="mt-2">
+          <div class="mt-1.5">
             <AssistanceSection liftId={props.lift.liftId} />
           </div>
         </Show>

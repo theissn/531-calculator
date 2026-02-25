@@ -49,17 +49,17 @@ export default function FinishWorkoutButton() {
 
   return (
     <Show when={hasProgress()}>
-      <div class="mt-6 pt-4 border-t border-border">
+      <div class="mt-4 pt-3 border-t border-border">
         <button
-          class="w-full py-3 px-4 bg-text text-bg font-bold font-mono uppercase tracking-wider rounded-none flex items-center justify-center gap-2 hover:bg-white transition-colors border border-transparent"
+          class="w-full py-2.5 px-4 bg-text text-bg font-bold font-mono uppercase tracking-wider rounded-none flex items-center justify-center gap-2 hover:bg-white transition-colors border border-transparent"
           onClick={() => setShowModal(true)}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           Finish Workout
         </button>
-        <p class="text-[10px] text-text-dim text-center mt-2 font-mono uppercase tracking-widest">{progressSummary()}</p>
+        <p class="text-[9px] text-text-dim text-center mt-1.5 font-mono uppercase tracking-widest">{progressSummary()}</p>
       </div>
 
       <Show when={showModal()}>

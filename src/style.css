@@ -63,6 +63,13 @@ html {
   background-color: var(--color-bg);
   color: var(--color-text);
   -webkit-tap-highlight-color: transparent;
+  font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 87.5%; /* Scales base 16px to 14px */
+  }
 }
 
 html.light {
