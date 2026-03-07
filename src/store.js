@@ -17,6 +17,7 @@ const TRAINING_STATES = {
     tmMultiplier: 1,
     allowAmrap: true,
     supplementalSetCap: null,
+    accessorySetCap: null,
     allowJokers: true,
     progression: 'standard'
   },
@@ -28,6 +29,7 @@ const TRAINING_STATES = {
     tmMultiplier: 0.9,
     allowAmrap: false,
     supplementalSetCap: 2,
+    accessorySetCap: 2,
     allowJokers: false,
     progression: 'hold'
   },
@@ -39,6 +41,7 @@ const TRAINING_STATES = {
     tmMultiplier: 0.9,
     allowAmrap: false,
     supplementalSetCap: 3,
+    accessorySetCap: 3,
     allowJokers: false,
     progression: 'hold'
   }
@@ -832,7 +835,10 @@ export async function finishWorkout(rpe = null) {
   const accessoryTemplate = getTemplateForLift(current.liftId)
   const accessories = (accessoryTemplate?.exercises || []).map((exercise, index) => {
     const exName = typeof exercise === 'string' ? exercise : exercise.name
-    const exSets = typeof exercise === 'string' ? 3 : exercise.sets
+    const configuredSets = typeof exercise === 'string' ? 3 : exercise.sets
+    const exSets = trainingState.accessorySetCap
+      ? Math.min(configuredSets, trainingState.accessorySetCap)
+      : configuredSets
     const exReps = typeof exercise === 'string' ? 10 : exercise.reps
 
     // Calculate completed sets for this exercise

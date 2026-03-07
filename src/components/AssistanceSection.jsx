@@ -3,7 +3,7 @@
  */
 
 import { For, Show, createMemo } from 'solid-js'
-import { getTemplateForLift, state } from '../store.js'
+import { getTemplateForLift, state, getTrainingStateConfig } from '../store.js'
 import { isAccessoryComplete, toggleAccessory } from '../hooks/useAccessoryTracking.js'
 import { startTimer, stopTimer } from '../hooks/useTimer.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -17,7 +17,11 @@ import { getAccessoryWeight, updateAccessoryWeight } from '../hooks/useAccessory
 
 function ExerciseRow(props) {
   const exercise = () => formatExercise(props.exercise)
-  const totalSets = () => exercise().sets
+  const trainingState = () => getTrainingStateConfig()
+  const totalSets = () => {
+    const cap = trainingState().accessorySetCap
+    return cap ? Math.min(exercise().sets, cap) : exercise().sets
+  }
 
   // Track completed sets for this exercise using keys like "liftId-exerciseIndex-setIndex"
   const getSetKey = (setIndex) => `${props.liftId}-${props.exerciseIndex}-${setIndex}`
@@ -61,7 +65,12 @@ function ExerciseRow(props) {
   return (
     <div class="border border-border p-2.5 bg-bg">
       <div class="flex items-baseline justify-between mb-1.5">
-        <span class="text-sm font-bold uppercase tracking-wide text-text font-mono">{exercise().name}</span>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold uppercase tracking-wide text-text font-mono">{exercise().name}</span>
+          <Show when={trainingState().accessorySetCap}>
+            <span class="text-[10px] font-mono uppercase text-primary">Recovery cap</span>
+          </Show>
+        </div>
         <span class="text-[10px] font-bold text-text-dim font-mono border border-border px-1">{completedCount()}/{totalSets()}</span>
       </div>
 
