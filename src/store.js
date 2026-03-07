@@ -7,14 +7,44 @@ import { createSignal, createEffect, createRoot } from 'solid-js'
 import { getData, updateData, resetData } from './db.js'
 import { calculateTM, generateWorkingSets, estimate1RM, calculateDOTS } from './calculator.js'
 import { TEMPLATES, generateSupplementalSets, generate5x531Sets, MOBILITY_PROTOCOLS } from './templates.js'
-// We need to move getTemplateForLift up or define it before use, but it's exported from this file.
-// Actually, since we are inside the module, we can just call the function if it's hoisted or defined.
-// However, `getTemplateForLift` is defined below `finishWorkout`. 
-// Function declarations are hoisted, so it should be fine. 
-// BUT, `getTemplateForLift` uses `state` which is defined at the top.
-// The issue is `finishWorkout` is using `getTemplateForLift` which is defined later in the file.
-// In JS function declarations are hoisted, so it works. 
-// Just ensuring no circular dependencies or issues.
+
+const TRAINING_STATES = {
+  normal: {
+    id: 'normal',
+    label: 'Normal',
+    shortLabel: 'Normal',
+    description: 'Run your standard plan',
+    tmMultiplier: 1,
+    allowAmrap: true,
+    supplementalSetCap: null,
+    allowJokers: true,
+    progression: 'standard'
+  },
+  ill: {
+    id: 'ill',
+    label: 'Ill Mode',
+    shortLabel: 'Ill',
+    description: 'Minimum effective work while you recover',
+    tmMultiplier: 0.9,
+    allowAmrap: false,
+    supplementalSetCap: 2,
+    allowJokers: false,
+    progression: 'hold'
+  },
+  returning: {
+    id: 'returning',
+    label: 'Returning Mode',
+    shortLabel: 'Returning',
+    description: 'Ease back in after time off',
+    tmMultiplier: 0.9,
+    allowAmrap: false,
+    supplementalSetCap: 3,
+    allowJokers: false,
+    progression: 'hold'
+  }
+}
+
+const MINIMUM_REST_DAYS = 10
 
 // Create reactive store
 const [state, setState] = createStore({
@@ -100,6 +130,181 @@ function initTheme() {
       applyTheme('system')
     }
   })
+}
+
+function getDaysSince(dateString) {
+  if (!dateString) return null
+  const diff = Date.now() - new Date(dateString).getTime()
+  return Math.floor(diff / (1000 * 60 * 60 * 24))
+}
+
+function getRecentCompletedWorkouts(limit = 6) {
+  return [...(state.workoutHistory || [])]
+    .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+    .slice(0, limit)
+}
+
+function getRecentAmrapResults(limit = 3) {
+  return getRecentCompletedWorkouts(12)
+    .map(workout => {
+      const amrapSet = workout.mainSets?.find(set => set.isAmrap && set.actualReps)
+      if (!amrapSet) return null
+
+      return {
+        liftId: workout.liftId,
+        week: workout.week,
+        actualReps: amrapSet.actualReps,
+        targetReps: amrapSet.targetReps,
+        completedAt: workout.completedAt
+      }
+    })
+    .filter(Boolean)
+    .slice(0, limit)
+}
+
+function getTrainingStateBaseConfig(trainingState) {
+  return TRAINING_STATES[trainingState] || TRAINING_STATES.normal
+}
+
+export function getTrainingStateConfig() {
+  const settings = state.settings || {}
+  const trainingState = settings.trainingState || 'normal'
+  const baseConfig = getTrainingStateBaseConfig(trainingState)
+
+  if (trainingState === 'ill') {
+    const reduction = settings.illModeReductionPercent ?? 10
+    return {
+      ...baseConfig,
+      reductionPercent: reduction,
+      tmMultiplier: Math.max(0.7, (100 - reduction) / 100),
+      sessionsRemaining: null
+    }
+  }
+
+  if (trainingState === 'returning') {
+    const reduction = settings.returningModeReductionPercent ?? 10
+    const sessionTarget = settings.returningSessionTarget || 3
+    const sessionsRemaining = settings.returningSessionsRemaining || sessionTarget
+    return {
+      ...baseConfig,
+      reductionPercent: reduction,
+      tmMultiplier: Math.max(0.75, (100 - reduction) / 100),
+      sessionsRemaining,
+      sessionTarget
+    }
+  }
+
+  return {
+    ...baseConfig,
+    reductionPercent: 0,
+    sessionsRemaining: null
+  }
+}
+
+export function getTrainingStateSummary() {
+  const config = getTrainingStateConfig()
+
+  if (config.id === 'ill') {
+    return {
+      ...config,
+      banner: `Ill mode active: run minimum reps and skip PR pushes`,
+      detail: `${config.reductionPercent}% lighter effective TM, joker sets off, supplemental capped at ${config.supplementalSetCap} sets`
+    }
+  }
+
+  if (config.id === 'returning') {
+    const sessions = config.sessionsRemaining || 0
+    return {
+      ...config,
+      banner: `Returning mode active: ramp back in for ${sessions} more ${sessions === 1 ? 'session' : 'sessions'}`,
+      detail: `${config.reductionPercent}% lighter effective TM until the ramp is complete`
+    }
+  }
+
+  return {
+    ...config,
+    banner: 'Normal training state active',
+    detail: 'Standard 5/3/1 loading and progression'
+  }
+}
+
+export function getCoachInsights() {
+  const settings = state.settings || {}
+  if (!settings.coachModeEnabled) return []
+
+  const insights = []
+  const trainingState = getTrainingStateSummary()
+  const recentWorkouts = getRecentCompletedWorkouts(6)
+  const mostRecentWorkout = recentWorkouts[0]
+  const daysSinceLastWorkout = getDaysSince(mostRecentWorkout?.completedAt)
+  const recentAmraps = getRecentAmrapResults(3)
+  const recentBodyWeight = getBodyWeightHistory().slice(-4)
+
+  if (trainingState.id !== 'normal') {
+    insights.push({
+      tone: 'caution',
+      title: trainingState.label,
+      body: trainingState.detail,
+      action: trainingState.id === 'ill'
+        ? 'Keep progression flat until recovery feels normal again.'
+        : 'Finish the ramp, then return to normal training.'
+    })
+  }
+
+  if (daysSinceLastWorkout !== null && daysSinceLastWorkout >= MINIMUM_REST_DAYS && trainingState.id === 'normal') {
+    insights.push({
+      tone: 'caution',
+      title: 'Long layoff detected',
+      body: `${daysSinceLastWorkout} days since your last workout. Returning mode is the safer default.`,
+      action: 'Use 2-3 conservative sessions before pushing PR work again.'
+    })
+  }
+
+  if (recentAmraps.length >= 2 && recentAmraps.every(entry => entry.actualReps >= entry.targetReps + 2) && trainingState.id === 'normal') {
+    insights.push({
+      tone: 'good',
+      title: 'Performance trend is strong',
+      body: 'Recent AMRAPs are clearing the minimum by 2+ reps.',
+      action: 'Standard TM increases look appropriate.'
+    })
+  }
+
+  if (recentWorkouts.length >= 3) {
+    const hardSessions = recentWorkouts.filter(workout => (workout.rpe || 0) >= 9).length
+    if (hardSessions >= 2 && trainingState.id === 'normal') {
+      insights.push({
+        tone: 'caution',
+        title: 'Fatigue may be building',
+        body: `${hardSessions} of your last ${recentWorkouts.length} workouts were RPE 9+.`,
+        action: 'Consider holding TM or using Ill mode for a lighter week.'
+      })
+    }
+  }
+
+  if (recentBodyWeight.length >= 2) {
+    const first = recentBodyWeight[0].weight
+    const last = recentBodyWeight[recentBodyWeight.length - 1].weight
+    const drop = first - last
+    if (drop >= 3) {
+      insights.push({
+        tone: 'note',
+        title: 'Body weight is trending down',
+        body: `${drop.toFixed(1)} ${settings.unit || 'lbs'} down across recent entries.`,
+        action: 'Watch recovery and top-set performance while cutting.'
+      })
+    }
+  }
+
+  if (insights.length === 0) {
+    insights.push({
+      tone: 'good',
+      title: 'Training looks steady',
+      body: 'No recovery flags in the recent data.',
+      action: 'Keep running the plan and logging AMRAPs for better coaching signals.'
+    })
+  }
+
+  return insights.slice(0, 4)
 }
 
 /**
@@ -189,6 +394,12 @@ export async function finishCycle() {
   const lifts = JSON.parse(JSON.stringify(state.lifts))
   const settings = state.settings
   const unit = settings.unit
+  const trainingState = getTrainingStateConfig()
+
+  if (trainingState.progression === 'hold') {
+    await update({ currentWeek: 1 })
+    return
+  }
 
   // Standard 5/3/1 increments: 5 lbs for upper, 10 lbs for lower
   // For kg: ~2.5 kg for upper, ~5 kg for lower
@@ -459,12 +670,14 @@ export function getLiftData(liftId, week) {
   const settings = state.settings
   const template = lift.template || 'classic'
   const supplementalPercentage = lift.supplementalPercentage || 50
-  const tm = calculateTM(lift.oneRepMax, settings.tmPercentage)
+  const trainingState = getTrainingStateConfig()
+  const baseTM = calculateTM(lift.oneRepMax, settings.tmPercentage)
+  const tm = baseTM * trainingState.tmMultiplier
 
   // Determine supplemental lift (defaults to same lift)
   const supplementalLiftId = lift.supplementalLiftId || liftId
   const supplementalLift = state.lifts[supplementalLiftId]
-  const supplementalTM = calculateTM(supplementalLift.oneRepMax, settings.tmPercentage)
+  const supplementalTM = calculateTM(supplementalLift.oneRepMax, settings.tmPercentage) * trainingState.tmMultiplier
 
   let mainSets
   if (template === '5x531') {
@@ -473,7 +686,14 @@ export function getLiftData(liftId, week) {
     mainSets = generateWorkingSets(tm, week, settings.roundingIncrement, settings.showWarmups, settings.deloadScheme)
   }
 
-  const supplemental = generateSupplementalSets(
+  if (!trainingState.allowAmrap) {
+    mainSets = mainSets.map(set => ({
+      ...set,
+      isAmrap: false
+    }))
+  }
+
+  let supplemental = generateSupplementalSets(
     template,
     supplementalTM,
     week,
@@ -481,11 +701,20 @@ export function getLiftData(liftId, week) {
     settings.roundingIncrement
   )
 
+  if (supplemental && trainingState.supplementalSetCap) {
+    supplemental = {
+      ...supplemental,
+      sets: Math.min(supplemental.sets, trainingState.supplementalSetCap),
+      recoveryAdjusted: true
+    }
+  }
+
   const mobilityProtocol = lift.mobilityProtocolId ? MOBILITY_PROTOCOLS[lift.mobilityProtocolId] : null
 
   return {
     liftId,
     oneRepMax: lift.oneRepMax,
+    baseTrainingMax: baseTM,
     trainingMax: tm,
     unit: settings.unit,
     template,
@@ -494,7 +723,8 @@ export function getLiftData(liftId, week) {
     supplementalLiftId,
     supplementalLiftName: LIFT_NAMES[supplementalLiftId],
     mobility: mobilityProtocol,
-    jokerSetsEnabled: settings.jokerSetsEnabled
+    jokerSetsEnabled: settings.jokerSetsEnabled && trainingState.allowJokers,
+    trainingState
   }
 }
 
@@ -587,6 +817,7 @@ export async function finishWorkout(rpe = null) {
 
   const lift = state.lifts[current.liftId]
   const settings = state.settings
+  const trainingState = getTrainingStateConfig()
   const liftData = getLiftData(current.liftId, current.week)
 
   // Build complete workout record
@@ -633,6 +864,7 @@ export async function finishWorkout(rpe = null) {
     duration,
     oneRepMax: lift.oneRepMax,
     trainingMax: liftData.trainingMax,
+    trainingState: trainingState.id,
     template: lift.template || 'classic',
     unit: settings.unit,
     mainSets: workSets.map((set, idx) => ({
@@ -667,8 +899,18 @@ export async function finishWorkout(rpe = null) {
   const existingHistory = JSON.parse(JSON.stringify(state.workoutHistory || []))
   const workoutHistory = [...existingHistory, workoutRecord]
 
+  let nextSettings = settings
+  if (trainingState.id === 'returning' && (settings.returningSessionsRemaining || 0) > 0) {
+    const sessionsRemaining = Math.max(0, settings.returningSessionsRemaining - 1)
+    nextSettings = {
+      ...settings,
+      returningSessionsRemaining: sessionsRemaining,
+      trainingState: sessionsRemaining === 0 ? 'normal' : 'returning'
+    }
+  }
+
   // Clear current workout and save history
-  await update({ currentWorkout: null, workoutHistory })
+  await update({ currentWorkout: null, workoutHistory, settings: nextSettings })
 
   return workoutRecord
 }
@@ -848,4 +1090,4 @@ export function getDOTSHistory() {
   }).sort((a, b) => new Date(a.date) - new Date(b.date))
 }
 
-export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, workoutToView, setWorkoutToView, TEMPLATES, MOBILITY_PROTOCOLS }
+export { state, showSettings, setShowSettings, amrapModal, setAmrapModal, showProgress, setShowProgress, showCalendar, setShowCalendar, incompleteWorkout, setIncompleteWorkout, workoutToView, setWorkoutToView, TEMPLATES, MOBILITY_PROTOCOLS, TRAINING_STATES }

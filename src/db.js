@@ -31,7 +31,13 @@ export const DEFAULT_DATA = {
     availablePlates: [45, 25, 10, 5, 2.5],
     theme: 'system', // 'system' | 'dark' | 'light'
     deloadScheme: 'standard',
-    jokerSetsEnabled: false
+    jokerSetsEnabled: false,
+    coachModeEnabled: true,
+    trainingState: 'normal',
+    returningSessionsRemaining: 0,
+    returningSessionTarget: 3,
+    illModeReductionPercent: 10,
+    returningModeReductionPercent: 10
   },
   // PR history: array of { liftId, date, weight, reps, estimated1RM, week }
   prHistory: [],

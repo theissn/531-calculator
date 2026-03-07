@@ -21,7 +21,9 @@ import {
   getLatestBodyWeight,
   TEMPLATES,
   MOBILITY_PROTOCOLS,
-  finishCycle
+  finishCycle,
+  TRAINING_STATES,
+  getTrainingStateSummary
 } from '../store.js'
 import { calculateTM, calculateWeight, WEEK_SCHEMES } from '../calculator.js'
 import { haptic } from '../hooks/useMobile.js'
@@ -702,6 +704,7 @@ function AccessoriesManager() {
 export default function Settings() {
   const settings = () => state.settings
   const lifts = () => state.lifts
+  const trainingState = () => getTrainingStateSummary()
 
   const handleClose = () => {
     setShowSettings(false)
@@ -761,6 +764,35 @@ export default function Settings() {
     updateSettings({ jokerSetsEnabled: e.target.checked })
   }
 
+  const handleCoachModeToggle = (e) => {
+    updateSettings({ coachModeEnabled: e.target.checked })
+  }
+
+  const handleTrainingStateChange = (mode) => {
+    const updates = { trainingState: mode }
+
+    if (mode === 'returning') {
+      updates.returningSessionsRemaining = settings().returningSessionTarget || 3
+    }
+
+    if (mode === 'normal') {
+      updates.returningSessionsRemaining = 0
+    }
+
+    updateSettings(updates)
+  }
+
+  const handleReturningTargetChange = (e) => {
+    const sessionTarget = parseInt(e.target.value, 10) || 3
+    const updates = { returningSessionTarget: sessionTarget }
+
+    if (settings().trainingState === 'returning') {
+      updates.returningSessionsRemaining = sessionTarget
+    }
+
+    updateSettings(updates)
+  }
+
   const handleExport = () => {
     haptic()
     const data = exportData()
@@ -802,7 +834,11 @@ export default function Settings() {
   }
 
   const handleFinishCycle = async () => {
-    if (confirm('Finish this cycle? This will increase your Training Maxes and reset to Week 1.')) {
+    const message = trainingState().progression === 'hold'
+      ? 'Finish this cycle? Recovery mode is active, so Training Maxes will stay the same and you will return to Week 1.'
+      : 'Finish this cycle? This will increase your Training Maxes and reset to Week 1.'
+
+    if (confirm(message)) {
       haptic()
       await finishCycle()
       handleClose()
@@ -832,7 +868,7 @@ export default function Settings() {
                 class="w-full py-3 bg-primary text-primary-content font-bold font-mono uppercase tracking-widest hover:opacity-90 transition-opacity border-b-4 border-black/20 active:border-b-0 active:translate-y-1"
                 onClick={handleFinishCycle}
               >
-                Finish Cycle & Increment TMs
+                {trainingState().progression === 'hold' ? 'Finish Cycle & Hold TMs' : 'Finish Cycle & Increment TMs'}
               </button>
             </Show>
 
@@ -938,6 +974,79 @@ export default function Settings() {
                       <option value="1">1</option>
                     </select>
                   </label>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 class="text-xs font-bold text-text-muted font-mono uppercase tracking-wider mb-3">Coach & Recovery</h3>
+              <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
+                <div class="p-3 border-b border-border">
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <div class="flex flex-col gap-1">
+                      <span class="font-mono uppercase text-xs group-hover:text-text transition-colors">Coach Mode</span>
+                      <span class="text-[10px] text-text-dim font-mono uppercase">Show recovery and progression guidance</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings().coachModeEnabled}
+                      onChange={handleCoachModeToggle}
+                      class="w-4 h-4 accent-current rounded-none cursor-pointer"
+                    />
+                  </label>
+                </div>
+
+                <div class="p-3 border-b border-border space-y-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="font-mono uppercase text-xs">Training State</span>
+                    <div class="flex border border-border bg-bg overflow-hidden">
+                      <For each={Object.values(TRAINING_STATES)}>
+                        {(mode) => (
+                          <button
+                            class={`px-2.5 py-1 text-[10px] font-mono uppercase ${settings().trainingState === mode.id ? 'bg-bg-hover text-text font-bold' : 'text-text-dim hover:text-text'}`}
+                            onClick={() => handleTrainingStateChange(mode.id)}
+                          >
+                            {mode.shortLabel}
+                          </button>
+                        )}
+                      </For>
+                    </div>
+                  </div>
+
+                  <div class="border border-border bg-bg p-2.5 space-y-1.5">
+                    <div class="flex items-center justify-between gap-3">
+                      <span class="text-[10px] font-bold font-mono uppercase text-text-muted">{trainingState().label}</span>
+                      <Show when={trainingState().id === 'returning'}>
+                        <span class="text-[10px] font-mono uppercase text-primary">
+                          {trainingState().sessionsRemaining} sessions left
+                        </span>
+                      </Show>
+                    </div>
+                    <div class="text-[11px] text-text-muted font-mono">{trainingState().detail}</div>
+                  </div>
+                </div>
+
+                <Show when={settings().trainingState === 'returning'}>
+                  <div class="p-3 border-b border-border">
+                    <label class="flex items-center justify-between">
+                      <span class="text-xs font-mono uppercase">Ramp Sessions</span>
+                      <select
+                        class="bg-bg border border-border rounded-none px-2 py-1 text-xs font-mono focus:outline-none focus:border-text"
+                        value={settings().returningSessionTarget || 3}
+                        onChange={handleReturningTargetChange}
+                      >
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                      </select>
+                    </label>
+                  </div>
+                </Show>
+
+                <div class="p-3 text-[10px] text-text-dim font-mono uppercase">
+                  Ill and returning modes pause TM increases, disable joker sets, and remove PR pressure.
                 </div>
               </div>
             </section>

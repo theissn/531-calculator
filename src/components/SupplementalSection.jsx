@@ -36,6 +36,9 @@ export default function SupplementalSection(props) {
           <Show when={props.supplementalLiftId && props.supplementalLiftId !== props.liftId}>
             {' '}{props.supplementalLiftName}
           </Show>
+          <Show when={props.supplemental.recoveryAdjusted}>
+            <span class="ml-2 text-primary">RECOVERY CAP</span>
+          </Show>
         </span>
         <div class="px-2 py-px border border-border text-[10px] font-bold font-mono text-text-dim uppercase">
           {completedCount()}/{totalSets} SETS

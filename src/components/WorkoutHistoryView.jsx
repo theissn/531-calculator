@@ -72,6 +72,11 @@ function WorkoutCard(props) {
             <span class="text-xs text-text-dim bg-bg-hover px-1.5 py-0.5 rounded-none font-mono">
               Week {workout().week}
             </span>
+            <Show when={workout().trainingState && workout().trainingState !== 'normal'}>
+              <span class="text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-none font-mono uppercase">
+                {workout().trainingState}
+              </span>
+            </Show>
           </div>
           <div class="text-sm text-text-muted mt-0.5 font-mono">
             {formatDate(workout().completedAt)} at {formatTime(workout().completedAt)}

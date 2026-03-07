@@ -14,7 +14,9 @@ import {
   getLatestBodyWeight,
   getTonnageHistory,
   getDOTSHistory,
-  LIFT_NAMES
+  LIFT_NAMES,
+  getCoachInsights,
+  getTrainingStateSummary
 } from '../store.js'
 import { haptic } from '../hooks/useMobile.js'
 import WorkoutHistoryView from './WorkoutHistoryView.jsx'
@@ -343,6 +345,42 @@ function AnalyticsView() {
   )
 }
 
+function CoachModeCard() {
+  const insights = createMemo(() => getCoachInsights())
+  const trainingState = () => getTrainingStateSummary()
+
+  const toneClass = (tone) => {
+    if (tone === 'good') return 'text-green-400 border-green-900/40 bg-green-950/20'
+    if (tone === 'caution') return 'text-amber-300 border-amber-900/40 bg-amber-950/20'
+    return 'text-text-muted border-border bg-bg'
+  }
+
+  return (
+    <div class="bg-bg-card border border-border rounded-none overflow-hidden hover:border-text/50 transition-colors">
+      <div class="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+        <h3 class="font-bold font-mono uppercase">Coach Mode</h3>
+        <span class="text-[10px] font-mono uppercase text-primary">{trainingState().label}</span>
+      </div>
+
+      <div class="p-4 space-y-3">
+        <div class="text-xs text-text-muted font-mono uppercase tracking-wider">
+          {trainingState().banner}
+        </div>
+
+        <For each={insights()}>
+          {(insight) => (
+            <div class={`border p-3 space-y-1.5 ${toneClass(insight.tone)}`}>
+              <div class="text-[10px] font-bold font-mono uppercase tracking-wider">{insight.title}</div>
+              <div class="text-sm text-text">{insight.body}</div>
+              <div class="text-[11px] font-mono text-text-dim">{insight.action}</div>
+            </div>
+          )}
+        </For>
+      </div>
+    </div>
+  )
+}
+
 function LiftProgressCard(props) {
   const tmData = createMemo(() => {
     const history = getTMHistory(props.liftId)
@@ -483,6 +521,9 @@ export default function Progress() {
 
             {/* Per-lift view */}
             <Show when={view() === 'per-lift'}>
+              <Show when={state.settings?.coachModeEnabled}>
+                <CoachModeCard />
+              </Show>
               <BodyWeightCard />
               <For each={['squat', 'bench', 'deadlift', 'ohp']}>
                 {(liftId) => <LiftProgressCard liftId={liftId} />}

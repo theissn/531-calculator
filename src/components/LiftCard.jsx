@@ -75,6 +75,7 @@ export default function LiftCard(props) {
     (props.lift.unit === 'kg' ? DEFAULT_PLATES_KG : DEFAULT_PLATES_LBS)
 
   const showWarmupPlates = () => state.settings?.showWarmupPlates ?? true
+  const trainingState = () => props.lift.trainingState
 
   const getPlates = (weight, isWarmup = false) => {
     if (!showPlates()) return null
@@ -103,6 +104,20 @@ export default function LiftCard(props) {
             <span class="text-[9px] text-text-dim">{props.lift.unit}</span>
           </div>
         </div>
+
+        <Show when={trainingState()?.id !== 'normal'}>
+          <div class={`mb-3 border px-2.5 py-2 font-mono ${trainingState()?.id === 'ill' ? 'border-amber-900/40 bg-amber-950/20 text-amber-200' : 'border-blue-900/40 bg-blue-950/20 text-blue-200'}`}>
+            <div class="flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-widest">
+              <span>{trainingState()?.label}</span>
+              <Show when={trainingState()?.id === 'returning'}>
+                <span>{trainingState()?.sessionsRemaining} left</span>
+              </Show>
+            </div>
+            <div class="mt-1 text-[11px] text-current/80">
+              {trainingState()?.allowAmrap ? 'Standard top set active.' : 'PR sets disabled. Hit the minimum and move on.'}
+            </div>
+          </div>
+        </Show>
 
         <Show when={props.lift.mobility}>
           <div class="mb-3">
